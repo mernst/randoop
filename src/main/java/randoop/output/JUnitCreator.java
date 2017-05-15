@@ -4,7 +4,6 @@ import static randoop.output.NameGenerator.numDigits;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
-import com.github.javaparser.TokenMgrError;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.PackageDeclaration;
@@ -289,6 +288,7 @@ public class JUnitCreator {
     statements.add(new IfStmt(new NameExpr("debug"), new ExpressionStmt(call), null));
 
     //TODO make sequence generate list of JavaParser statements
+    /*
     String sequenceBlockString = "{ " + testSequence.toCodeString() + " }";
     try {
       BlockStmt sequenceBlock = JavaParser.parseBlock(sequenceBlockString);
@@ -305,6 +305,9 @@ public class JUnitCreator {
       System.out.println(sequenceBlockString);
       return null;
     }
+    */
+
+    testSequence.apply(new ASTCodeBuilder(statements));
 
     body.setStmts(statements);
     method.setBody(body);

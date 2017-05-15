@@ -1,5 +1,6 @@
 package randoop.sequence;
 
+import com.github.javaparser.ast.stmt.BlockStmt;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import randoop.Globals;
 import randoop.NormalExecution;
 import randoop.NotExecuted;
 import randoop.main.GenInputsAbstract;
+import randoop.output.CodeBuilder;
 import randoop.test.Check;
 import randoop.test.TestCheckGenerator;
 import randoop.test.TestChecks;
@@ -111,6 +113,7 @@ public class ExecutableSequence {
   private static PrintStream ps_output_buffer = new PrintStream(output_buffer);
 
   private IdentityMultiMap<Object, Variable> variableMap;
+  private BlockStmt codeBlock;
 
   /**
    * Create an executable sequence that executes the given sequence.
@@ -219,6 +222,24 @@ public class ExecutableSequence {
     StringBuilder oneStatement = new StringBuilder();
     sequence.appendCode(oneStatement, i);
     return oneStatement.toString();
+  }
+
+  public void apply(CodeBuilder builder) {
+    int i = 0;
+    for (; i < sequence.size() - 1; i++) {
+      if (sequence.canUseShortForm() && sequence.getStatement(i).getShortForm() != null) {
+        continue;
+      }
+      builder.addStatement(
+          sequence.getStatement(i), sequence.getVariable(i), sequence.getInputs(i));
+    }
+    if (checks == null) {
+      builder.addStatement(
+          sequence.getStatement(i), sequence.getVariable(i), sequence.getInputs(i));
+    } else {
+      builder.addStatement(
+          sequence.getStatement(i), sequence.getVariable(i), sequence.getInputs(i), checks);
+    }
   }
 
   /**

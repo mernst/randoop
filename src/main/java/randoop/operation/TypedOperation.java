@@ -1,5 +1,6 @@
 package randoop.operation;
 
+import com.github.javaparser.ast.expr.Expression;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -40,6 +41,8 @@ public abstract class TypedOperation implements Operation, Comparable<TypedOpera
 
   /** The output type. */
   private final Type outputType;
+
+  private Expression expr;
 
   /**
    * Create typed operation for the given {@link Operation}.

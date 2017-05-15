@@ -10,6 +10,7 @@ import randoop.operation.Operation;
 import randoop.operation.OperationParser;
 import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
+import randoop.output.CodeBuilder;
 import randoop.sequence.Sequence.RelativeNegativeIndex;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
@@ -130,6 +131,15 @@ public final class Statement {
 
   public String toString() {
     return "Statement [ " + operation + "]";
+  }
+
+  public void apply(CodeBuilder builder, Variable variable, List<Variable> inputs) {
+    Type type = operation.getOutputType();
+    if (type.isVoid()) {
+      builder.addStatement(operation, inputs);
+    } else {
+      builder.addStatement(variable, operation, inputs);
+    }
   }
 
   /**
