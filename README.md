@@ -1,3 +1,11 @@
+# THIS IS A PARTIALLY IMPLEMENTED BRANCH
+
+The goal of this branch is to eliminate errors that occur due to how `Sequence`
+code is translated into JavaParser ASTs. The strategy at the moment is to
+construct the AST for the test class, and then parse the source text generated
+by `Sequence`. Sometimes this parse doesn't terminate.  This branch introduces a 
+visitor pattern with visitors that build the AST directly.
+
 # Randoop
 
 Randoop is a unit test generator for Java.
