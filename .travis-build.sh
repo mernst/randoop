@@ -8,7 +8,7 @@ if [[ "${GROUP}" == "" ]]; then
   export GROUP=all
 fi
 
-if [[ "${GROUP}" != "all" && "${GROUP}" != "test" && "${GROUP}" != "misc" ]]; then
+if [[ "${GROUP}" != "all" && "${GROUP}" != "test" && "${GROUP}" != "misc" && "${GROUP}" != "diff" ]]; then
   echo "Bad argument '${GROUP}'; should be omitted or one of: all, test, misc"
   exit 1
 fi
@@ -50,6 +50,18 @@ fi
 if [[ "${GROUP}" == "misc" || "${GROUP}" == "all" ]]; then
   ./gradlew javadoc
   ./gradlew manual
+fi
+
+## TODO: merge into "misc" once it is working.
+if [[ "${GROUP}" == "diff" || "${GROUP}" == "all" ]]; then
+  echo "TRAVIS_BRANCH = $TRAVIS_BRANCH"
+  (git diff HEAD...$TRAVIS_BRANCH > /tmp/diff.txt 2>&1) || true
+  (./gradlew requireJavadoc > /tmp/output.txt 2>&1) || true
+  ls -l /tmp
+  echo "/tmp/diff.txt"
+  cat /tmp/diff.txt
+  echo "difffilter output:"
+  /root/vendor/bin/diffFilter --pylint /tmp/diff.txt /tmp/output.txt
 fi
 
 ## TODO Re-enable codecov.io code coverage tests.
