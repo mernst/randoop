@@ -24,6 +24,8 @@ public class Main {
     handlers.add(new Minimize());
   }
 
+  void baz() {}
+
   // The main method simply calls nonStaticMain.
   public static void main(String[] args) {
 
@@ -31,6 +33,9 @@ public class Main {
     main.nonStaticMain(args);
     System.exit(0);
   }
+
+  /** Has javadoc */
+  void bar() {}
 
   // The real entry point of Main.
   public void nonStaticMain(String[] args) {
@@ -126,4 +131,6 @@ public class Main {
       }
     }
   }
+
+  void foo() {}
 }
