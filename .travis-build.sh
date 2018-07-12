@@ -55,11 +55,12 @@ fi
 ## TODO: merge into "misc" once it is working.
 if [[ "${GROUP}" == "diff" || "${GROUP}" == "all" ]]; then
   echo "TRAVIS_BRANCH = $TRAVIS_BRANCH"
-  (git diff HEAD...$TRAVIS_BRANCH > /tmp/diff.txt 2>&1) || true
+  (git diff $(git merge-base origin/master...HEAD) > /tmp/diff.txt 2>&1) || true
   (./gradlew requireJavadoc > /tmp/output.txt 2>&1) || true
   ls -l /tmp
   echo "/tmp/diff.txt"
   cat /tmp/diff.txt
+  [ -s /tmp/diff.txt ] || (echo "/tmp/diff.txt is empty" && false)
   echo "difffilter output:"
   /root/vendor/bin/diffFilter --pylint /tmp/diff.txt /tmp/output.txt
 fi
