@@ -104,6 +104,8 @@ public class ForwardGenerator extends AbstractGenerator {
       case UNIFORM:
         inputSequenceSelector = new UniformRandomSequenceSelection();
         break;
+      case ORIENTEERING:
+        inputSequenceSelector = new OrienteeringSelection();
       default:
         throw new Error(
             "Case statement does not handle all InputSelectionModes: "
@@ -136,11 +138,14 @@ public class ForwardGenerator extends AbstractGenerator {
       componentManager.clearGeneratedSequences();
     }
 
-    ExecutableSequence eSeq = createNewUniqueSequence();
+    ExecutableSequenceAndInputSequences eSeqWithInputs = createNewUniqueSequence();
 
-    if (eSeq == null) {
+    if (eSeqWithInputs == null) {
       return null;
     }
+
+    ExecutableSequence eSeq = eSeqWithInputs.executableSequence;
+    List<Sequence> inputSequencesForNewSequence = eSeqWithInputs.inputSequences;
 
     if (GenInputsAbstract.dontexecute) {
       this.componentManager.addGeneratedSequence(eSeq.sequence);
@@ -154,6 +159,8 @@ public class ForwardGenerator extends AbstractGenerator {
     eSeq.execute(executionVisitor, checkGenerator);
 
     startTime = System.nanoTime(); // reset start time.
+
+    inputSequenceSelector.createdExecutableSequenceFromInputs(inputSequencesForNewSequence, eSeq);
 
     determineActiveIndices(eSeq);
 
@@ -292,9 +299,9 @@ public class ForwardGenerator extends AbstractGenerator {
    *   <li>it creates a duplicate sequence
    * </ul>
    *
-   * @return a new sequence, or null
+   * @return a new sequence with its input sequences, or null
    */
-  private ExecutableSequence createNewUniqueSequence() {
+  private ExecutableSequenceAndInputSequences createNewUniqueSequence() {
 
     Log.logPrintf("-------------------------------------------%n");
 
@@ -406,7 +413,8 @@ public class ForwardGenerator extends AbstractGenerator {
     // A test that is a subsequence of the new one is redundant.
     subsumed_sequences.addAll(inputs.sequences);
 
-    return new ExecutableSequence(newSequence);
+    return new ExecutableSequenceAndInputSequences(
+        new ExecutableSequence(newSequence), inputs.sequences);
   }
 
   /**
@@ -835,5 +843,19 @@ public class ForwardGenerator extends AbstractGenerator {
         + ","
         + ("runtimePrimitivesSeen.size()=" + runtimePrimitivesSeen.size())
         + ")";
+  }
+
+  /**
+   * A pair containing an {@link ExecutableSequence} and its corresponding list of input {@link
+   * Sequence}s. Each element of inputSequences is a subsequence of executableSequence.
+   */
+  private static class ExecutableSequenceAndInputSequences {
+    public final ExecutableSequence executableSequence;
+    public final List<Sequence> inputSequences;
+
+    public ExecutableSequenceAndInputSequences(ExecutableSequence eSeq, List<Sequence> inputs) {
+      this.executableSequence = eSeq;
+      this.inputSequences = inputs;
+    }
   }
 }

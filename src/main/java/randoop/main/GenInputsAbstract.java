@@ -539,7 +539,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
     /** Favor shorter sequences. This makes Randoop produce smaller JUnit tests. */
     SMALL_TESTS,
     /** Select sequences uniformly at random. */
-    UNIFORM
+    UNIFORM,
+    /** Bias method selection to favor sequences with lower execution time and size. */
+    ORIENTEERING
   }
 
   /**
@@ -784,6 +786,11 @@ public abstract class GenInputsAbstract extends CommandHandler {
         throw new RandoopUsageError(
             "Invalid parameter combination: --deterministic with --progressintervalmillis");
       }
+    }
+
+    if (deterministic && GenInputsAbstract.input_selection == InputSelectionMode.ORIENTEERING) {
+      throw new RandoopUsageError(
+          "Invalid parameter combination: --deterministic with --input-selection==orienteering");
     }
 
     if (ReflectionExecutor.call_timeout != ReflectionExecutor.CALL_TIMEOUT_DEFAULT
