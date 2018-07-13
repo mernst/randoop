@@ -61,7 +61,7 @@ if [[ "${GROUP}" == "diff" || "${GROUP}" == "all" ]]; then
   (git diff "${TRAVIS_COMMIT_RANGE/.../..}" > /tmp/diff2.txt 2>&1) || true
   # (git diff HEAD...$TRAVIS_BRANCH > /tmp/diff.txt 2>&1) || true
   # (git diff $(git merge-base origin/master...HEAD) > /tmp/diff1.txt 2>&1) || true
-  (./gradlew requireJavadoc > /tmp/output.txt 2>&1) || true
+  (./gradlew requireJavadocPrivate > /tmp/output.txt 2>&1) || true
   ls -l /tmp
   echo "/tmp/diff.txt"
   cat /tmp/diff.txt
@@ -72,7 +72,7 @@ if [[ "${GROUP}" == "diff" || "${GROUP}" == "all" ]]; then
   [ -s /tmp/diff.txt ] || (echo "/tmp/diff.txt is empty" && false)
   echo "difffilter output:"
   wget https://raw.githubusercontent.com/plume-lib/plume-scripts/master/lint-diff.py
-  python lint-diff.py /tmp/diff.txt /tmp/output.txt
+  python lint-diff.py --strip-diff=1 --strip-lint=2 /tmp/diff.txt /tmp/output.txt
 fi
 
 ## TODO Re-enable codecov.io code coverage tests.
