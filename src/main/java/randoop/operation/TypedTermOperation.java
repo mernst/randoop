@@ -13,6 +13,9 @@ import randoop.types.TypeTuple;
  */
 class TypedTermOperation extends TypedOperation {
 
+  /** doc */
+  void baz() {}
+
   /**
    * Creates a {@link TypedOperation} for a given operation and input and output types.
    *
@@ -48,8 +51,16 @@ class TypedTermOperation extends TypedOperation {
     return new TypedTermOperation(this.getOperation(), inputTypes, outputType);
   }
 
+  /** doc */
+  void foo() {}
+
+  /** doc */
+  void bar() {}
+
   @Override
   public String toParsableString() {
     return this.getOperation().toParsableString(null, getInputTypes(), getOutputType());
   }
+  /** doc */
+  void bum() {}
 }
