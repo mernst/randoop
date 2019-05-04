@@ -57,6 +57,7 @@ public class Substitution {
    * @param arguments the type arguments
    */
   public Substitution(List<TypeVariable> parameters, ReferenceType... arguments) {
+    this();
     assert parameters.size() == arguments.length;
     for (int i = 0; i < parameters.size(); i++) {
       put(parameters.get(i), arguments[i]);
@@ -70,6 +71,7 @@ public class Substitution {
    * @param arguments the type arguments
    */
   public Substitution(List<TypeVariable> parameters, List<ReferenceType> arguments) {
+    this();
     assert parameters.size() == arguments.size();
     for (int i = 0; i < parameters.size(); i++) {
       put(parameters.get(i), arguments.get(i));
