@@ -47,8 +47,7 @@ public class Substitution {
    * @param argument the type argument
    */
   public Substitution(TypeVariable parameter, ReferenceType argument) {
-    Substitution s = new Substitution();
-    s.put(parameter, argument);
+    put(parameter, argument);
   }
 
   /**
@@ -59,9 +58,8 @@ public class Substitution {
    */
   public Substitution(List<TypeVariable> parameters, ReferenceType... arguments) {
     assert parameters.size() == arguments.length;
-    Substitution s = new Substitution();
     for (int i = 0; i < parameters.size(); i++) {
-      s.put(parameters.get(i), arguments[i]);
+      put(parameters.get(i), arguments[i]);
     }
   }
 
@@ -73,9 +71,8 @@ public class Substitution {
    */
   public Substitution(List<TypeVariable> parameters, List<ReferenceType> arguments) {
     assert parameters.size() == arguments.size();
-    Substitution s = new Substitution();
     for (int i = 0; i < parameters.size(); i++) {
-      s.put(parameters.get(i), arguments.get(i));
+      put(parameters.get(i), arguments.get(i));
     }
   }
 
