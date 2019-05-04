@@ -45,12 +45,9 @@ public class Substitution {
    *
    * @param parameter the type parameter
    * @param argument the type argument
-   * @return a one-element mapping
    */
-  public static Substitution forArg(TypeVariable parameter, ReferenceType argument) {
-    Substitution s = new Substitution();
-    s.put(parameter, argument);
-    return s;
+  public Substitution(TypeVariable parameter, ReferenceType argument) {
+    put(parameter, argument);
   }
 
   /**
@@ -58,15 +55,12 @@ public class Substitution {
    *
    * @param parameters the type parameters
    * @param arguments the type arguments
-   * @return a substitution that maps each type parameters to the corresponding type argument
    */
-  public static Substitution forArgs(List<TypeVariable> parameters, ReferenceType... arguments) {
+  public Substitution(List<TypeVariable> parameters, ReferenceType... arguments) {
     assert parameters.size() == arguments.length;
-    Substitution s = new Substitution();
     for (int i = 0; i < parameters.size(); i++) {
-      s.put(parameters.get(i), arguments[i]);
+      put(parameters.get(i), arguments[i]);
     }
-    return s;
   }
 
   /**
@@ -74,15 +68,12 @@ public class Substitution {
    *
    * @param parameters the type parameters
    * @param arguments the type arguments
-   * @return a substitution that maps each type parameters to the corresponding type argument
    */
-  public static Substitution forArgs(List<TypeVariable> parameters, List<ReferenceType> arguments) {
+  public Substitution(List<TypeVariable> parameters, List<ReferenceType> arguments) {
     assert parameters.size() == arguments.size();
-    Substitution s = new Substitution();
     for (int i = 0; i < parameters.size(); i++) {
-      s.put(parameters.get(i), arguments.get(i));
+      put(parameters.get(i), arguments.get(i));
     }
-    return s;
   }
 
   /**
@@ -200,8 +191,7 @@ public class Substitution {
   }
 
   /**
-   * Add a type variable to concrete type mapping to the substitution. Only called by {@link
-   * #forArgs(List, List)} and {@link #forArgs(List, ReferenceType[])}.
+   * Add a type variable to concrete type mapping to the substitution.
    *
    * @param typeParameter the type variable
    * @param type the concrete type

@@ -140,8 +140,7 @@ public class TypeInstantiator {
       return null;
     }
     TypeArgument argumentType = searchType.substitute(substitution).getTypeArguments().get(0);
-    return Substitution.forArgs(
-        typeParameters, ((ReferenceArgument) argumentType).getReferenceType());
+    return new Substitution(typeParameters, ((ReferenceArgument) argumentType).getReferenceType());
   }
 
   /**
@@ -347,7 +346,7 @@ public class TypeInstantiator {
         for (List<ReferenceType> tuple : iteratorToIterable(new ListIterator<>(nongenCandidates))) {
           // choose instantiating substitution for non-generic bounded parameters
           Substitution initialSubstitution =
-              substitution.extend(Substitution.forArgs(nongenericParameters, tuple));
+              substitution.extend(new Substitution(nongenericParameters, tuple));
           // apply selected substitution to all generic-bounded parameters
           List<TypeVariable> parameters = new ArrayList<>();
           for (TypeVariable variable : genericParameters) {
@@ -414,7 +413,7 @@ public class TypeInstantiator {
       }
       selectedTypes.add(Randomness.randomMember(candidates));
     }
-    return substitution.extend(Substitution.forArgs(parameters, selectedTypes));
+    return substitution.extend(new Substitution(parameters, selectedTypes));
   }
 
   /**
@@ -437,7 +436,7 @@ public class TypeInstantiator {
       return new ArrayList<>();
     }
     for (List<ReferenceType> tuple : iteratorToIterable(new ListIterator<>(candidateTypes))) {
-      Substitution partialSubstitution = Substitution.forArgs(parameters, tuple);
+      Substitution partialSubstitution = new Substitution(parameters, tuple);
       Substitution substitution = initialSubstitution.extend(partialSubstitution);
       if (typeCheck.test(tuple, substitution)) {
         substitutionList.add(substitution);
@@ -485,7 +484,7 @@ public class TypeInstantiator {
     for (Type inputType : inputTypes) {
       if (inputType.isReferenceType()) {
         ReferenceType inputRefType = (ReferenceType) inputType;
-        Substitution substitution = Substitution.forArgs(typeVariableList, inputRefType);
+        Substitution substitution = new Substitution(typeVariableList, inputRefType);
         if (lowerBound.isLowerBound(inputRefType, substitution)
             && upperBound.isUpperBound(inputRefType, substitution)) {
           typeList.add(inputRefType);
