@@ -72,7 +72,7 @@ class LazyParameterBound extends ParameterBound {
       List<TypeArgument> argumentList = new ArrayList<>();
       for (java.lang.reflect.Type parameter :
           ((ParameterizedType) boundType).getActualTypeArguments()) {
-        TypeArgument typeArgument = apply(parameter, substitution);
+        TypeArgument typeArgument = substitute(parameter, substitution);
         if (typeArgument == null) {
           return this;
         }
@@ -101,7 +101,7 @@ class LazyParameterBound extends ParameterBound {
    * @param substitution the type substitution
    * @return the type argument
    */
-  private static TypeArgument apply(java.lang.reflect.Type type, Substitution substitution) {
+  private static TypeArgument substitute(java.lang.reflect.Type type, Substitution substitution) {
     if (type instanceof java.lang.reflect.TypeVariable) {
       ReferenceType referenceType = substitution.get(type);
       if (referenceType != null) {
@@ -113,7 +113,7 @@ class LazyParameterBound extends ParameterBound {
     if (type instanceof java.lang.reflect.ParameterizedType) {
       List<TypeArgument> argumentList = new ArrayList<>();
       for (java.lang.reflect.Type parameter : ((ParameterizedType) type).getActualTypeArguments()) {
-        TypeArgument paramType = apply(parameter, substitution);
+        TypeArgument paramType = substitute(parameter, substitution);
         argumentList.add(paramType);
       }
       GenericClassType classType =
