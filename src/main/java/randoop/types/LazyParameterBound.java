@@ -52,7 +52,7 @@ class LazyParameterBound extends ParameterBound {
   }
 
   @Override
-  public ParameterBound apply(Substitution substitution) {
+  public ParameterBound substitute(Substitution substitution) {
     if (substitution.isEmpty()) {
       return this;
     }
@@ -143,7 +143,7 @@ class LazyParameterBound extends ParameterBound {
         } else {
           bound =
               ParameterBound.forType(new HashSet<java.lang.reflect.TypeVariable<?>>(), lowerBound)
-                  .apply(substitution);
+                  .substitute(substitution);
         }
 
         return new WildcardArgument(new WildcardType(bound, false));
@@ -154,7 +154,7 @@ class LazyParameterBound extends ParameterBound {
       ParameterBound bound =
           ParameterBound.forTypes(
               new HashSet<java.lang.reflect.TypeVariable<?>>(), wildcardType.getUpperBounds());
-      bound = bound.apply(substitution);
+      bound = bound.substitute(substitution);
       return new WildcardArgument(new WildcardType(bound, true));
     }
 
@@ -234,7 +234,7 @@ class LazyParameterBound extends ParameterBound {
 
   @Override
   public boolean isLowerBound(Type argType, Substitution substitution) {
-    ParameterBound b = this.apply(substitution);
+    ParameterBound b = this.substitute(substitution);
     if (b.equals(this)) {
       throw new IllegalArgumentException(
           "substitution " + substitution + " does not instantiate " + this);
@@ -261,7 +261,7 @@ class LazyParameterBound extends ParameterBound {
    */
   @Override
   public boolean isUpperBound(Type argType, Substitution substitution) {
-    ParameterBound b = this.apply(substitution);
+    ParameterBound b = this.substitute(substitution);
     if (b.equals(this)) {
       throw new IllegalArgumentException(
           "substitution " + substitution + " does not instantiate " + this);
