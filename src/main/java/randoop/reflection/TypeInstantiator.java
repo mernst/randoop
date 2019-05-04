@@ -47,7 +47,7 @@ public class TypeInstantiator {
 
   public TypedClassOperation instantiate(TypedClassOperation operation) {
     assert operation.isGeneric() || operation.hasWildcardTypes()
-        : "operation must be generic or have wildcards";
+        : "operation " + operation + " must be generic or have wildcards";
 
     // Need to allow for backtracking, because choice of instantiation for declaring type may fail
     // for generic operation --- OR maybe not.
@@ -63,7 +63,7 @@ public class TypeInstantiator {
         if (declaringType.isSubtypeOf(JDKTypes.SORTED_SET_TYPE)) {
           substitution = instantiateSortedSetType(operation);
         } else {
-          substitution = instantiateDeclaringClass(declaringType);
+          substitution = instantiateClass(declaringType);
         }
       } else { // otherwise, select from existing one
         substitution = selectMatch(declaringType);
@@ -93,68 +93,68 @@ public class TypeInstantiator {
    * Returns a substitution that instantiates the {@code SortedSet} type of the given constructor. A
    * {@code SortedSet} may be built so that the element type {@code E} is ordered either explicitly
    * with a {@code Comparator<E>}, or the element type satisfies {@code E implements Comparable<E>}.
-   * The {@code SortedSet} documentation indicates that there should be four constructors, each of
-   * which indicates the order to be used and so constrains the element type.
    *
-   * @param operation the constructor for the {@code SortedSet} subtype to be instantiated
+   * @param operation a constructor to be instantiated, for a class that implements {@code
+   *     SortedSet}
    * @return the substitution to instantiate the element type of the {@code SortedSet} type
    */
   private Substitution instantiateSortedSetType(TypedClassOperation operation) {
     assert operation.isConstructorCall() : "only call with constructors of SortedSet subtype";
 
-    TypeVariable parameter = operation.getDeclaringType().getTypeParameters().get(0);
-    List<TypeVariable> parameters = Collections.singletonList(parameter);
+    // TODO: we have no guaranteed that there is a type parameter.
+    // For example, "class MyClass implements SortedSet<String>".
+    // TODO: we have no guarantee that the first type parameter is the set element type.
+    // For example, "class MyClass<A, B> implements SortedSet<B>".
+    TypeVariable typeParameter = operation.getDeclaringType().getTypeParameters().get(0);
+    List<TypeVariable> typeParameters = Collections.singletonList(typeParameter);
 
     TypeTuple opInputTypes = operation.getInputTypes();
 
-    // this is default constructor, choose a type E that is Comparable<E>
+    // There are four constructors in the SortedSet interface.
+
+    // This is the default constructor, choose a type E that is Comparable<E>.
     if (opInputTypes.isEmpty()) {
-      return getSearchTypeSubstitution(JavaTypes.COMPARABLE_TYPE, parameters);
-    }
-
-    if (opInputTypes.size() == 1) {
+      return getSearchTypeSubstitution(JavaTypes.COMPARABLE_TYPE, typeParameters);
+    } else if (opInputTypes.size() == 1) {
       ClassOrInterfaceType inputType = (ClassOrInterfaceType) opInputTypes.get(0);
-
-      // this constructor has Comparator<E> arg, choose type E with Comparator<E> in sequence types
       if (inputType.isInstantiationOf(JDKTypes.COMPARATOR_TYPE)) {
-        return getSearchTypeSubstitution(JDKTypes.COMPARATOR_TYPE, parameters);
-      }
-
-      // this constructor has Collection<E> arg, choose type E that is Comparable<E>
-      if (inputType.isInstantiationOf(JDKTypes.COLLECTION_TYPE)) {
-        return getSearchTypeSubstitution(JavaTypes.COMPARABLE_TYPE, parameters);
-      }
-
-      // this constructor has SortedSet<E> arg, choose existing matching type
-      if (inputType.isInstantiationOf(JDKTypes.SORTED_SET_TYPE)) {
-        return getSearchTypeSubstitution(JDKTypes.SORTED_SET_TYPE, parameters);
+        // This constructor has Comparator<E> arg, choose type E with Comparator<E>.
+        return getSearchTypeSubstitution(JDKTypes.COMPARATOR_TYPE, typeParameters);
+      } else if (inputType.isInstantiationOf(JDKTypes.COLLECTION_TYPE)) {
+        // This constructor has Collection<E> arg, choose type E that is Comparable<E>.
+        return getSearchTypeSubstitution(JavaTypes.COMPARABLE_TYPE, typeParameters);
+      } else if (inputType.isInstantiationOf(JDKTypes.SORTED_SET_TYPE)) {
+        // This constructor has SortedSet<E> arg, choose existing matching type.
+        return getSearchTypeSubstitution(JDKTypes.SORTED_SET_TYPE, typeParameters);
       }
     }
 
+    // This isn't one of the four standard SortedSet constructors.  We don't know what to do.
     return null;
   }
 
   private Substitution getSearchTypeSubstitution(
-      GenericClassType searchType, List<TypeVariable> parameters) {
+      GenericClassType searchType, List<TypeVariable> typeParameters) {
     Substitution substitution = selectMatch(searchType);
     if (substitution == null) {
       return null;
     }
     TypeArgument argumentType = searchType.substitute(substitution).getTypeArguments().get(0);
-    return Substitution.forArgs(parameters, ((ReferenceArgument) argumentType).getReferenceType());
+    return Substitution.forArgs(
+        typeParameters, ((ReferenceArgument) argumentType).getReferenceType());
   }
 
   /**
-   * Chooses an instantiating substitution for the given declaring class. Performs a coin flip to
-   * determine whether to use a previous instantiation, or to create a new one. Either way, if a new
-   * instantiating substitution is required, uses {@link #selectSubstitution(List, Substitution)} to
-   * construct and choose one. Verifies that all of the type parameters of the declaring type are
-   * instantiated, and logs failure if not.
+   * Chooses an instantiating substitution for the given class. Performs a coin flip to determine
+   * whether to use a previous instantiation, or to create a new one. If a new instantiating
+   * substitution is required, uses {@link #selectSubstitution(List, Substitution)} to construct and
+   * choose one. Verifies that all of the type parameters of the type are instantiated, and logs
+   * failure if not.
    *
    * @param type the type to be instantiated
    * @return a substitution instantiating the given type; null if none is found
    */
-  private Substitution instantiateDeclaringClass(ClassOrInterfaceType type) {
+  private Substitution instantiateClass(ClassOrInterfaceType type) {
     if (Randomness.weightedCoinFlip(0.5)) {
       Substitution substitution = selectMatch(type);
       if (substitution != null) {
@@ -181,35 +181,35 @@ public class TypeInstantiator {
    * The pattern type makes it possible to select matches for partial instantiations of a generic
    * type.
    *
-   * @param declaringType the generic type for which an instantiation is to be found
+   * @param type the generic type for which an instantiation is to be found
    * @param patternType the generic type from which match is to be determined, must be instantiation
-   *     of {@code declaringType}
+   *     of {@code type}
    * @return a substitution instantiating given type as an existing type; null if no such type
    */
-  private Substitution selectMatch(
-      ClassOrInterfaceType declaringType, ClassOrInterfaceType patternType) {
+  private Substitution selectMatch(ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
     List<InstantiatedType> matches = new ArrayList<>();
-    for (Type type : inputTypes) {
-      if (type.isInstantiatedType() && ((InstantiatedType) type).isInstantiationOf(patternType)) {
-        matches.add((InstantiatedType) type);
+    for (Type inputType : inputTypes) {
+      if (type.isInstantiatedType()
+          && ((InstantiatedType) inputType).isInstantiationOf(patternType)) {
+        matches.add((InstantiatedType) inputType);
       }
     }
     if (matches.isEmpty()) {
       return null;
     }
     InstantiatedType selectedType = Randomness.randomSetMember(matches);
-    return selectedType.getInstantiatingSubstitution(declaringType);
+    return selectedType.getInstantiatingSubstitution(type);
   }
 
   /**
    * Selects an existing type that instantiates the given generic declaring type and returns the
    * instantiating substitution.
    *
-   * @param declaringType the generic type for which an instantiation is to be found
+   * @param type the generic type for which an instantiation is to be found
    * @return a substitution instantiating the given type as an existing type; null if no such type
    */
-  private Substitution selectMatch(ClassOrInterfaceType declaringType) {
-    return selectMatch(declaringType, declaringType);
+  private Substitution selectMatch(ClassOrInterfaceType type) {
+    return selectMatch(type, type);
   }
 
   /**
