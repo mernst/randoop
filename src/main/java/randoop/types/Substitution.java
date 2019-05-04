@@ -144,8 +144,20 @@ public class Substitution {
       };
 
   /**
-   * Creates a new substitution tat contains the entries of two substitutions. If both substitutions
-   * contain the same type variable, they must map to the same type.
+   * Creates a new substitution that contains the entries of this substitution, extended by the
+   * given mappings. If both contain the same type variable, they must map to the same type.
+   *
+   * @param parameters the type parameters
+   * @param arguments the type arguments
+   * @return a new substitution that is this substitution extended by the given mappings
+   */
+  public Substitution extend(List<TypeVariable> parameters, List<ReferenceType> arguments) {
+    return extend(Substitution.forArgs(parameters, arguments));
+  }
+
+  /**
+   * Creates a new substitution that contains the entries of two substitutions. If both
+   * substitutions contain the same type variable, they must map to the same type.
    *
    * @param other the substitution to add to this substitution
    * @return a new substitution that is this substitution extended by the given substitution

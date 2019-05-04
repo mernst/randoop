@@ -346,8 +346,7 @@ public class TypeInstantiator {
         }
         for (List<ReferenceType> tuple : iteratorToIterable(new ListIterator<>(nongenCandidates))) {
           // choose instantiating substitution for non-generic bounded parameters
-          Substitution initialSubstitution =
-              substitution.extend(Substitution.forArgs(nongenericParameters, tuple));
+          Substitution initialSubstitution = substitution.extend(nongenericParameters, tuple);
           // apply selected substitution to all generic-bounded parameters
           List<TypeVariable> parameters = new ArrayList<>();
           for (TypeVariable variable : genericParameters) {
@@ -414,7 +413,7 @@ public class TypeInstantiator {
       }
       selectedTypes.add(Randomness.randomMember(candidates));
     }
-    return substitution.extend(Substitution.forArgs(parameters, selectedTypes));
+    return substitution.extend(parameters, selectedTypes);
   }
 
   /**
@@ -437,8 +436,7 @@ public class TypeInstantiator {
       return new ArrayList<>();
     }
     for (List<ReferenceType> tuple : iteratorToIterable(new ListIterator<>(candidateTypes))) {
-      Substitution partialSubstitution = Substitution.forArgs(parameters, tuple);
-      Substitution substitution = initialSubstitution.extend(partialSubstitution);
+      Substitution substitution = initialSubstitution.extend(parameters, tuple);
       if (typeCheck.test(tuple, substitution)) {
         substitutionList.add(substitution);
       }
