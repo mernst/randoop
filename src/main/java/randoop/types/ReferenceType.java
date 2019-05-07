@@ -1,7 +1,6 @@
 package randoop.types;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -158,13 +157,13 @@ public abstract class ReferenceType extends Type {
   }
 
   Substitution getInstantiatingSubstitution(ReferenceType goalType) {
+    System.out.printf("ReferenceType.getInstantiatingSubstitution(%s)%n", goalType);
     if (this.equals(goalType)) {
       return new Substitution();
     }
     if (goalType.isVariable()) {
       TypeVariable variable = (TypeVariable) goalType;
-      List<TypeVariable> typeParameters = Collections.singletonList(variable);
-      Substitution substitution = new Substitution(typeParameters, this);
+      Substitution substitution = new Substitution(variable, this);
       if (variable.getLowerTypeBound().isLowerBound(this, substitution)
           && variable.getUpperTypeBound().isUpperBound(this, substitution)) {
         return substitution;

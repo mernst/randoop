@@ -105,6 +105,7 @@ public abstract class TypeArgument {
   }
 
   public Substitution getInstantiatingSubstitution(TypeArgument otherArgument) {
+    System.out.printf("TypeArgument.getInstantiatingSubstitution(%s) => null%n", otherArgument);
     return null;
   }
 

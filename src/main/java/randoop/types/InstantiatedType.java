@@ -328,15 +328,29 @@ public class InstantiatedType extends ParameterizedType {
   @Override
   public Substitution getInstantiatingSubstitution(ClassOrInterfaceType goalType) {
     assert goalType.isGeneric();
+    System.out.printf(
+        "InstantiatedType.getInstantiatingSubstitution(this=%s, goalType=%s [%s])%n",
+        this, goalType, goalType.getClass());
     Substitution substitution = super.getInstantiatingSubstitution(goalType);
+    System.out.printf(
+        "InstantiatedType.getInstantiatingSubstitution: substitution = %s%n", substitution);
+    System.out.printf(
+        "InstantiatedType.getInstantiatingSubstitution: goalType = %s [%s]%n",
+        goalType, goalType.getClass());
+
     if (goalType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) goalType;
       if (this.instantiatedType.equals(otherInstType.instantiatedType)) {
         for (int i = 0; i < this.argumentList.size(); i++) {
-          Substitution subst =
-              this.argumentList
-                  .get(i)
-                  .getInstantiatingSubstitution(otherInstType.argumentList.get(i));
+          TypeArgument thisTArg = this.argumentList.get(i);
+          TypeArgument otherTArg = otherInstType.argumentList.get(i);
+          System.out.printf(
+              "InstantiatedType.getInstantiatingSubstitution: about to compute subst[%d] for %s %s%n",
+              i, thisTArg, otherTArg);
+          Substitution subst = thisTArg.getInstantiatingSubstitution(otherTArg);
+          System.out.printf(
+              "InstantiatedType.getInstantiatingSubstitution: subst[%d] for %s %s = %s%n",
+              i, thisTArg, otherTArg, subst);
           if (subst == null) {
             return null;
           }
