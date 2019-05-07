@@ -326,10 +326,16 @@ public class InstantiatedType extends ParameterizedType {
   }
 
   @Override
-  public Substitution getInstantiatingSubstitution(ClassOrInterfaceType goalType) {
+  public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
     System.out.printf(
         "InstantiatedType.getInstantiatingSubstitution(this=%s, goalType=%s [%s])%n",
         this, goalType, goalType.getClass());
+
+    Substitution superResult =
+        ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
+    if (superResult != null) {
+      return superResult;
+    }
 
     assert goalType.isGeneric();
     Substitution substitution = super.getInstantiatingSubstitution(goalType);
