@@ -266,6 +266,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
     Substitution superResult =
         ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
+    System.out.printf(
+        "ClassOrInterfaceType.getInstantiatingSubstitution(%s): superResult=%s %n",
+        goalType, superResult);
     if (superResult != null) {
       return superResult;
     }

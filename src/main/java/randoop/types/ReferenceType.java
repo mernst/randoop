@@ -167,6 +167,7 @@ public abstract class ReferenceType extends Type {
    * @return a substitution unifying this type or a supertype of this type with the goal type
    */
   public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
+    System.out.printf("ReferenceType.getInstantiatingSubstitution(%s)%n", goalType);
     return ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
   }
 
