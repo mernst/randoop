@@ -271,9 +271,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return a substitution unifying this type or a supertype of this type with the goal type
    */
   public Substitution getInstantiatingSubstitution(ClassOrInterfaceType goalType) {
-    assert goalType.isGeneric() : "goal type must be generic";
-
     System.out.printf("ClassOrInterfaceType.getInstantiatingSubstitution(%s)%n", goalType);
+
+    assert goalType.isGeneric() : "goal type must be generic";
 
     Substitution substitution = new Substitution();
     if (this.isMemberClass() && !this.isStatic()) {

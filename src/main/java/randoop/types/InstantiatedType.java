@@ -331,6 +331,7 @@ public class InstantiatedType extends ParameterizedType {
     System.out.printf(
         "InstantiatedType.getInstantiatingSubstitution(this=%s, goalType=%s [%s])%n",
         this, goalType, goalType.getClass());
+
     Substitution substitution = super.getInstantiatingSubstitution(goalType);
     System.out.printf(
         "InstantiatedType.getInstantiatingSubstitution: substitution = %s%n", substitution);
