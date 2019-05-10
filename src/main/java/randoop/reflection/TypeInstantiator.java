@@ -86,17 +86,17 @@ public class TypeInstantiator {
       operation = operation.substitute(substitution);
     }
     // type parameters of declaring type are instantiated
-    System.out.printf("operation = %s%n", operation);
+    System.out.printf("operation (1) = %s%n", operation);
 
     // if necessary, do capture conversion first
     if (operation != null && operation.hasWildcardTypes()) {
       Log.logPrintf("Applying capture conversion to %s%n", operation);
       operation = operation.applyCaptureConversion();
-      System.out.printf("operation = %s%n", operation);
+      System.out.printf("operation (2) = %s%n", operation);
     }
     if (operation != null) {
       operation = instantiateOperationTypes(operation);
-      System.out.printf("operation = %s%n", operation);
+      System.out.printf("operation (3) = %s%n", operation);
     }
 
     // if operation == null failed to build instantiation
@@ -228,6 +228,7 @@ public class TypeInstantiator {
           inputType, inputType.getClass(), inputType.isParameterized());
       if (inputType.isParameterized()
           && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
+        System.out.printf("matched inputType %s%n", inputType);
         matches.add((ReferenceType) inputType);
       }
     }
@@ -264,8 +265,10 @@ public class TypeInstantiator {
    */
   private TypedClassOperation instantiateOperationTypes(TypedClassOperation operation) {
     // answer question: what type instantiation would allow a call to this operation?
+    System.out.printf("instantiateOperationTypes(%s)%n", operation);
     Set<TypeVariable> typeParameters = new LinkedHashSet<>();
     Substitution substitution = new Substitution();
+    System.out.printf("Here is the order to consider the types: %s%n", operation.getInputTypes());
     for (Type parameterType : operation.getInputTypes()) {
       Type workingType = parameterType.substitute(substitution);
       if (workingType.isGeneric()) {
