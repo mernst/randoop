@@ -112,6 +112,8 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   boolean isInstantiationOf(TypeArgument otherArgument) {
+    System.out.printf("ReferenceArgument.isInstantiationOf: %s %s%n", this, otherArgument);
+
     if (!(otherArgument instanceof ReferenceArgument)) {
       return false;
     }
@@ -123,10 +125,22 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   public Substitution getInstantiatingSubstitution(TypeArgument otherArgument) {
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: this = %s [%s]%n", this, this.getClass());
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: otherArgument = %s [%s]%n",
+        otherArgument, otherArgument.getClass());
     if (!(otherArgument instanceof ReferenceArgument)) {
       return null;
     }
     ReferenceType otherReferenceType = ((ReferenceArgument) otherArgument).getReferenceType();
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: this.referenceType = %s [%s]%n",
+        this.referenceType, this.referenceType.getClass());
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: otherReferenceType = %s [%s]%n",
+        otherReferenceType, otherReferenceType.getClass());
+
     return referenceType.getInstantiatingSubstitution(otherReferenceType);
   }
 

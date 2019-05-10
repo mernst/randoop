@@ -84,7 +84,12 @@ class EagerReferenceBound extends ReferenceBound {
 
   @Override
   public boolean isUpperBound(Type argType, Substitution subst) {
+    System.out.printf(
+        "EagerReferenceBound.isUpperBound: this=%s argType=%s subst=%s%n", this, argType, subst);
+
     ReferenceType boundType = this.getBoundType().substitute(subst);
+    System.out.printf(
+        "EagerReferenceBound.isUpperBound: boundType=%s [%s]%n", boundType, boundType.getClass());
     if (boundType.equals(JavaTypes.OBJECT_TYPE)) {
       return true;
     }
@@ -105,6 +110,9 @@ class EagerReferenceBound extends ReferenceBound {
       InstantiatedType argSuperType =
           ((ClassOrInterfaceType) argType)
               .getMatchingSupertype(boundClassType.getGenericClassType());
+      System.out.printf(
+          "EagerReferenceBound.isUpperBound: argSuperType=%s [%s]%n",
+          argSuperType, argSuperType == null ? "null" : argSuperType.getClass());
       if (argSuperType == null) {
         return false;
       }
