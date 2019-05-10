@@ -226,8 +226,17 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return the instantiated type matching the goal type, or null
    */
   public InstantiatedType getMatchingSupertype(GenericClassType goalType) {
+    System.out.printf(
+        "ClassOrInterfaceType.getMatchingSupertype %s %s [isInterface=%s]%n",
+        this, goalType, goalType.isInterface());
     if (goalType.isInterface()) {
+      System.out.printf("interfaces of this = %s%n", this.getInterfaces());
       for (ClassOrInterfaceType interfaceType : this.getInterfaces()) {
+        System.out.printf(
+            "ClassOrInterfaceType.getMatchingSupertype interfaceType=%s%n", interfaceType);
+        System.out.printf(
+            "ClassOrInterfaceType.getMatchingSupertype assigneable test=%s%n",
+            goalType.getRuntimeClass().isAssignableFrom(interfaceType.getRuntimeClass()));
         if (goalType.getRuntimeClass().isAssignableFrom(interfaceType.getRuntimeClass())) {
           if (interfaceType.isParameterized()) {
             InstantiatedType type = (InstantiatedType) interfaceType;
@@ -376,6 +385,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
+    System.out.printf("ClassOrInterfaceType.isInstantiationOf: %s %s%n", this, otherType);
     if (super.isInstantiationOf(otherType)) {
       return true;
     }

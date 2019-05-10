@@ -146,6 +146,7 @@ public abstract class ReferenceType extends Type {
    * @return true if this type instantiates the other reference type, false otherwise
    */
   public boolean isInstantiationOf(ReferenceType otherType) {
+    System.out.printf("ReferenceType.isInstantiationOf: %s %s%n", this, otherType);
     if (this.equals(otherType)) {
       return true;
     }

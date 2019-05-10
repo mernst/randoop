@@ -271,6 +271,7 @@ public class RandoopSystemTest {
     options.addTestClass("java7.util7.Collections");
     options.setOption("omit-field-list", "resources/systemTest/naiveomitfields.txt");
     options.setOption("operation-history-log", "-"); // log to stdout
+    options.setOption("output-limit", "100"); // temporary for debugging
 
     // omit methods that use Random
     options.setOption(

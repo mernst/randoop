@@ -90,6 +90,7 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public InstantiatedType applyCaptureConversion() {
+    System.out.printf("InstantiatedType.applyCaptureConversion: %s%n", this);
 
     if (!this.hasWildcard()) {
       return this;
@@ -157,6 +158,7 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public InstantiatedType getMatchingSupertype(GenericClassType goalType) {
+    System.out.printf("InstantiatedType.getMatchingSupertype %s %s%n", this, goalType);
     /*
     if (this.hasWildcard()) {
       return this.applyCaptureConversion().getMatchingSupertype(goalType);
@@ -306,6 +308,7 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
+    System.out.printf("InstantiatedType.isInstantiationOf: %s %s%n", this, otherType);
     if (super.isInstantiationOf(otherType) && !(otherType instanceof InstantiatedType)) {
       return true;
     }
