@@ -244,11 +244,6 @@ public class ArrayType extends ReferenceType {
     return false;
   }
 
-  /**
-   * Indicate whether this type contains a capture variable.
-   *
-   * @return true iff this type has a capture variable
-   */
   @Override
   public boolean hasCaptureVariable() {
     // TODO: should this be: return componentType.hasCaptureVariable();

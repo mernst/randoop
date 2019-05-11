@@ -145,6 +145,11 @@ class CaptureTypeVariable extends TypeVariable {
   }
 
   @Override
+  public boolean hasCaptureVariable() {
+    return true;
+  }
+
+  @Override
   public boolean isGeneric() {
     return true;
   }

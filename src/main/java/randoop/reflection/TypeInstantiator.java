@@ -299,11 +299,13 @@ public class TypeInstantiator {
         continue;
       } else if (parameterType.isClassOrInterfaceType()) {
         ClassOrInterfaceType ctype = (ClassOrInterfaceType) parameterType;
-        if (ctype.hasWildcard()) {
+        if (ctype.hasWildcard() || ctype.hasCaptureVariable()) {
           typesWithWildcards.add(ctype);
         } else {
           if (ctype.toString().indexOf("?") != -1) {
-            System.out.printf("hasWildcard() returned false: %s [%s]%n", ctype, ctype.getClass());
+            System.out.printf(
+                "hasWildcard() and hasCaptureVariable() returned false: %s [%s]%n",
+                ctype, ctype.getClass());
           }
           classTypes.add(ctype);
         }
