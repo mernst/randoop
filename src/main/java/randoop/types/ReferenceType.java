@@ -174,7 +174,7 @@ public abstract class ReferenceType extends Type {
 
   /**
    * Static helper method that does the work of getInstantiatingSubstitution, if goalType is a type
-   * variable.
+   * variable (but not a wildcard argument).
    *
    * @param instantiatedType the first type
    * @param goalType the generic type for which a substitution is needed
