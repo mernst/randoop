@@ -212,7 +212,8 @@ public class TypeInstantiator {
       return null;
     }
     ReferenceType selectedType = Randomness.randomSetMember(matches);
-    return selectedType.getInstantiatingSubstitution(type);
+    Substitution result = selectedType.getInstantiatingSubstitution(type);
+    return result;
   }
 
   /**
@@ -235,36 +236,103 @@ public class TypeInstantiator {
    */
   private TypedClassOperation instantiateOperationTypes(TypedClassOperation operation) {
     // answer question: what type instantiation would allow a call to this operation?
-    Set<TypeVariable> typeParameters = new LinkedHashSet<>();
+    System.out.printf("instantiateOperationTypes(%s)%n", operation);
     Substitution substitution = new Substitution();
+
+    // Problem: after processing an argument like
+    //   java7.util7.List<? extends T>
+    // the substitution doesn't bind T, and we might later choose a type for T that is incompatible
+    // with the substitution.
+    // Worse, we might process an argument like
+    //   java7.util7.Comparator<? super T>
+    // after the above.  The substitution for the former won't affect the latter and their
+    // instantiations might be incompatible.
+    // So, defer wildcards to the end.
+    // There is no order that is guaranteed to work, but I can do better than the default order.
+
+    // Divide the input types into 3 categories:
+    //  0. Non-generic types that don't mention any type variables; there is nothing to do.
+    //  1. Class or interface types not in list #3.
+    //  2. Type variables: the type parameters of this class
+    //  3. Types that contain a wildcard for some type T, without containing T in a
+    //     non-wildcard position.  (For now, approximate this as types that contain a wildcard.)
+    // And then process them in the order: #2 #3 #1.
+
+    List<ClassOrInterfaceType> classTypes = new ArrayList<>();
+    Set<TypeVariable> typeParameters = new LinkedHashSet<>();
+    List<ClassOrInterfaceType> typesWithWildcards = new ArrayList<>();
+
     for (Type parameterType : operation.getInputTypes()) {
-      Type workingType = parameterType.substitute(substitution);
-      if (workingType.isGeneric()) {
-        if (workingType.isClassOrInterfaceType()) {
-          Substitution subst =
-              selectSubstitution(
-                  (ParameterizedType) parameterType, (ParameterizedType) workingType);
-          if (subst == null) {
-            return null;
-          }
-          substitution = substitution.extend(subst);
+      if (!parameterType.isGeneric()) {
+        continue;
+      } else if (parameterType.isClassOrInterfaceType()) {
+        ClassOrInterfaceType ctype = (ClassOrInterfaceType) parameterType;
+        if (ctype.hasWildcard() || ctype.hasCaptureVariable()) {
+          typesWithWildcards.add(ctype);
         } else {
-          typeParameters.addAll(((ReferenceType) workingType).getTypeParameters());
+          if (ctype.toString().contains("?")) {
+            System.out.printf(
+                "hasWildcard() and hasCaptureVariable() returned false: %s [%s]%n",
+                ctype, ctype.getClass());
+          }
+          classTypes.add(ctype);
         }
+      } else {
+        typeParameters.addAll(((ReferenceType) parameterType).getTypeParameters());
       }
     }
     // return types don't have to exist, but do need to have their type parameters instantiated
-    if (operation.getOutputType().isReferenceType()) {
-      Type workingType = operation.getOutputType().substitute(substitution);
-      if (workingType.isGeneric()) {
-        typeParameters.addAll(((ReferenceType) workingType).getTypeParameters());
+    {
+      Type parameterType = operation.getOutputType();
+      if (parameterType.isGeneric()) {
+        typeParameters.addAll(((ReferenceType) parameterType).getTypeParameters());
       }
     }
 
-    if (!typeParameters.isEmpty()) {
-      typeParameters.removeAll(substitution.keySet());
+    System.out.printf(
+        "Here is the order to consider the formal parameters: %s %s %s%n",
+        classTypes, typeParameters, typesWithWildcards);
+    // In Java 9: List typesSeparated = List.of(classTypes, typeParameters, typesWithWildcards);
+    List<Type> typesSeparated = new ArrayList<Type>();
+    typesSeparated.addAll(classTypes);
+    typesSeparated.addAll(typeParameters);
+    typesSeparated.addAll(typesWithWildcards);
+    boolean hasCaptureVariable = typesSeparated.toString().contains("?");
+    // if (hasCaptureVariable) {
+    //   System.out.flush();
+    //   try {
+    //     TimeUnit.SECONDS.sleep(1);
+    //   } catch (InterruptedException e) {
+    //     // do nothing
+    //   }
+    //   System.exit(1);
+    // }
+    System.out.printf("hasCaptureVariable = %s%n", hasCaptureVariable);
+
+    // Process list #1: other class or interface types
+    for (Type parameterType : classTypes) {
+      System.out.printf("instantiateOperationTypes(%s): list #1: %s%n", operation, parameterType);
+      Type workingType = parameterType.substitute(substitution);
+      Substitution subst =
+          selectSubstitution((ParameterizedType) parameterType, (ParameterizedType) workingType);
+      if (subst == null) {
+        return null;
+      }
+      substitution = substitution.extend(subst);
     }
 
+    // if (hasCaptureVariable) {
+    //   System.exit(1);
+    // }
+
+    substitution = substitution.ground();
+    if (substitution == null) {
+      return null;
+    }
+
+    // Process list #2: type variables
+    System.out.printf("instantiateOperationTypes(%s): list #2%n", operation);
+    typeParameters.removeAll(substitution.keySet());
     if (!typeParameters.isEmpty()) {
       substitution = selectSubstitution(new ArrayList<>(typeParameters), substitution);
       if (substitution == null) {
@@ -272,7 +340,34 @@ public class TypeInstantiator {
       }
     }
 
+    // Process list #3: class or interface tyeps with wildcards
+    System.out.printf(
+        "instantiateOperationTypes(%s): list #3 = %s%n", operation, typesWithWildcards);
+    for (ClassOrInterfaceType parameterType : typesWithWildcards) {
+      System.out.printf(
+          "instantiateOperationTypes(%s): list #3: element %s%n", operation, parameterType);
+      // if (hasCaptureVariable) {
+      //   System.exit(1);
+      // }
+
+      ClassOrInterfaceType workingType = parameterType.substitute(substitution);
+      Substitution subst =
+          selectSubstitution((ParameterizedType) parameterType, (ParameterizedType) workingType);
+      System.out.printf("subst = %s%n", subst);
+      if (subst == null) {
+        return null;
+      }
+      subst = subst.ground();
+      System.out.printf("subst = %s%n", subst);
+      if (subst == null) {
+        return null;
+      }
+      substitution = substitution.extend(subst);
+      System.out.printf("substitution = %s%n", substitution);
+    }
+
     operation = operation.substitute(substitution);
+    System.out.printf("operation = %s, isGeneric=%s%n", operation, operation.isGeneric());
     if (operation.isGeneric()) {
       return null;
     }
@@ -309,7 +404,8 @@ public class TypeInstantiator {
     if (substitutionList.isEmpty()) {
       return null;
     }
-    return Randomness.randomMember(substitutionList);
+    Substitution result = Randomness.randomMember(substitutionList);
+    return result;
   }
 
   /**

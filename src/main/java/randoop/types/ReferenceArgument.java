@@ -100,6 +100,26 @@ public class ReferenceArgument extends TypeArgument {
     return referenceType.isParameterized() && ((ClassOrInterfaceType) referenceType).hasWildcard();
   }
 
+  @Override
+  public boolean hasCaptureVariable() {
+    System.out.printf(
+        "ReferenceArgument.hasCaptureVariable(%s [%s]), referenceType=%s [%s] isParameterized=%s%n",
+        this,
+        this.getClass(),
+        referenceType,
+        referenceType.getClass(),
+        referenceType.isParameterized());
+    // Infinite loop (or something) for:
+    // return referenceType.hasCaptureVariable();
+    // Also infinite loop (or something) for:
+    // return referenceType instanceof CaptureTypeVariable || ...
+    // WHAT IS UP?
+
+    return referenceType instanceof CaptureTypeVariable
+        || (referenceType.isParameterized()
+            && ((ClassOrInterfaceType) referenceType).hasCaptureVariable());
+  }
+
   /**
    * Indicates whether a {@code ReferenceArgument} is generic.
    *

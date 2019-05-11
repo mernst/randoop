@@ -100,9 +100,18 @@ public abstract class ReferenceType extends Type {
   /**
    * Indicates whether this {@link ReferenceType} has a wildcard.
    *
-   * @return true if this type has a wildcard, false otherwise
+   * @return true iff this type has a wildcard
    */
   public boolean hasWildcard() {
+    return false;
+  }
+
+  /**
+   * Indicates whether this {@link ReferenceType} has a capture variable.
+   *
+   * @return true iff this type has a capture variable
+   */
+  public boolean hasCaptureVariable() {
     return false;
   }
 
@@ -172,7 +181,7 @@ public abstract class ReferenceType extends Type {
 
   /**
    * Static helper method that does the work of getInstantiatingSubstitution, if goalType is a type
-   * variable.
+   * variable (but not a wildcard argument).
    *
    * @param instantiatedType the first type
    * @param goalType the generic type for which a substitution is needed

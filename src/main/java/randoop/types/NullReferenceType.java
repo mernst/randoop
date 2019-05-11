@@ -65,13 +65,13 @@ class NullReferenceType extends ReferenceType {
     return this.getName();
   }
 
-  /**
-   * Indicate whether this type has a wildcard either as or in a type argument.
-   *
-   * @return true if this type has a wildcard, and false otherwise
-   */
   @Override
   public boolean hasWildcard() {
+    return false;
+  }
+
+  @Override
+  public boolean hasCaptureVariable() {
     return false;
   }
 

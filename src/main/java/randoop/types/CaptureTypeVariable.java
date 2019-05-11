@@ -120,6 +120,15 @@ class CaptureTypeVariable extends TypeVariable {
     }
   }
 
+  /**
+   * Return the wildcard argument of this.
+   *
+   * @return the wildcard argument of this
+   */
+  public WildcardArgument getWildcard() {
+    return wildcard;
+  }
+
   @Override
   public String getName() {
     return "Capture" + varID;
@@ -132,6 +141,11 @@ class CaptureTypeVariable extends TypeVariable {
 
   @Override
   public boolean isCaptureVariable() {
+    return true;
+  }
+
+  @Override
+  public boolean hasCaptureVariable() {
     return true;
   }
 

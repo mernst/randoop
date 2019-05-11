@@ -238,13 +238,15 @@ public class ArrayType extends ReferenceType {
     return new ArrayType(componentType.getRawtype(), runtimeClass);
   }
 
-  /**
-   * Indicate whether this type has a wildcard either as or in a type argument.
-   *
-   * @return true if this type has a wildcard, and false otherwise
-   */
   @Override
   public boolean hasWildcard() {
+    // TODO: should this be: return componentType.hasWildcard();
+    return false;
+  }
+
+  @Override
+  public boolean hasCaptureVariable() {
+    // TODO: should this be: return componentType.hasCaptureVariable();
     return false;
   }
 
