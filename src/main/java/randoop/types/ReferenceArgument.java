@@ -102,6 +102,9 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   public boolean hasCaptureVariable() {
+    System.out.printf(
+        "ReferenceArgument.hasCaptureVariable(%s [%s]), referenceType=%s [%s]%n",
+        this, this.getClass(), referenceType, referenceType.getClass());
     return referenceType.isParameterized()
         && ((ClassOrInterfaceType) referenceType).hasCaptureVariable();
   }
