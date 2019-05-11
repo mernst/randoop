@@ -34,6 +34,8 @@ public class TypeInstantiator {
    */
   private final Set<Type> inputTypes;
 
+  private static final boolean debug = true;
+
   /**
    * Creates a {@link TypeInstantiator} object using the given types to construct instantiating
    * substitutions.
@@ -201,8 +203,11 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
+    if (debug) Log.logPrintf("selectSubstitution(%s, %s)%n", type, patternType);
     List<ReferenceType> matches = new ArrayList<>();
     for (Type inputType : inputTypes) {
+      if (debug && type.toString().contains("Class"))
+        Log.logPrintf("selectSubstitution considering inputType: %s%n", inputType);
       if (inputType.isParameterized()
           && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
         matches.add((ReferenceType) inputType);
@@ -212,7 +217,10 @@ public class TypeInstantiator {
       return null;
     }
     ReferenceType selectedType = Randomness.randomSetMember(matches);
+    if (debug)
+      System.out.printf("selectedType = %s (from %d choices)%n", selectedType, matches.size());
     Substitution result = selectedType.getInstantiatingSubstitution(type);
+    if (debug) Log.logPrintf("selectSubstitution(%s, %s) => %s%n", type, patternType, result);
     return result;
   }
 
@@ -315,10 +323,12 @@ public class TypeInstantiator {
       Type workingType = parameterType.substitute(substitution);
       Substitution subst =
           selectSubstitution((ParameterizedType) parameterType, (ParameterizedType) workingType);
+      System.out.printf("subst = %s%n", subst);
       if (subst == null) {
         return null;
       }
       substitution = substitution.extend(subst);
+      System.out.printf("substitution = %s%n", substitution);
     }
 
     // substitution = substitution.ground();

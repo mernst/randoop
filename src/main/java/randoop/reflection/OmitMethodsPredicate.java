@@ -90,6 +90,7 @@ public class OmitMethodsPredicate {
    * @return true if the signature of the method in the current class or a superclass is matched by
    *     an omit pattern, false otherwise
    */
+  @SuppressWarnings("referenceEquality")
   boolean shouldOmit(final TypedClassOperation operation) {
     Log.logPrintf("shouldOmit: testing %s%n", operation);
 
@@ -154,7 +155,9 @@ public class OmitMethodsPredicate {
       } else {
         if (type == operation.getDeclaringType()) {
           throw new RandoopBug(
-              String.format("shouldOmit didn't find %s in %s", operation, type.getRuntimeClass()));
+              String.format(
+                  "shouldOmit didn't find %s in its declaring class %s",
+                  operation, type.getRuntimeClass()));
         }
       }
     }
