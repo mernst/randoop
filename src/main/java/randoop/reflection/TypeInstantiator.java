@@ -302,7 +302,7 @@ public class TypeInstantiator {
         if (ctype.hasWildcard() || ctype.hasCaptureVariable()) {
           typesWithWildcards.add(ctype);
         } else {
-          if (ctype.toString().indexOf("?") != -1) {
+          if (ctype.toString().contains("?")) {
             System.out.printf(
                 "hasWildcard() and hasCaptureVariable() returned false: %s [%s]%n",
                 ctype, ctype.getClass());
@@ -324,6 +324,22 @@ public class TypeInstantiator {
     System.out.printf(
         "Here is the order to consider the formal parameters: %s %s %s%n",
         classTypes, typeParameters, typesWithWildcards);
+    // In Java 9: List typesSeparated = List.of(classTypes, typeParameters, typesWithWildcards);
+    List<Type> typesSeparated = new ArrayList<Type>();
+    typesSeparated.addAll(classTypes);
+    typesSeparated.addAll(typeParameters);
+    typesSeparated.addAll(typesWithWildcards);
+    boolean hasCaptureVariable = typesSeparated.toString().contains("?");
+    // if (hasCaptureVariable) {
+    //   System.out.flush();
+    //   try {
+    //     TimeUnit.SECONDS.sleep(1);
+    //   } catch (InterruptedException e) {
+    //     // do nothing
+    //   }
+    //   System.exit(1);
+    // }
+    System.out.printf("hasCaptureVariable = %s%n", hasCaptureVariable);
 
     // Process list #2: other class or interface types
     for (Type parameterType : classTypes) {
@@ -336,6 +352,10 @@ public class TypeInstantiator {
       }
       substitution = substitution.extend(subst);
     }
+
+    // if (hasCaptureVariable) {
+    //   System.exit(1);
+    // }
 
     substitution = substitution.ground();
     if (substitution == null) {
@@ -353,25 +373,42 @@ public class TypeInstantiator {
     }
 
     // Process list #3: class or interface tyeps with wildcards
+    System.out.printf(
+        "instantiateOperationTypes(%s): list #3 = %s%n", operation, typesWithWildcards);
     for (ClassOrInterfaceType parameterType : typesWithWildcards) {
-      System.out.printf("instantiateOperationTypes(%s): list #3: %s%n", operation, parameterType);
+      System.out.printf(
+          "instantiateOperationTypes(%s): list #3: element %s%n", operation, parameterType);
+      // if (hasCaptureVariable) {
+      //   System.exit(1);
+      // }
+
       ClassOrInterfaceType workingType = parameterType.substitute(substitution);
       Substitution subst =
           selectSubstitution((ParameterizedType) parameterType, (ParameterizedType) workingType);
+      System.out.printf("subst = %s%n", subst);
       if (subst == null) {
         return null;
       }
       subst = subst.ground();
+      System.out.printf("subst = %s%n", subst);
       if (subst == null) {
         return null;
       }
       substitution = substitution.extend(subst);
+      System.out.printf("substitution = %s%n", substitution);
     }
 
     operation = operation.substitute(substitution);
+    System.out.printf("operation = %s, isGeneric=%s%n", operation, operation.isGeneric());
     if (operation.isGeneric()) {
       return null;
     }
+
+    if (hasCaptureVariable) {
+      System.out.printf("Exiting because hasCaptureVariable is true%n");
+      System.exit(1);
+    }
+
     return operation;
   }
 

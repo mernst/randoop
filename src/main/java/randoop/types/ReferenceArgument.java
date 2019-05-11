@@ -115,8 +115,9 @@ public class ReferenceArgument extends TypeArgument {
     // return referenceType instanceof CaptureTypeVariable || ...
     // WHAT IS UP?
 
-    return referenceType.isParameterized()
-        && ((ClassOrInterfaceType) referenceType).hasCaptureVariable();
+    return referenceType instanceof CaptureTypeVariable
+        || (referenceType.isParameterized()
+            && ((ClassOrInterfaceType) referenceType).hasCaptureVariable());
   }
 
   /**
