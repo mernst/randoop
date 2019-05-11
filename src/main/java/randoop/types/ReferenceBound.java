@@ -57,8 +57,8 @@ public abstract class ReferenceBound extends ParameterBound {
   }
 
   @Override
-  public boolean hasCapture() {
-    return boundType.hasCapture();
+  public boolean hasCaptureVariable() {
+    return boundType.hasCaptureVariable();
   }
 
   @Override

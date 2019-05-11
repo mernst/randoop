@@ -126,7 +126,7 @@ class WildcardArgument extends TypeArgument {
   }
 
   @Override
-  public boolean hasCapture() {
+  public boolean hasCaptureVariable() {
     return false;
   }
 

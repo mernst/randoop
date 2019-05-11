@@ -101,8 +101,9 @@ public class ReferenceArgument extends TypeArgument {
   }
 
   @Override
-  public boolean hasCapture() {
-    return referenceType.isParameterized() && ((ClassOrInterfaceType) referenceType).hasCapture();
+  public boolean hasCaptureVariable() {
+    return referenceType.isParameterized()
+        && ((ClassOrInterfaceType) referenceType).hasCaptureVariable();
   }
 
   /**

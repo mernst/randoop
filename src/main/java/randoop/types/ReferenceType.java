@@ -111,7 +111,7 @@ public abstract class ReferenceType extends Type {
    *
    * @return true iff this type has a capture variable
    */
-  public boolean hasCapture() {
+  public boolean hasCaptureVariable() {
     return false;
   }
 

@@ -229,17 +229,17 @@ class LazyParameterBound extends ParameterBound {
   }
 
   @Override
-  public boolean hasCapture() {
-    return hasCapture(boundType);
+  public boolean hasCaptureVariable() {
+    return hasCaptureVariable(boundType);
   }
 
-  private static boolean hasCapture(java.lang.reflect.Type type) {
+  private static boolean hasCaptureVariable(java.lang.reflect.Type type) {
     // if (type instanceof java.lang.reflect.CaptureType) {
     //   return true;
     // }
     if (type instanceof java.lang.reflect.TypeVariable) {
       for (java.lang.reflect.Type bound : ((java.lang.reflect.TypeVariable) type).getBounds()) {
-        if (hasCapture(bound)) {
+        if (hasCaptureVariable(bound)) {
           return true;
         }
       }
@@ -248,7 +248,7 @@ class LazyParameterBound extends ParameterBound {
     if (type instanceof java.lang.reflect.ParameterizedType) {
       java.lang.reflect.ParameterizedType pt = (java.lang.reflect.ParameterizedType) type;
       for (java.lang.reflect.Type argType : pt.getActualTypeArguments()) {
-        if (hasCapture(argType)) {
+        if (hasCaptureVariable(argType)) {
           return true;
         }
       }

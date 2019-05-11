@@ -510,7 +510,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return true iff this type has a capture variable
    */
   @Override
-  public boolean hasCapture() {
+  public boolean hasCaptureVariable() {
     return false;
   }
 

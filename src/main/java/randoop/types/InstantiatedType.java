@@ -263,9 +263,9 @@ public class InstantiatedType extends ParameterizedType {
   }
 
   @Override
-  public boolean hasCapture() {
+  public boolean hasCaptureVariable() {
     for (TypeArgument argument : argumentList) {
-      if (argument.hasCapture()) {
+      if (argument.hasCaptureVariable()) {
         return true;
       }
     }

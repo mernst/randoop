@@ -193,7 +193,7 @@ public abstract class ParameterBound {
    *
    * @return true iff this bound has a capture variable
    */
-  abstract boolean hasCapture();
+  abstract boolean hasCaptureVariable();
 
   /**
    * Indicates whether the type of this bound is generic.

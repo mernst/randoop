@@ -250,8 +250,8 @@ public class ArrayType extends ReferenceType {
    * @return true iff this type has a capture variable
    */
   @Override
-  public boolean hasCapture() {
-    // TODO: should this be: return componentType.hasCapture();
+  public boolean hasCaptureVariable() {
+    // TODO: should this be: return componentType.hasCaptureVariable();
     return false;
   }
 

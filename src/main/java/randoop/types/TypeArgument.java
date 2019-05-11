@@ -82,7 +82,7 @@ public abstract class TypeArgument {
    *
    * @return true if this argument has a capture variable
    */
-  public boolean hasCapture() {
+  public boolean hasCaptureVariable() {
     return false;
   }
 

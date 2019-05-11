@@ -92,8 +92,8 @@ public abstract class ParameterType extends ReferenceType {
   }
 
   @Override
-  public boolean hasCapture() {
-    return getLowerTypeBound().hasCapture() || getUpperTypeBound().hasCapture();
+  public boolean hasCaptureVariable() {
+    return getLowerTypeBound().hasCaptureVariable() || getUpperTypeBound().hasCaptureVariable();
   }
 
   public boolean hasGenericBound() {

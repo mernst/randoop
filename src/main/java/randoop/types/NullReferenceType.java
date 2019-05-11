@@ -71,7 +71,7 @@ class NullReferenceType extends ReferenceType {
   }
 
   @Override
-  public boolean hasCapture() {
+  public boolean hasCaptureVariable() {
     return false;
   }
 
