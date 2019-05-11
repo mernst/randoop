@@ -127,6 +127,20 @@ public class TypeTuple implements Iterable<Type>, Comparable<TypeTuple> {
   }
 
   /**
+   * Indicates whether any of the types in this type tuple contains a capture variable.
+   *
+   * @return true if there is at least one capture variable occurrence
+   */
+  public boolean hasCapture() {
+    for (Type type : list) {
+      if (type.isParameterized() && ((ParameterizedType) type).hasCapture()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Indicates whether the tuple is empty.
    *
    * @return true if the tuple has no components, false otherwise

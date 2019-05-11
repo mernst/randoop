@@ -229,6 +229,34 @@ class LazyParameterBound extends ParameterBound {
   }
 
   @Override
+  public boolean hasCapture() {
+    return hasCapture(boundType);
+  }
+
+  private static boolean hasCapture(java.lang.reflect.Type type) {
+    // if (type instanceof java.lang.reflect.CaptureType) {
+    //   return true;
+    // }
+    if (type instanceof java.lang.reflect.TypeVariable) {
+      for (java.lang.reflect.Type bound : ((java.lang.reflect.TypeVariable) type).getBounds()) {
+        if (hasCapture(bound)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    if (type instanceof java.lang.reflect.ParameterizedType) {
+      java.lang.reflect.ParameterizedType pt = (java.lang.reflect.ParameterizedType) type;
+      for (java.lang.reflect.Type argType : pt.getActualTypeArguments()) {
+        if (hasCapture(argType)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
   public boolean isGeneric() {
     return true;
   }
