@@ -243,20 +243,23 @@ public class TypeInstantiator {
     //   java7.util7.List<? extends T>
     // the substitution doesn't bind T, and we might later choose a type for T that is incompatible
     // with the substitution.
-    // Worse, we might process an argument like
+    // Worse, we might process one of these arguments
+    //    T
     //   java7.util7.Comparator<? super T>
-    // after the above.  The substitution for the former won't affect the latter and their
+    // after the above.  The substitution for the former won't affect either of the latter and their
     // instantiations might be incompatible.
-    // So, defer wildcards to the end.
+    // So, defer all wildcards to the end
     // There is no order that is guaranteed to work, but I can do better than the default order.
 
     // Divide the input types into 3 categories:
     //  0. Non-generic types that don't mention any type variables; there is nothing to do.
-    //  1. Class or interface types not in list #3.
-    //  2. Type variables: the type parameters of this class
+    //  1. Class or interface types that don't constrain a type variable only via a wildcard.
+    //     That is, those not in list #3.
+    //  2. Type variables: the type parameters of this class.
     //  3. Types that contain a wildcard for some type T, without containing T in a
-    //     non-wildcard position.  (For now, approximate this as types that contain a wildcard.)
-    // And then process them in the order: #2 #3 #1.
+    //     (For now, the implementation approximates this as all types that contain a wildcard.
+    //     That is, we do all the wildcards at the end.)
+    // And then process them in order.
 
     List<ClassOrInterfaceType> classTypes = new ArrayList<>();
     Set<TypeVariable> typeParameters = new LinkedHashSet<>();
@@ -264,12 +267,15 @@ public class TypeInstantiator {
 
     for (Type parameterType : operation.getInputTypes()) {
       if (!parameterType.isGeneric()) {
+        // Case #0
         continue;
       } else if (parameterType.isClassOrInterfaceType()) {
         ClassOrInterfaceType ctype = (ClassOrInterfaceType) parameterType;
         if (ctype.hasWildcard() || ctype.hasCaptureVariable()) {
+          // Case #3
           typesWithWildcards.add(ctype);
         } else {
+          // Case #1
           if (ctype.toString().contains("?")) {
             System.out.printf(
                 "hasWildcard() and hasCaptureVariable() returned false: %s [%s]%n",
@@ -278,6 +284,7 @@ public class TypeInstantiator {
           classTypes.add(ctype);
         }
       } else {
+        // Case #2
         typeParameters.addAll(((ReferenceType) parameterType).getTypeParameters());
       }
     }
@@ -292,24 +299,17 @@ public class TypeInstantiator {
     System.out.printf(
         "Here is the order to consider the formal parameters: %s %s %s%n",
         classTypes, typeParameters, typesWithWildcards);
+
+    // Debugging
     // In Java 9: List typesSeparated = List.of(classTypes, typeParameters, typesWithWildcards);
     List<Type> typesSeparated = new ArrayList<Type>();
     typesSeparated.addAll(classTypes);
     typesSeparated.addAll(typeParameters);
     typesSeparated.addAll(typesWithWildcards);
     boolean hasCaptureVariable = typesSeparated.toString().contains("?");
-    // if (hasCaptureVariable) {
-    //   System.out.flush();
-    //   try {
-    //     TimeUnit.SECONDS.sleep(1);
-    //   } catch (InterruptedException e) {
-    //     // do nothing
-    //   }
-    //   System.exit(1);
-    // }
     System.out.printf("hasCaptureVariable = %s%n", hasCaptureVariable);
 
-    // Process list #1: other class or interface types
+    // Process list #1: class or interface types that don't constrain a type only via a wildcard.
     for (Type parameterType : classTypes) {
       System.out.printf("instantiateOperationTypes(%s): list #1: %s%n", operation, parameterType);
       Type workingType = parameterType.substitute(substitution);
@@ -321,16 +321,12 @@ public class TypeInstantiator {
       substitution = substitution.extend(subst);
     }
 
-    // if (hasCaptureVariable) {
-    //   System.exit(1);
+    // substitution = substitution.ground();
+    // if (substitution == null) {
+    //   return null;
     // }
 
-    substitution = substitution.ground();
-    if (substitution == null) {
-      return null;
-    }
-
-    // Process list #2: type variables
+    // Process list #2: type variables.
     System.out.printf("instantiateOperationTypes(%s): list #2%n", operation);
     typeParameters.removeAll(substitution.keySet());
     if (!typeParameters.isEmpty()) {
@@ -340,7 +336,7 @@ public class TypeInstantiator {
       }
     }
 
-    // Process list #3: class or interface tyeps with wildcards
+    // Process list #3: class or interface tyeps with wildcards.
     System.out.printf(
         "instantiateOperationTypes(%s): list #3 = %s%n", operation, typesWithWildcards);
     for (ClassOrInterfaceType parameterType : typesWithWildcards) {
@@ -357,11 +353,11 @@ public class TypeInstantiator {
       if (subst == null) {
         return null;
       }
-      subst = subst.ground();
-      System.out.printf("subst = %s%n", subst);
-      if (subst == null) {
-        return null;
-      }
+      // subst = subst.ground();
+      // System.out.printf("subst = %s%n", subst);
+      // if (subst == null) {
+      //   return null;
+      // }
       substitution = substitution.extend(subst);
       System.out.printf("substitution = %s%n", substitution);
     }

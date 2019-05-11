@@ -97,24 +97,15 @@ public abstract class ReferenceType extends Type {
     return new ArrayList<>();
   }
 
-  /**
-   * Indicates whether this {@link ReferenceType} has a wildcard.
-   *
-   * @return true iff this type has a wildcard
-   */
+  @Override
   public boolean hasWildcard() {
     return false;
   }
 
-  /**
-   * Indicates whether this {@link ReferenceType} has a capture variable.
-   *
-   * @return true iff this type has a capture variable
-   */
+  @Override
   public boolean hasCaptureVariable() {
     return false;
   }
-
   /**
    * {@inheritDoc}
    *

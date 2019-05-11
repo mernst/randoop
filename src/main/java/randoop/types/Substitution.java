@@ -184,13 +184,16 @@ public class Substitution {
   // TODO: maybe I should do this as I add bindings, rather than as a postpass that looks for
   // bindings of the given type
   /**
-   * To "ground" a substitution is to choose a type for any type parameters that exist ony in
+   * To "ground" a substitution is to choose a type for any type parameters that exist only in
    * wildcards.
    *
    * @return a new substitution that extends this one to ground type parameters that exist ony in
    *     wildcards
    */
   public Substitution ground() {
+    // Implementation strategy:  choose the least restrictive type, which is generally the top
+    // type if there is any constraint. (?)
+    // TODO: Skip anything that isn't actually constrained.  That is, skip "? extends Object".
     Substitution result = this;
     System.out.printf("ground(): this=%s%n", this);
     for (Map.Entry<TypeVariable, ReferenceType> entry : map.entrySet()) {
