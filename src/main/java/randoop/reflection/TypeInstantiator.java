@@ -277,9 +277,9 @@ public class TypeInstantiator {
     // with the substitution.
     // Worse, we might process an argument like
     //   java7.util7.Comparator<? super T>
-    // after the above.  The substitution forthe former won't affect the latter and their
+    // after the above.  The substitution for the former won't affect the latter and their
     // instantiations might be incompatible.
-    // So, maybe defer wildcards to the end?
+    // So, defer wildcards to the end.
     // There is no order that is guaranteed to work, but I can do better than the default order.
 
     // Divide the input types into 3 categories:
@@ -404,10 +404,10 @@ public class TypeInstantiator {
       return null;
     }
 
-    if (hasCaptureVariable) {
-      System.out.printf("Exiting because hasCaptureVariable is true%n");
-      System.exit(1);
-    }
+    // if (hasCaptureVariable) {
+    //   System.out.printf("Exiting because hasCaptureVariable is true%n");
+    //   System.exit(1);
+    // }
 
     return operation;
   }

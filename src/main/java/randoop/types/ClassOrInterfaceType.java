@@ -504,11 +504,6 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     return false;
   }
 
-  /**
-   * Indicate whether this type contains a capture variable.
-   *
-   * @return true iff this type has a capture variable
-   */
   @Override
   public boolean hasCaptureVariable() {
     return false;

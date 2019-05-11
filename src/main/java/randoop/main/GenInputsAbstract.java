@@ -893,7 +893,8 @@ public abstract class GenInputsAbstract extends CommandHandler {
         && output_limit >= LIMIT_DEFAULT) {
       throw new RandoopUsageError(
           String.format(
-              "Unlikely parameter combination: --time-limit=0 and high other limits: --attempted-limit=%s --generated-limit=%s --output-limit=%s",
+              "Unlikely parameter combination: --time-limit=0 and high other limits:%n"
+                  + " --attempted-limit=%s --generated-limit=%s --output-limit=%s",
               attempted_limit, generated_limit, output_limit));
     }
 
