@@ -117,6 +117,16 @@ class IntersectionTypeBound extends ParameterBound {
   }
 
   @Override
+  public boolean hasCapture() {
+    for (ParameterBound b : boundList) {
+      if (b.hasCapture()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
   public boolean isGeneric() {
     for (ParameterBound b : boundList) {
       if (b.isGeneric()) {

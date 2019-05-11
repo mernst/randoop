@@ -91,6 +91,11 @@ public abstract class ParameterType extends ReferenceType {
     return getLowerTypeBound().hasWildcard() || getUpperTypeBound().hasWildcard();
   }
 
+  @Override
+  public boolean hasCapture() {
+    return getLowerTypeBound().hasCapture() || getUpperTypeBound().hasCapture();
+  }
+
   public boolean hasGenericBound() {
     return getUpperTypeBound().isGeneric() || getLowerTypeBound().isGeneric();
   }
