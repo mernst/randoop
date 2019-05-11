@@ -109,12 +109,6 @@ public class ReferenceArgument extends TypeArgument {
         referenceType,
         referenceType.getClass(),
         referenceType.isParameterized());
-    // Infinite loop (or something) for:
-    // return referenceType.hasCaptureVariable();
-    // Also infinite loop (or something) for:
-    // return referenceType instanceof CaptureTypeVariable || ...
-    // WHAT IS UP?
-
     return referenceType instanceof CaptureTypeVariable
         || (referenceType.isParameterized()
             && ((ClassOrInterfaceType) referenceType).hasCaptureVariable());
