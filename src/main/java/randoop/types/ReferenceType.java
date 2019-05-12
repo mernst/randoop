@@ -97,15 +97,6 @@ public abstract class ReferenceType extends Type {
     return new ArrayList<>();
   }
 
-  @Override
-  public boolean hasWildcard() {
-    return false;
-  }
-
-  @Override
-  public boolean hasCaptureVariable() {
-    return false;
-  }
   /**
    * {@inheritDoc}
    *
