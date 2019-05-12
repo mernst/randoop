@@ -204,6 +204,19 @@ public class TypeInstantiator {
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
     if (debug) Log.logPrintf("selectSubstitution(%s, %s)%n", type, patternType);
+    if (patternType.isParameterized()) {
+      ParameterizedType parameterized = (ParameterizedType) patternType;
+      if (parameterized.getGenericClassType().equals(JavaTypes.CLASS_TYPE)) {
+        List<TypeArgument> typeArgs = parameterized.getTypeArguments();
+        assert typeArgs.size() == 1;
+        TypeArgument typeArg = typeArgs.get(0);
+        if (typeArg instanceof ReferenceArgument) {
+          System.out.printf("Returning Class<...> literally: %s%n", patternType);
+          return new Substitution();
+        }
+      }
+    }
+
     List<ReferenceType> matches = new ArrayList<>();
     for (Type inputType : inputTypes) {
       if (debug && type.toString().contains("Class"))
