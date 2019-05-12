@@ -211,7 +211,6 @@ public class TypeInstantiator {
         assert typeArgs.size() == 1;
         TypeArgument typeArg = typeArgs.get(0);
         if (typeArg instanceof ReferenceArgument) {
-          System.out.printf("Returning Class<...> literally: %s%n", patternType);
           return new Substitution();
         }
       }
@@ -359,7 +358,7 @@ public class TypeInstantiator {
       }
     }
 
-    // Process list #3: class or interface tyeps with wildcards.
+    // Process list #3: class or interface types with wildcards.
     System.out.printf(
         "instantiateOperationTypes(%s): list #3 = %s%n", operation, typesWithWildcards);
     for (ClassOrInterfaceType parameterType : typesWithWildcards) {
