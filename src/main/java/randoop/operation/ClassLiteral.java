@@ -5,6 +5,7 @@ import java.util.Objects;
 import randoop.ExecutionOutcome;
 import randoop.NormalExecution;
 import randoop.sequence.Variable;
+import randoop.types.ReferenceType;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
@@ -21,13 +22,25 @@ public final class ClassLiteral extends CallableOperation {
    * Creates an object representing a class literal operation such as {@code
    * java.lang.Object.class}.
    *
-   * @param theClass the class in the class literal operation
+   * @param theClass the class in the class literal operation. For example, {@code Object}, not
+   *     {@code Class<Object>}.
    */
-  public ClassLiteral(Class<?> theClass) {
+  private ClassLiteral(Class<?> theClass) {
     if (theClass == null) {
       throw new IllegalArgumentException("the Class should not be null.");
     }
     this.theClass = theClass;
+  }
+
+  /**
+   * Creates an object representing a class literal operation such as {@code
+   * java.lang.Object.class}. The argument is a type like {@code Class<Object>}, not just {@code
+   * Object}.
+   *
+   * @param type the type in the class literal operation
+   */
+  public ClassLiteral(ReferenceType type) {
+    this(type.getRuntimeClass());
   }
 
   /**

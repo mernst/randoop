@@ -19,8 +19,12 @@ import randoop.types.ClassOrInterfaceType;
 import randoop.types.GenericClassType;
 import randoop.types.InstantiatedType;
 import randoop.types.JavaTypes;
+import randoop.types.ParameterizedType;
+import randoop.types.ReferenceArgument;
+import randoop.types.ReferenceType;
 import randoop.types.Substitution;
 import randoop.types.Type;
+import randoop.types.TypeArgument;
 import randoop.types.TypeTuple;
 import randoop.types.TypeVariable;
 
@@ -505,6 +509,29 @@ public abstract class TypedOperation implements Operation, Comparable<TypedOpera
    */
   public static TypedOperation createNonreceiverInitialization(NonreceiverTerm term) {
     return new TypedTermOperation(term, new TypeTuple(), term.getType());
+  }
+
+  /**
+   * Creates an operation that initializes a variable to a given class literal value. The argument
+   * is a type like {@code Class<Object>}, not just {@code Object}.
+   *
+   * @param classType the Class type
+   * @return the initialization operation, or null if the type X in {@code Class<X>} is
+   *     parameterized, in which case no literal exists
+   */
+  public static TypedOperation createClassLiteralInitialization(ParameterizedType classType) {
+    GenericClassType generic = classType.getGenericClassType();
+    assert generic.equals(JavaTypes.CLASS_TYPE);
+
+    List<TypeArgument> typeArgs = classType.getTypeArguments();
+    assert typeArgs.size() == 1;
+    ReferenceType typeArg = ((ReferenceArgument) typeArgs.get(0)).getReferenceType();
+    if (typeArg.isParameterized()) {
+      // Typearg itself has arguments.  No literal exists.  Fail and return null.
+      return null;
+    }
+
+    return new TypedTermOperation(new ClassLiteral(typeArg), new TypeTuple(), classType);
   }
 
   /**
