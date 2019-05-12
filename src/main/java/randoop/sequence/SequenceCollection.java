@@ -11,8 +11,12 @@ import java.util.TreeSet;
 import randoop.Globals;
 import randoop.SubTypeSet;
 import randoop.main.GenInputsAbstract;
+import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;
 import randoop.types.ClassOrInterfaceType;
+import randoop.types.GenericClassType;
+import randoop.types.JavaTypes;
+import randoop.types.ParameterizedType;
 import randoop.types.Type;
 import randoop.util.ListOfLists;
 import randoop.util.Log;
@@ -207,6 +211,21 @@ public class SequenceCollection {
     }
 
     Log.logPrintf("getSequencesForType(%s, %s, %s)%n", type, exactMatch, onlyReceivers);
+
+    if (type.isParameterized()) {
+      ParameterizedType parameterized = (ParameterizedType) type;
+      GenericClassType generic = parameterized.getGenericClassType();
+      if (generic.equals(JavaTypes.CLASS_TYPE)) {
+        // This type is Class<...>.
+        TypedOperation classLiteral =
+            TypedOperation.createClassLiteralInitialization(parameterized);
+        SimpleArrayList<Sequence> result = new SimpleArrayList<>(1);
+        if (classLiteral != null) {
+          result.add(new Sequence().extend(classLiteral));
+        }
+        return result;
+      }
+    }
 
     List<SimpleList<Sequence>> resultList = new ArrayList<>();
 
