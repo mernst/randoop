@@ -136,7 +136,7 @@ public class EnumConstantTest {
   @Test
   public void testInheritedMethods() {
     // skipping reflection
-    ClassOrInterfaceType enumType = new NonParameterizedType(SimpleEnumForTests.class);
+    ClassOrInterfaceType enumType = NonParameterizedType.forClass(SimpleEnumForTests.class);
     TypedOperation ec1 =
         new TypedClassOperation(
             new EnumConstant(SimpleEnumForTests.ONE), enumType, new TypeTuple(), enumType);
@@ -159,7 +159,7 @@ public class EnumConstantTest {
     assertTrue("Should be no input types", ec1.getInputTypes().isEmpty());
     assertEquals(
         "Output type should match enum type of constant",
-        new NonParameterizedType(SimpleEnumForTests.ONE.getDeclaringClass()),
+        NonParameterizedType.forClass(SimpleEnumForTests.ONE.getDeclaringClass()),
         ec1.getOutputType());
 
     // Execution

@@ -137,9 +137,9 @@ public class SimpleTypeTest {
    */
   @Test
   public void testNames() throws ClassNotFoundException {
-    Type t = new NonParameterizedType(String.class);
+    Type t = NonParameterizedType.forClass(String.class);
     assertEquals("name should match", "java.lang.String", t.getName());
-    t = new NonParameterizedType(randoop.types.test.Subclass.class);
+    t = NonParameterizedType.forClass(randoop.types.test.Subclass.class);
     assertEquals("name should match", "randoop.types.test.Subclass", t.getName());
     t = Type.forName("randoop.types.test.Subclass$Innerclass");
     assertEquals("name should match", "randoop.types.test.Subclass.Innerclass", t.getName());
@@ -153,7 +153,7 @@ public class SimpleTypeTest {
   public void testVoidDoesNotConvert() {
     // Type voidType = new PrimitiveType(void.class);
     Type voidType = JavaTypes.VOID_TYPE;
-    Type objectType = new NonParameterizedType(Object.class);
+    Type objectType = NonParameterizedType.forClass(Object.class);
     Type booleanType = new PrimitiveType(boolean.class);
     Type byteType = new PrimitiveType(byte.class);
     Type charType = new PrimitiveType(char.class);
@@ -189,7 +189,7 @@ public class SimpleTypeTest {
   /** Object also a special case. Just want to make sure didn't mess up the obvious. */
   @Test
   public void testConversionsToObject() {
-    Type objectType = new NonParameterizedType(Object.class);
+    Type objectType = NonParameterizedType.forClass(Object.class);
     Type booleanType = new PrimitiveType(boolean.class);
     Type byteType = new PrimitiveType(byte.class);
     Type charType = new PrimitiveType(char.class);
@@ -198,7 +198,7 @@ public class SimpleTypeTest {
     Type intType = new PrimitiveType(int.class);
     Type longType = new PrimitiveType(long.class);
     Type shortType = new PrimitiveType(short.class);
-    Type subclassType = new NonParameterizedType(randoop.types.test.Subclass.class);
+    Type subclassType = NonParameterizedType.forClass(randoop.types.test.Subclass.class);
     Type intArrayType = ArrayType.ofComponentType(intType);
     Type intArrayListType =
         GenericClassType.forClass(ArrayList.class)
@@ -223,44 +223,44 @@ public class SimpleTypeTest {
   @Test
   public void testBoxingUnboxingConversions() {
     Type booleanType = new PrimitiveType(boolean.class);
-    Type boxedBooleanType = new NonParameterizedType(Boolean.class);
+    Type boxedBooleanType = NonParameterizedType.forClass(Boolean.class);
     assertTrue("boolean assignable from boxed", booleanType.isAssignableFrom(boxedBooleanType));
     assertTrue(
         "boxed boolean assignable from unboxed", boxedBooleanType.isAssignableFrom(booleanType));
 
     Type byteType = new PrimitiveType(byte.class);
-    Type boxedByteType = new NonParameterizedType(Byte.class);
+    Type boxedByteType = NonParameterizedType.forClass(Byte.class);
     assertTrue("byte assignable from boxed", byteType.isAssignableFrom(boxedByteType));
     assertTrue("boxed byte assignable from unboxed", boxedByteType.isAssignableFrom(byteType));
 
     Type charType = new PrimitiveType(char.class);
-    Type boxedCharType = new NonParameterizedType(Character.class);
+    Type boxedCharType = NonParameterizedType.forClass(Character.class);
     assertTrue("char assignable from boxed", charType.isAssignableFrom(boxedCharType));
     assertTrue("boxed char assignable from unboxed", boxedCharType.isAssignableFrom(charType));
 
     Type doubleType = new PrimitiveType(double.class);
-    Type boxedDoubleType = new NonParameterizedType(Double.class);
+    Type boxedDoubleType = NonParameterizedType.forClass(Double.class);
     assertTrue("double assignable from boxed", doubleType.isAssignableFrom(boxedDoubleType));
     assertTrue(
         "boxed double assignable from unboxed", boxedDoubleType.isAssignableFrom(doubleType));
 
     Type floatType = new PrimitiveType(float.class);
-    Type boxedfloatType = new NonParameterizedType(Float.class);
+    Type boxedfloatType = NonParameterizedType.forClass(Float.class);
     assertTrue("float assignable from boxed", floatType.isAssignableFrom(boxedfloatType));
     assertTrue("boxed float assignable from unboxed", boxedfloatType.isAssignableFrom(floatType));
 
     Type intType = new PrimitiveType(int.class);
-    Type boxedIntType = new NonParameterizedType(Integer.class);
+    Type boxedIntType = NonParameterizedType.forClass(Integer.class);
     assertTrue("int assignable from boxed", intType.isAssignableFrom(boxedIntType));
     assertTrue("boxed int assignable from unboxed", boxedIntType.isAssignableFrom(intType));
 
     Type longType = new PrimitiveType(long.class);
-    Type boxedLongType = new NonParameterizedType(Long.class);
+    Type boxedLongType = NonParameterizedType.forClass(Long.class);
     assertTrue("long assignable from boxed", longType.isAssignableFrom(boxedLongType));
     assertTrue("boxed long assignable from unboxed", boxedLongType.isAssignableFrom(longType));
 
     Type shortType = new PrimitiveType(short.class);
-    Type boxedShortType = new NonParameterizedType(Short.class);
+    Type boxedShortType = NonParameterizedType.forClass(Short.class);
     assertTrue("short assignable from boxed", shortType.isAssignableFrom(boxedShortType));
     assertTrue("boxed short assignable from unboxed", boxedShortType.isAssignableFrom(shortType));
     assertFalse("boxed int not assignable from short", boxedIntType.isAssignableFrom(shortType));
@@ -269,19 +269,19 @@ public class SimpleTypeTest {
 
   @Test
   public void testRawtypeAssignability() {
-    Type rawALType = new NonParameterizedType(ArrayList.class);
+    Type rawALType = NonParameterizedType.forClass(ArrayList.class);
     Type parameterizedALType =
         GenericClassType.forClass(ArrayList.class)
-            .instantiate(new NonParameterizedType(String.class));
+            .instantiate(NonParameterizedType.forClass(String.class));
     assertTrue(
         "ArrayList is assignable from ArrayList<String>",
         rawALType.isAssignableFrom(parameterizedALType));
 
-    Type rawCollType = new NonParameterizedType(Collection.class);
+    Type rawCollType = NonParameterizedType.forClass(Collection.class);
     assertTrue(
         "Collection is assignable from ArrayList<String>",
         rawCollType.isAssignableFrom(parameterizedALType));
-    Type rawSetType = new NonParameterizedType(Set.class);
+    Type rawSetType = NonParameterizedType.forClass(Set.class);
     assertFalse(
         "Set is not assignable from ArrayList<String>",
         rawSetType.isAssignableFrom(parameterizedALType));
@@ -293,7 +293,7 @@ public class SimpleTypeTest {
     // class J<T> extends I {}
     Type iType = Type.forClass(I.class);
     Type strJType =
-        GenericClassType.forClass(J.class).instantiate(new NonParameterizedType(String.class));
+        GenericClassType.forClass(J.class).instantiate(NonParameterizedType.forClass(String.class));
     assertTrue("J<String> is assignable to I", iType.isAssignableFrom(strJType));
   }
 

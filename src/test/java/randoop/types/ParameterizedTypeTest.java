@@ -20,14 +20,14 @@ public class ParameterizedTypeTest {
   public void testAssignability() {
     Type strALType =
         GenericClassType.forClass(ArrayList.class)
-            .instantiate(new NonParameterizedType(String.class));
+            .instantiate(NonParameterizedType.forClass(String.class));
     Type intALType =
         GenericClassType.forClass(ArrayList.class)
-            .instantiate(new NonParameterizedType(Integer.class));
+            .instantiate(NonParameterizedType.forClass(Integer.class));
     Type objALType =
         GenericClassType.forClass(ArrayList.class)
-            .instantiate(new NonParameterizedType(Object.class));
-    Type rawALType = new NonParameterizedType(ArrayList.class);
+            .instantiate(NonParameterizedType.forClass(Object.class));
+    Type rawALType = NonParameterizedType.forClass(ArrayList.class);
 
     assertTrue(
         "ArrayList<String> can be assigned to itself", strALType.isAssignableFrom(strALType));
@@ -40,17 +40,17 @@ public class ParameterizedTypeTest {
         "ArrayList<Integer> cannot be assigned to ArrayList<Number>",
         objALType.isAssignableFrom(intALType));
 
-    Type intType = new NonParameterizedType(Integer.class);
+    Type intType = NonParameterizedType.forClass(Integer.class);
     Type intCompType =
         GenericClassType.forClass(Comparable.class)
-            .instantiate(new NonParameterizedType(Integer.class));
+            .instantiate(NonParameterizedType.forClass(Integer.class));
     assertTrue("Integer assignable to Comparable<Integer>", intCompType.isAssignableFrom(intType));
     assertFalse(
         "Comparable<Integer> not assignable to Integer", intType.isAssignableFrom(intCompType));
 
     Type strCompType =
         GenericClassType.forClass(Comparable.class)
-            .instantiate(new NonParameterizedType(String.class));
+            .instantiate(NonParameterizedType.forClass(String.class));
     assertTrue(
         "Comparable<Integer> assignable to Comparable<Integer>",
         intCompType.isAssignableFrom(intCompType));
@@ -58,34 +58,35 @@ public class ParameterizedTypeTest {
         "Comparable<Integer> is not assignable from Comparable<String>",
         intCompType.isAssignableFrom(strCompType));
 
-    Type intArrayType = ArrayType.ofComponentType(new NonParameterizedType(Integer.class));
+    Type intArrayType = ArrayType.ofComponentType(NonParameterizedType.forClass(Integer.class));
     assertFalse(
         "Comparable<Integer> not assignable from Integer[]",
         intCompType.isAssignableFrom(intArrayType));
 
     // class A<T> implements Comparable<T> {}
     Type intAType =
-        GenericClassType.forClass(A.class).instantiate(new NonParameterizedType(Integer.class));
+        GenericClassType.forClass(A.class)
+            .instantiate(NonParameterizedType.forClass(Integer.class));
     assertTrue(
         "A<Integer> assignable to Comparable<Integer>", intCompType.isAssignableFrom(intAType));
 
     // class B extends A<String> {}
     Type strAType =
-        GenericClassType.forClass(A.class).instantiate(new NonParameterizedType(String.class));
-    Type bType = new NonParameterizedType(B.class);
+        GenericClassType.forClass(A.class).instantiate(NonParameterizedType.forClass(String.class));
+    Type bType = NonParameterizedType.forClass(B.class);
     assertTrue("B assignable to A<String>", strAType.isAssignableFrom(bType));
     assertTrue("B assignable to Comparable<String>", strCompType.isAssignableFrom(bType));
 
     // class C extends A<Integer> {}
-    Type cType = new NonParameterizedType(C.class);
+    Type cType = NonParameterizedType.forClass(C.class);
     assertFalse("C not assignable to A<String>", strAType.isAssignableFrom(cType));
     assertFalse("C not assignable to Comparable<String>", strCompType.isAssignableFrom(cType));
 
     // class H<T> extends G<T> implements Comparable<T> {}
     Type strHType =
-        GenericClassType.forClass(H.class).instantiate(new NonParameterizedType(String.class));
+        GenericClassType.forClass(H.class).instantiate(NonParameterizedType.forClass(String.class));
     Type strGType =
-        GenericClassType.forClass(G.class).instantiate(new NonParameterizedType(String.class));
+        GenericClassType.forClass(G.class).instantiate(NonParameterizedType.forClass(String.class));
     assertTrue("H<String> assignable to G<String>", strGType.isAssignableFrom(strHType));
     assertTrue(
         "H<String> assignable to Comparable<String>", strCompType.isAssignableFrom(strHType));
@@ -94,7 +95,8 @@ public class ParameterizedTypeTest {
     Type strIntDType =
         GenericClassType.forClass(D.class)
             .instantiate(
-                new NonParameterizedType(String.class), new NonParameterizedType(Integer.class));
+                NonParameterizedType.forClass(String.class),
+                NonParameterizedType.forClass(Integer.class));
     assertTrue(
         "D<String,Integer> assignable to A<Integer>", intAType.isAssignableFrom(strIntDType));
     assertFalse(
@@ -104,19 +106,22 @@ public class ParameterizedTypeTest {
     Type strIntEType =
         GenericClassType.forClass(E.class)
             .instantiate(
-                new NonParameterizedType(String.class), new NonParameterizedType(Integer.class));
+                NonParameterizedType.forClass(String.class),
+                NonParameterizedType.forClass(Integer.class));
     // class F<T,S> extends E<S,T> {}
     Type intStrFType =
         GenericClassType.forClass(F.class)
             .instantiate(
-                new NonParameterizedType(Integer.class), new NonParameterizedType(String.class));
+                NonParameterizedType.forClass(Integer.class),
+                NonParameterizedType.forClass(String.class));
     assertTrue(
         "F<Integer,String> assignable to E<String,Integer>",
         strIntEType.isAssignableFrom(intStrFType));
     Type strIntFType =
         GenericClassType.forClass(F.class)
             .instantiate(
-                new NonParameterizedType(String.class), new NonParameterizedType(Integer.class));
+                NonParameterizedType.forClass(String.class),
+                NonParameterizedType.forClass(Integer.class));
     assertFalse(
         "F<String,Integer> not assignable to E<String,Integer>",
         strIntEType.isAssignableFrom(strIntFType));
@@ -126,7 +131,7 @@ public class ParameterizedTypeTest {
   public void testNames() {
     Type strALType =
         GenericClassType.forClass(ArrayList.class)
-            .instantiate(new NonParameterizedType(String.class));
+            .instantiate(NonParameterizedType.forClass(String.class));
     assertEquals(
         "parameterized type name ", "java.util.ArrayList<java.lang.String>", strALType.getName());
   }

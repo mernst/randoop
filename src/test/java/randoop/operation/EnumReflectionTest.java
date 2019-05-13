@@ -55,7 +55,7 @@ public class EnumReflectionTest {
   @Test
   public void simpleEnumTest() {
     Class<?> se = SimpleEnum.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(se);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(se);
 
     @SuppressWarnings("unchecked")
     List<Enum<?>> include = asList(se.getEnumConstants());
@@ -244,7 +244,7 @@ public class EnumReflectionTest {
   @Test
   public void valueEnum() {
     Class<?> coin = Coin.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(coin);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(coin);
 
     Set<TypedOperation> actual = getConcreteOperations(coin);
 
@@ -288,7 +288,7 @@ public class EnumReflectionTest {
   @Test
   public void abstractMethodEnum() {
     Class<?> op = OperatorEnum.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(op);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(op);
 
     Set<TypedOperation> actual = getConcreteOperations(op);
     Set<String> overrides = new TreeSet<>();
@@ -340,7 +340,7 @@ public class EnumReflectionTest {
 
   private TypedClassOperation createEnumOperation(Enum<?> e) {
     CallableOperation eOp = new EnumConstant(e);
-    ClassOrInterfaceType enumType = new NonParameterizedType(e.getDeclaringClass());
+    ClassOrInterfaceType enumType = NonParameterizedType.forClass(e.getDeclaringClass());
     return new TypedClassOperation(eOp, enumType, new TypeTuple(), enumType);
   }
 

@@ -13,7 +13,7 @@ public class AccessibleFieldTest {
   @Test
   public void inheritedMethods() throws NoSuchFieldException, SecurityException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(c);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(c);
 
     AccessibleField pf1 = new AccessibleField(c.getField("oneField"), declaringType);
     AccessibleField pf1_2 = new AccessibleField(c.getField("oneField"), declaringType);

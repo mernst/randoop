@@ -51,7 +51,7 @@ public class FieldSetterTest {
   @Test
   public void testStaticField() throws NoSuchFieldException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(c);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(c);
     Field field = c.getField("fourField");
     AccessibleField f = new AccessibleField(field, declaringType);
     Type fieldType = new PrimitiveType(field.getType());
@@ -99,10 +99,10 @@ public class FieldSetterTest {
   public void testInstanceField()
       throws NoSuchFieldException, InstantiationException, IllegalAccessException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(c);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(c);
     Field field = c.getField("oneField");
     AccessibleField f = new AccessibleField(field, declaringType);
-    Type fieldType = new NonParameterizedType(field.getDeclaringClass());
+    Type fieldType = NonParameterizedType.forClass(field.getDeclaringClass());
     List<Type> setInputTypeList = new ArrayList<>();
     setInputTypeList.add(declaringType);
     setInputTypeList.add(fieldType);
@@ -171,7 +171,7 @@ public class FieldSetterTest {
   @Test
   public void testFinalField() throws NoSuchFieldException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(c);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(c);
     Field field = c.getField("tenField");
     AccessibleField f = new AccessibleField(field, declaringType);
 
@@ -188,7 +188,7 @@ public class FieldSetterTest {
   @Test
   public void testFinalStaticField() throws NoSuchFieldException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(c);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(c);
     Field field = c.getField("FIVEFIELD");
     AccessibleField f = new AccessibleField(field, declaringType);
 

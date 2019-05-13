@@ -34,7 +34,7 @@ public class FieldGetterTest {
   @Test
   public void testStaticField() throws NoSuchFieldException, SecurityException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType classType = new NonParameterizedType(c);
+    ClassOrInterfaceType classType = NonParameterizedType.forClass(c);
     Field field = c.getField("fourField");
     Type fieldType = new PrimitiveType(field.getType());
     TypedOperation rhs = createGetter(field, fieldType, classType);
@@ -67,7 +67,7 @@ public class FieldGetterTest {
       throws NoSuchFieldException, SecurityException, InstantiationException,
           IllegalAccessException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType classType = new NonParameterizedType(c);
+    ClassOrInterfaceType classType = NonParameterizedType.forClass(c);
 
     Field field = c.getField("oneField");
     Type fieldType = new PrimitiveType(field.getType());
@@ -133,7 +133,7 @@ public class FieldGetterTest {
   @Test
   public void testStaticFinalField() throws NoSuchFieldException {
     Class<?> c = ClassWithFields.class;
-    ClassOrInterfaceType classType = new NonParameterizedType(c);
+    ClassOrInterfaceType classType = NonParameterizedType.forClass(c);
 
     Field field = c.getField("FIVEFIELD");
     Type fieldType = new PrimitiveType(field.getType());

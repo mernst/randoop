@@ -42,7 +42,7 @@ public class VisibilityBridgeTest {
         paramTypes.add(declaringType);
       }
       for (Class<?> p : m.getParameterTypes()) {
-        paramTypes.add(new NonParameterizedType(p));
+        paramTypes.add(NonParameterizedType.forClass(p));
       }
       this.parameterTypes = new TypeTuple(paramTypes);
     }
@@ -86,7 +86,7 @@ public class VisibilityBridgeTest {
   @Test
   public void testVisibilityBridge() throws ClassNotFoundException {
     Class<?> sub = PackageSubclass.class;
-    ClassOrInterfaceType declaringType = new NonParameterizedType(sub);
+    ClassOrInterfaceType declaringType = NonParameterizedType.forClass(sub);
 
     // should only inherit public non-synthetic methods of package private superclass
     List<MethodSignature> superclassMethods = new ArrayList<>();
