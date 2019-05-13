@@ -16,8 +16,15 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   /** The runtime class of this simple type. */
   private final Class<?> runtimeType;
 
+  /** A cache of all NonParameterizedTypes that have been created. */
   private static final Map<Class<?>, NonParameterizedType> cache = new HashMap<>();
 
+  /**
+   * Create a {@link NonParameterizedType} object for the runtime class.
+   *
+   * @param runtimeType the runtime class for the type
+   * @return a NonParameterizedType for the argument
+   */
   public static NonParameterizedType forClass(Class<?> runtimeType) {
     NonParameterizedType cached = cache.get(runtimeType);
     if (cached == null) {

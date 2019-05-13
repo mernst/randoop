@@ -17,6 +17,7 @@ import org.plumelib.util.UtilPlume;
  */
 public abstract class ParameterizedType extends ClassOrInterfaceType {
 
+  /** A cache of all ParameterizedTypes that have been created. */
   private static final Map<Class<?>, GenericClassType> cache = new HashMap<>();
 
   /**
