@@ -363,6 +363,8 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     }
     if (this.isMemberClass() && (otherType instanceof ClassOrInterfaceType)) {
       ClassOrInterfaceType otherClassType = (ClassOrInterfaceType) otherType;
+      // TODO: This checks that both are member classes, but they should be named the same and with
+      // the same type parameters too.
       return otherClassType.isMemberClass()
           && this.enclosingType.isInstantiationOf(otherClassType.enclosingType);
     }
