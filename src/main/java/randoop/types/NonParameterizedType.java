@@ -77,7 +77,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   @Override
   public NonParameterizedType substitute(Substitution substitution) {
     return (NonParameterizedType)
-        substitute(substitution, new NonParameterizedType(this.runtimeType));
+        substitute(substitution, NonParameterizedType.forClass(this.runtimeType));
   }
 
   @Override
@@ -119,7 +119,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   private List<ClassOrInterfaceType> getRawTypeInterfaces() {
     List<ClassOrInterfaceType> interfaces = new ArrayList<>();
     for (Class<?> c : runtimeType.getInterfaces()) {
-      interfaces.add(new NonParameterizedType(c));
+      interfaces.add(NonParameterizedType.forClass(c));
     }
     return interfaces;
   }
@@ -137,7 +137,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
     if (this.isRawtype()) {
       Class<?> superclass = this.runtimeType.getSuperclass();
       if (superclass != null) {
-        return new NonParameterizedType(superclass);
+        return NonParameterizedType.forClass(superclass);
       }
     } else {
       java.lang.reflect.Type supertype = this.runtimeType.getGenericSuperclass();
