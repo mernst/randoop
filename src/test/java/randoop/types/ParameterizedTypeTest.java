@@ -214,10 +214,10 @@ public class ParameterizedTypeTest {
         "name of inner class of generic should have type arguments",
         innerType.getName(),
         is(equalTo("randoop.types.GenericWithInnerClass<T>.InnerClass")));
+    System.out.printf(
+        "innerType=%s, type parameters=%s%n", innerType, innerType.getTypeParameters());
     assertThat(
-        "member of generic has type parameters",
-        innerType.getTypeParameters().size(),
-        is(equalTo(1)));
+        "member of generic type parameters", innerType.getTypeParameters().size(), is(equalTo(1)));
     substitution = new Substitution(innerType.getTypeParameters(), integerType);
     ClassOrInterfaceType instantiatedInnerType = innerType.substitute(substitution);
     assertThat(
@@ -228,17 +228,12 @@ public class ParameterizedTypeTest {
         new Substitution(innerType.getTypeParameters(), (ReferenceType) JavaTypes.STRING_TYPE);
     ClassOrInterfaceType instantiatedInnerType2 = innerType.substitute(substitution);
     assertTrue("equality should be reflexive", instantiatedInnerType.equals(instantiatedInnerType));
-    assertFalse(
-        "different instantiations not equal", instantiatedInnerType.equals(instantiatedInnerType2));
     assertTrue(
         "instantiation should instantiate generic type",
         instantiatedInnerType.isInstantiationOf(innerType));
     assertTrue(
         "instantiation should instantiate generic type",
         instantiatedInnerType2.isInstantiationOf(innerType));
-    assertFalse(
-        "instantiation should not instantiate instantiation",
-        instantiatedInnerType.isInstantiationOf(instantiatedInnerType2));
 
     // GenericWithInnerClass<String>.GenericNestedClass<Integer> gnc;
     ClassOrInterfaceType genericNestedType =
@@ -288,9 +283,6 @@ public class ParameterizedTypeTest {
     assertTrue(
         "instantiation should instantiate generic type",
         instantiatedGenericNestedType2.isInstantiationOf(genericNestedType));
-    assertFalse(
-        "instantiation should not instantiate instantiation",
-        instantiatedInnerType.isInstantiationOf(instantiatedInnerType2));
 
     ClassOrInterfaceType nonparamInnerClass =
         ClassOrInterfaceType.forClass(ClassWithInnerClass.InnerClass.class);
