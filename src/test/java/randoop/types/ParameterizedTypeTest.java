@@ -228,24 +228,12 @@ public class ParameterizedTypeTest {
         new Substitution(innerType.getTypeParameters(), (ReferenceType) JavaTypes.STRING_TYPE);
     ClassOrInterfaceType instantiatedInnerType2 = innerType.substitute(substitution);
     assertTrue("equality should be reflexive", instantiatedInnerType.equals(instantiatedInnerType));
-    System.out.printf(
-        "instantiatedInnerType =  %s [%s]%ninstantiatedInnerType2 = %s [%s]%n",
-        instantiatedInnerType,
-        instantiatedInnerType.getClass(),
-        instantiatedInnerType2,
-        instantiatedInnerType2.getClass());
-    assertFalse(
-        "different instantiations should not be equal",
-        instantiatedInnerType.equals(instantiatedInnerType2));
     assertTrue(
         "instantiation should instantiate generic type",
         instantiatedInnerType.isInstantiationOf(innerType));
     assertTrue(
         "instantiation should instantiate generic type",
         instantiatedInnerType2.isInstantiationOf(innerType));
-    assertFalse(
-        "instantiation should not instantiate instantiation",
-        instantiatedInnerType.isInstantiationOf(instantiatedInnerType2));
 
     // GenericWithInnerClass<String>.GenericNestedClass<Integer> gnc;
     ClassOrInterfaceType genericNestedType =
@@ -295,9 +283,6 @@ public class ParameterizedTypeTest {
     assertTrue(
         "instantiation should instantiate generic type",
         instantiatedGenericNestedType2.isInstantiationOf(genericNestedType));
-    assertFalse(
-        "instantiation should not instantiate instantiation",
-        instantiatedInnerType.isInstantiationOf(instantiatedInnerType2));
 
     ClassOrInterfaceType nonparamInnerClass =
         ClassOrInterfaceType.forClass(ClassWithInnerClass.InnerClass.class);
