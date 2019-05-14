@@ -47,7 +47,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     if (classType.getTypeParameters().length > 0) {
       type = ParameterizedType.forClass(classType);
     } else {
-      type = new NonParameterizedType(classType);
+      type = NonParameterizedType.forClass(classType);
     }
     if (classType.isMemberClass()) {
       type.setEnclosingType(ClassOrInterfaceType.forClass(classType.getEnclosingClass()));
@@ -84,7 +84,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
       // the type in the code.  In this case, it is possible to have two distinct
       // java.lang.reflect.TypeVariables that represent the same type parameter.
       //
-      return new NonParameterizedType(classType);
+      return ClassOrInterfaceType.forClass(classType);
     }
 
     throw new IllegalArgumentException("Unable to create class type from type " + type);
@@ -363,6 +363,8 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     }
     if (this.isMemberClass() && (otherType instanceof ClassOrInterfaceType)) {
       ClassOrInterfaceType otherClassType = (ClassOrInterfaceType) otherType;
+      // TODO: This checks that both are member classes, but they should be named the same and with
+      // the same type parameters too.
       return otherClassType.isMemberClass()
           && this.enclosingType.isInstantiationOf(otherClassType.enclosingType);
     }
