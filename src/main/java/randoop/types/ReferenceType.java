@@ -102,6 +102,7 @@ public abstract class ReferenceType extends Type {
    *
    * @return true iff this type has a wildcard
    */
+  @Override
   public boolean hasWildcard() {
     return false;
   }
