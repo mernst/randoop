@@ -2,7 +2,9 @@ package randoop.types;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code NonParameterizedType} represents a non-parameterized class, interface, enum, or the
@@ -14,11 +16,30 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   /** The runtime class of this simple type. */
   private final Class<?> runtimeType;
 
+  /** A cache of all NonParameterizedTypes that have been created. */
+  private static final Map<Class<?>, NonParameterizedType> cache = new HashMap<>();
+
+  /**
+   * Create a {@link NonParameterizedType} object for the runtime class.
+   *
+   * @param runtimeType the runtime class for the type
+   * @return a NonParameterizedType for the argument
+   */
+  public static NonParameterizedType forClass(Class<?> runtimeType) {
+    NonParameterizedType cached = cache.get(runtimeType);
+    if (cached == null) {
+      cached = new NonParameterizedType(runtimeType);
+      cache.put(runtimeType, cached);
+    }
+    return cached;
+  }
+
   /**
    * Create a {@link NonParameterizedType} object for the runtime class.
    *
    * @param runtimeType the runtime class for the type
    */
+  // TODO: make this private
   public NonParameterizedType(Class<?> runtimeType) {
     assert !runtimeType.isPrimitive() : "must be reference type, got " + runtimeType.getName();
     this.runtimeType = runtimeType;
@@ -57,7 +78,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   @Override
   public NonParameterizedType substitute(Substitution substitution) {
     return (NonParameterizedType)
-        substitute(substitution, new NonParameterizedType(this.runtimeType));
+        substitute(substitution, NonParameterizedType.forClass(this.runtimeType));
   }
 
   @Override
@@ -99,7 +120,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   private List<ClassOrInterfaceType> getRawTypeInterfaces() {
     List<ClassOrInterfaceType> interfaces = new ArrayList<>();
     for (Class<?> c : runtimeType.getInterfaces()) {
-      interfaces.add(new NonParameterizedType(c));
+      interfaces.add(NonParameterizedType.forClass(c));
     }
     return interfaces;
   }
@@ -117,7 +138,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
     if (this.isRawtype()) {
       Class<?> superclass = this.runtimeType.getSuperclass();
       if (superclass != null) {
-        return new NonParameterizedType(superclass);
+        return NonParameterizedType.forClass(superclass);
       }
     } else {
       java.lang.reflect.Type supertype = this.runtimeType.getGenericSuperclass();
