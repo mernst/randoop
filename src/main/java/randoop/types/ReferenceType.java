@@ -137,14 +137,21 @@ public abstract class ReferenceType extends Type {
    * @return true if this type instantiates the other reference type, false otherwise
    */
   public boolean isInstantiationOf(ReferenceType otherType) {
+    // TODO: Do arrays deserve special treatment in their subclass?
     if (this.equals(otherType)) {
       return true;
     }
-    if (otherType.isVariable()) {
-      TypeVariable variable = (TypeVariable) otherType;
-      return variable.canBeInstantiatedBy(this);
-    }
-    return false;
+    return isInstantiationOfTypeVariable(otherType);
+  }
+
+  /**
+   * Returns true if othertype is a TypeVariable and this is an instantiation of it.
+   *
+   * @param otherType the type that might be a TypeVariable and that this might instantiate
+   * @return true iff othertype is a TypeVariable and this is an instantiation of it
+   */
+  protected boolean isInstantiationOfTypeVariable(ReferenceType otherType) {
+    return otherType.isVariable() && ((TypeVariable) otherType).canBeInstantiatedBy(this);
   }
 
   /**

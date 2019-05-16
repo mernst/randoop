@@ -252,6 +252,12 @@ public class GenericClassType extends ParameterizedType {
   }
 
   @Override
+  public boolean isInstantiationOf(ReferenceType otherType) {
+    // Generic types are not instantiations
+    return false;
+  }
+
+  @Override
   public boolean isInterface() {
     return rawType.isInterface();
   }

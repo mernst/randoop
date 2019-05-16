@@ -306,25 +306,26 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
-    if (super.isInstantiationOf(otherType) && !(otherType instanceof InstantiatedType)) {
+    if (!this.instantiatedType.isInstantiationOfIgnoringTypeArguments(otherType)) {
+      return false;
+    }
+    if (otherType instanceof GenericClassType) {
+      // othertype has type parameters, so this is triwially an instantiation of it
       return true;
-    }
-    if (otherType instanceof InstantiatedType) {
+    } else if (otherType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) otherType;
-      if (this.instantiatedType.equals(otherInstType.instantiatedType)) {
-        for (int i = 0; i < this.argumentList.size(); i++) {
-          if (!this.argumentList
-              .get(i)
-              .isInstantiationOfArgument(otherInstType.argumentList.get(i))) {
-            return false;
-          }
+      for (int i = 0; i < this.argumentList.size(); i++) {
+        if (!this.argumentList
+            .get(i)
+            .isInstantiationOfTypeArgument(otherInstType.argumentList.get(i))) {
+          return false;
         }
-        return true;
       }
-      return false; // instantiated generic class types are not same
+      return true;
+    } else {
+      // otherType is not a ClassOrInterfaceType
+      return false;
     }
-    return (otherType instanceof GenericClassType)
-        && this.instantiatedType.isInstantiationOf(otherType);
   }
 
   @Override

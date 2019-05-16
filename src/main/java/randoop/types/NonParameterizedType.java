@@ -174,11 +174,7 @@ public class NonParameterizedType extends ClassOrInterfaceType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
-    boolean instantiationOf = super.isInstantiationOf(otherType);
-    if ((otherType instanceof NonParameterizedType)) {
-      return instantiationOf && this.runtimeClassIs(otherType.getRuntimeClass());
-    }
-    return instantiationOf;
+    return isInstantiationOfIgnoringTypeArguments(otherType);
   }
 
   @Override

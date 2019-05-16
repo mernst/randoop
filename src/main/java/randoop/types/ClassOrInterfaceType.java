@@ -350,23 +350,33 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   }
 
   /**
-   * {@inheritDoc}
+   * Return true if this instantiates otherType, ignoring the type arguments.
    *
-   * <p>For a {@link ClassOrInterfaceType} that is a member class, if {@code otherType} is also a
-   * member class, then the enclosing type of this type must instantiate the enclosing type of
-   * {@code otherType}.
+   * @param otherType the type that this might instantiate
+   * @return true if this instantiates otherType, ignoring type arguments
    */
-  @Override
-  public boolean isInstantiationOf(ReferenceType otherType) {
-    if (super.isInstantiationOf(otherType)) {
+  protected final boolean isInstantiationOfIgnoringTypeArguments(ReferenceType otherType) {
+    if (this.equals(otherType)) {
       return true;
     }
-    if (this.isMemberClass() && (otherType instanceof ClassOrInterfaceType)) {
-      ClassOrInterfaceType otherClassType = (ClassOrInterfaceType) otherType;
-      return otherClassType.isMemberClass()
-          && this.enclosingType.isInstantiationOf(otherClassType.enclosingType);
+    if (isInstantiationOfTypeVariable(otherType)) {
+      return true;
     }
-    return false;
+    if (!(otherType instanceof ClassOrInterfaceType)) {
+      return false;
+    }
+    if (!this.runtimeClassIs(otherType.getRuntimeClass())) {
+      return false;
+    }
+    // The class of this is either InstantiatedType or NonParameterizedType.
+
+    ClassOrInterfaceType thisEnclosingType = this.enclosingType;
+    ClassOrInterfaceType otherEnclosingType = ((ClassOrInterfaceType) otherType).enclosingType;
+    assert !((thisEnclosingType == null) ^ (otherEnclosingType == null));
+    if (thisEnclosingType != null) {
+      return thisEnclosingType.isInstantiationOf(otherEnclosingType);
+    }
+    return true;
   }
 
   /**
