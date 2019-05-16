@@ -16,10 +16,10 @@ import java.util.Set;
  */
 public class InstantiatedType extends ParameterizedType {
 
-  private final List<TypeArgument> argumentList;
-
   /** The generic class for this type. */
   private final GenericClassType instantiatedType;
+
+  private final List<TypeArgument> argumentList;
 
   /**
    * Create a parameterized type from the generic class type.
@@ -55,11 +55,15 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
     if (!(obj instanceof InstantiatedType)) {
       return false;
     }
-    InstantiatedType t = (InstantiatedType) obj;
-    return instantiatedType.equals(t.instantiatedType) && argumentList.equals(t.argumentList);
+    InstantiatedType other = (InstantiatedType) obj;
+    return instantiatedType.equals(other.instantiatedType)
+        && argumentList.equals(other.argumentList);
   }
 
   @Override

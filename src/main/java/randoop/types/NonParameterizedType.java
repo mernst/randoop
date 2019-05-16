@@ -3,6 +3,7 @@ package randoop.types;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@code NonParameterizedType} represents a non-parameterized class, interface, enum, or the
@@ -44,16 +45,20 @@ public class NonParameterizedType extends ClassOrInterfaceType {
    */
   @Override
   public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
     if (!(obj instanceof NonParameterizedType)) {
       return false;
     }
-    NonParameterizedType t = (NonParameterizedType) obj;
-    return super.equals(obj) && this.runtimeType.equals(t.runtimeType);
+    NonParameterizedType other = (NonParameterizedType) obj;
+    return Objects.equals(this.enclosingType, other.enclosingType)
+        && this.runtimeType.equals(other.runtimeType);
   }
 
   @Override
   public int hashCode() {
-    return runtimeType.hashCode();
+    return Objects.hash(enclosingType, runtimeType);
   }
 
   /**

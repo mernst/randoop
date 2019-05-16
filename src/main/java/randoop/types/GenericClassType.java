@@ -56,16 +56,21 @@ public class GenericClassType extends ParameterizedType {
    */
   @Override
   public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
     if (!(obj instanceof GenericClassType)) {
       return false;
     }
-    GenericClassType t = (GenericClassType) obj;
-    return this.rawType.equals(t.rawType);
+    GenericClassType other = (GenericClassType) obj;
+    return Objects.equals(this.enclosingType, other.enclosingType)
+        && this.rawType == other.rawType
+        && this.parameters.equals(other.parameters);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(rawType);
+    return Objects.hash(enclosingType, rawType, parameters);
   }
 
   @Override
