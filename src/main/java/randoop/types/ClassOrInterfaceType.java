@@ -23,6 +23,7 @@ import java.util.List;
  */
 public abstract class ClassOrInterfaceType extends ReferenceType {
 
+  /** Set to true to enable debug output to standard out. */
   private static boolean debug = false;
 
   /**
@@ -119,7 +120,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return the type with enclosing type added if needed
    */
   final ClassOrInterfaceType substitute(Substitution substitution, ClassOrInterfaceType type) {
-    if (this.isMemberClass() && !this.isStatic()) {
+    if (this.isMemberClass()) {
       type.setEnclosingType(getEnclosingType().substitute(substitution));
     }
     return type;
@@ -136,7 +137,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return the type with converted enclosing type
    */
   final ClassOrInterfaceType applyCaptureConversion(ClassOrInterfaceType type) {
-    if (this.isMemberClass() && !this.isStatic()) {
+    if (this.isMemberClass()) {
       type.setEnclosingType(getEnclosingType().applyCaptureConversion());
     }
     return type;
@@ -160,7 +161,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
   @Override
   public String getName() {
-    if (this.isMemberClass()) {
+    if (this.isNestedClass()) {
       if (this.isStatic()) {
         return getEnclosingType().getCanonicalName() + "." + this.getSimpleName();
       }
@@ -172,7 +173,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   @Override
   public String getUnqualifiedName() {
     String prefix = "";
-    if (this.isMemberClass()) {
+    if (this.isNestedClass()) {
       prefix = getEnclosingType().getUnqualifiedName() + ".";
     }
     return prefix + this.getSimpleName();
@@ -267,7 +268,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     assert goalType.isGeneric() : "goal type must be generic";
 
     Substitution substitution = new Substitution();
-    if (this.isMemberClass() && !this.isStatic()) {
+    if (this.isMemberClass()) {
       substitution = getEnclosingType().getInstantiatingSubstitution(goalType);
       if (substitution == null) {
         return null;
@@ -342,7 +343,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
   @Override
   public boolean isGeneric() {
-    return this.isMemberClass() && !this.isStatic() && getEnclosingType().isGeneric();
+    return this.isMemberClass() && getEnclosingType().isGeneric();
   }
 
   /**
@@ -360,9 +361,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     System.out.printf("ClassOrInterfaceType.isInstantiationOf%n  %s%n  %s%n", this, otherType);
     // TODO: should also check that the simple names are the same, or more generally that
     // it's an instantiation for the main type as well as for the enclosing type.
-    if (this.isMemberClass() && (otherType instanceof ClassOrInterfaceType)) {
+    if (this.isNestedClass() && (otherType instanceof ClassOrInterfaceType)) {
       ClassOrInterfaceType otherClassType = (ClassOrInterfaceType) otherType;
-      return otherClassType.isMemberClass()
+      return otherClassType.isNestedClass()
           && this.getEnclosingType().isInstantiationOf(otherClassType.getEnclosingType());
     }
     System.out.printf(
@@ -377,13 +378,24 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    *
    * @return true if this class is a member class, false otherwise
    */
-  public final boolean isMemberClass() {
+  public final boolean isNestedClass() {
     return getEnclosingType() != null;
+  }
+
+  /**
+   * Indicate whether this class is a member of another class. (see <a
+   * href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.5">JLS section
+   * 8.5</a>)
+   *
+   * @return true if this class is a member class, false otherwise
+   */
+  public final boolean isMemberClass() {
+    return isNestedClass() && !isStatic();
   }
 
   @Override
   public boolean isParameterized() {
-    return this.isMemberClass() && !this.isStatic() && getEnclosingType().isParameterized();
+    return this.isMemberClass() && getEnclosingType().isParameterized();
   }
 
   /**
@@ -494,7 +506,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
   @Override
   public List<TypeVariable> getTypeParameters() {
-    if (this.isMemberClass() && !this.isStatic()) {
+    if (this.isMemberClass()) {
       return getEnclosingType().getTypeParameters();
     }
     return new ArrayList<>();
