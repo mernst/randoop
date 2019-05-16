@@ -357,11 +357,16 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     if (super.isInstantiationOf(otherType)) {
       return true;
     }
+    System.out.printf("ClassOrInterfaceType.isInstantiationOf%n  %s%n  %s%n", this, otherType);
+    // TODO: should also check that the simple names are the same, or more generally that
+    // it's an instantiation for the main type as well as for the enclosing type.
     if (this.isMemberClass() && (otherType instanceof ClassOrInterfaceType)) {
       ClassOrInterfaceType otherClassType = (ClassOrInterfaceType) otherType;
       return otherClassType.isMemberClass()
           && this.getEnclosingType().isInstantiationOf(otherClassType.getEnclosingType());
     }
+    System.out.printf(
+        "ClassOrInterfaceType.isInstantiationOf%n  %s%n  %s%n  =>false%n", this, otherType);
     return false;
   }
 

@@ -51,6 +51,8 @@ public class TypeInstantiator {
    * @return an instantiated version of the operation
    */
   public TypedClassOperation instantiate(TypedClassOperation operation) {
+    System.out.printf("instantiate(%s)%n", operation);
+
     assert operation.isGeneric() || operation.hasWildcardTypes()
         : "operation " + operation + " must be generic or have wildcards";
 
@@ -67,17 +69,23 @@ public class TypeInstantiator {
           || (operation.isStatic() && operation.getOutputType().equals(declaringType))) {
         if (declaringType.isSubtypeOf(JDKTypes.SORTED_SET_TYPE)) {
           substitution = instantiateSortedSetType(operation);
+          System.out.printf("substitution (1) = %s%n", substitution);
         } else {
           substitution = instantiateClass(declaringType);
+          System.out.printf("substitution (2) = %s%n", substitution);
         }
       } else { // otherwise, select from existing one
         substitution = selectSubstitution(declaringType);
+        System.out.printf("substitution (3) = %s%n", substitution);
       }
+      System.out.printf("substitution (4) = %s%n", substitution);
       if (substitution == null) { // return null if fail to find instantiation
+        System.out.printf("Returning null (1)%n");
         return null;
       }
       // instantiate type parameters of declaring type
       operation = operation.substitute(substitution);
+      System.out.printf("operation = %s%n", operation);
     }
     // type parameters of declaring type are instantiated
 
@@ -201,13 +209,23 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
+    System.out.printf("%nselectSubstitution(%s, %s)%n", type, patternType);
     List<ReferenceType> matches = new ArrayList<>();
     for (Type inputType : inputTypes) {
+      if (inputType.isParameterized()) {
+        System.out.printf(
+            "  Testing input type%n   %s%n   [%s]%n", inputType, inputType.getClass());
+      }
       if (inputType.isParameterized()
+          // PROBLEM with isInstantiationOf returning false
           && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
         matches.add((ReferenceType) inputType);
+        System.out.printf("    A match: %s%n", inputType);
+      } else {
+        System.out.printf("    Not a match: %s%n", inputType);
       }
     }
+    System.out.printf("selectSubstitution: %d matches: %s%n", matches.size(), matches);
     if (matches.isEmpty()) {
       return null;
     }

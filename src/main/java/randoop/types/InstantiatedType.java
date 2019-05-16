@@ -324,20 +324,32 @@ public class InstantiatedType extends ParameterizedType {
     if (super.isInstantiationOf(otherType) && !(otherType instanceof InstantiatedType)) {
       return true;
     }
+    System.out.printf("InstantiatedType.isInstantiationOf%n  %s%n  %s%n", this, otherType);
     if (otherType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) otherType;
       if (this.instantiatedType.equals(otherInstType.instantiatedType)) {
         for (int i = 0; i < this.argumentList.size(); i++) {
-          if (!this.argumentList
-              .get(i)
-              .isInstantiationOfArgument(otherInstType.argumentList.get(i))) {
+          TypeArgument thisTypeArg = this.argumentList.get(i);
+          TypeArgument otherTypeArg = otherInstType.argumentList.get(i);
+          if (!thisTypeArg.isInstantiationOfArgument(otherTypeArg)) {
+            System.out.printf(
+                "InstantiatedType.isInstantiationOf%n  %s%n  %s%n  =>false due to type arg #%d: %s %s%n",
+                this, otherType, i, thisTypeArg, otherTypeArg);
             return false;
           }
         }
         return true;
       }
+      System.out.printf(
+          "InstantiatedType.isInstantiationOf%n  %s%n  %s%n  =>false because not equal instantiatedType:%n  %s%n  %s%n",
+          this, otherType, this.instantiatedType, otherInstType);
+
       return false; // instantiated generic class types are not same
     }
+    // Should this be checking enclosing types instead of instantiated types?
+    System.out.printf(
+        "InstantiatedType.isInstantiationOf%n  %s%n  %s%n  good so far, about to try  %s%n  against %s%n",
+        this, otherType, this.instantiatedType, otherType);
     return (otherType instanceof GenericClassType)
         && this.instantiatedType.isInstantiationOf(otherType);
   }
