@@ -11,6 +11,9 @@ import java.util.List;
  */
 public class NonParameterizedType extends ClassOrInterfaceType {
 
+  /** The enclosing type: non-null only if this is a member class. */
+  private ClassOrInterfaceType enclosingType = null;
+
   /** The runtime class of this simple type. */
   private final Class<?> runtimeType;
 
@@ -22,6 +25,16 @@ public class NonParameterizedType extends ClassOrInterfaceType {
   public NonParameterizedType(Class<?> runtimeType) {
     assert !runtimeType.isPrimitive() : "must be reference type, got " + runtimeType.getName();
     this.runtimeType = runtimeType;
+  }
+
+  @Override
+  protected ClassOrInterfaceType getEnclosingType() {
+    return enclosingType;
+  }
+
+  @Override
+  protected void setEnclosingType(ClassOrInterfaceType enclosingType) {
+    this.enclosingType = enclosingType;
   }
 
   /**

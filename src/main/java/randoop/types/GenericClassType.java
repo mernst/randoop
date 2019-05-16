@@ -11,6 +11,9 @@ import java.util.Objects;
  */
 public class GenericClassType extends ParameterizedType {
 
+  /** The enclosing type: non-null only if this is a member class. */
+  private ClassOrInterfaceType enclosingType = null;
+
   /** The rawtype of the generic class. */
   private Class<?> rawType;
 
@@ -30,6 +33,16 @@ public class GenericClassType extends ParameterizedType {
       TypeVariable variable = TypeVariable.forType(v);
       this.parameters.add(variable);
     }
+  }
+
+  @Override
+  protected ClassOrInterfaceType getEnclosingType() {
+    return enclosingType;
+  }
+
+  @Override
+  protected void setEnclosingType(ClassOrInterfaceType enclosingType) {
+    this.enclosingType = enclosingType;
   }
 
   /**

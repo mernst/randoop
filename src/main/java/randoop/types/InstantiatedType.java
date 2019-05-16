@@ -37,6 +37,16 @@ public class InstantiatedType extends ParameterizedType {
     this.argumentList = argumentList;
   }
 
+  @Override
+  protected ClassOrInterfaceType getEnclosingType() {
+    return instantiatedType.getEnclosingType();
+  }
+
+  @Override
+  protected void setEnclosingType(ClassOrInterfaceType enclosingType) {
+    instantiatedType.setEnclosingType(enclosingType);
+  }
+
   /**
    * {@inheritDoc}
    *

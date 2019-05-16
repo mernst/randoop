@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Represents a class or interface type as defined in JLS Section 4.3.
@@ -25,9 +24,6 @@ import java.util.Objects;
 public abstract class ClassOrInterfaceType extends ReferenceType {
 
   private static boolean debug = false;
-
-  /** The enclosing type: non-null only if this is a member class. */
-  private ClassOrInterfaceType enclosingType = null;
 
   /**
    * Translates a {@code Class} object that represents a class or interface into a {@code
@@ -90,20 +86,19 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     throw new IllegalArgumentException("Unable to create class type from type " + type);
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof ClassOrInterfaceType)) {
-      return false;
-    }
-    ClassOrInterfaceType otherType = (ClassOrInterfaceType) obj;
-    return !(this.isMemberClass() && otherType.isMemberClass())
-        || this.enclosingType.equals(otherType.enclosingType);
-  }
+  /**
+   * Gets the enclosing type for this class type.
+   *
+   * @return the type for the class enclosing the declaration of this type
+   */
+  protected abstract ClassOrInterfaceType getEnclosingType();
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(isMemberClass(), enclosingType);
-  }
+  /**
+   * Sets the enclosing type for this class type.
+   *
+   * @param enclosingType the type for the class enclosing the declaration of this type
+   */
+  protected abstract void setEnclosingType(ClassOrInterfaceType enclosingType);
 
   /**
    * {@inheritDoc}
@@ -124,7 +119,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    */
   final ClassOrInterfaceType substitute(Substitution substitution, ClassOrInterfaceType type) {
     if (this.isMemberClass() && !this.isStatic()) {
-      type.setEnclosingType(enclosingType.substitute(substitution));
+      type.setEnclosingType(getEnclosingType().substitute(substitution));
     }
     return type;
   }
@@ -141,7 +136,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    */
   final ClassOrInterfaceType applyCaptureConversion(ClassOrInterfaceType type) {
     if (this.isMemberClass() && !this.isStatic()) {
-      type.setEnclosingType(enclosingType.applyCaptureConversion());
+      type.setEnclosingType(getEnclosingType().applyCaptureConversion());
     }
     return type;
   }
@@ -166,9 +161,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   public String getName() {
     if (this.isMemberClass()) {
       if (this.isStatic()) {
-        return enclosingType.getCanonicalName() + "." + this.getSimpleName();
+        return getEnclosingType().getCanonicalName() + "." + this.getSimpleName();
       }
-      return enclosingType.getName() + "." + this.getSimpleName();
+      return getEnclosingType().getName() + "." + this.getSimpleName();
     }
     return this.getCanonicalName();
   }
@@ -177,7 +172,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   public String getUnqualifiedName() {
     String prefix = "";
     if (this.isMemberClass()) {
-      prefix = enclosingType.getUnqualifiedName() + ".";
+      prefix = getEnclosingType().getUnqualifiedName() + ".";
     }
     return prefix + this.getSimpleName();
   }
@@ -272,7 +267,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
     Substitution substitution = new Substitution();
     if (this.isMemberClass() && !this.isStatic()) {
-      substitution = enclosingType.getInstantiatingSubstitution(goalType);
+      substitution = getEnclosingType().getInstantiatingSubstitution(goalType);
       if (substitution == null) {
         return null;
       }
@@ -346,7 +341,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
   @Override
   public boolean isGeneric() {
-    return this.isMemberClass() && !this.isStatic() && enclosingType.isGeneric();
+    return this.isMemberClass() && !this.isStatic() && getEnclosingType().isGeneric();
   }
 
   /**
@@ -364,7 +359,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     if (this.isMemberClass() && (otherType instanceof ClassOrInterfaceType)) {
       ClassOrInterfaceType otherClassType = (ClassOrInterfaceType) otherType;
       return otherClassType.isMemberClass()
-          && this.enclosingType.isInstantiationOf(otherClassType.enclosingType);
+          && this.getEnclosingType().isInstantiationOf(otherClassType.getEnclosingType());
     }
     return false;
   }
@@ -377,12 +372,12 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return true if this class is a member class, false otherwise
    */
   public final boolean isMemberClass() {
-    return enclosingType != null;
+    return getEnclosingType() != null;
   }
 
   @Override
   public boolean isParameterized() {
-    return this.isMemberClass() && !this.isStatic() && enclosingType.isParameterized();
+    return this.isMemberClass() && !this.isStatic() && getEnclosingType().isParameterized();
   }
 
   /**
@@ -477,15 +472,6 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   }
 
   /**
-   * Sets the enclosing type for this class type.
-   *
-   * @param enclosingType the type for the class enclosing the declaration of this type
-   */
-  private void setEnclosingType(ClassOrInterfaceType enclosingType) {
-    this.enclosingType = enclosingType;
-  }
-
-  /**
    * Returns the type arguments for this type.
    *
    * @return the list of type arguments
@@ -497,7 +483,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   @Override
   public List<TypeVariable> getTypeParameters() {
     if (this.isMemberClass() && !this.isStatic()) {
-      return enclosingType.getTypeParameters();
+      return getEnclosingType().getTypeParameters();
     }
     return new ArrayList<>();
   }
