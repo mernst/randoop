@@ -45,8 +45,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     } else {
       type = new NonParameterizedType(classType);
     }
-    if (classType.isMemberClass()) {
-      type.setEnclosingType(ClassOrInterfaceType.forClass(classType.getEnclosingClass()));
+    Class<?> enclosingClass = classType.getEnclosingClass();
+    if (enclosingClass != null) {
+      type.setEnclosingType(ClassOrInterfaceType.forClass(enclosingClass));
     }
     return type;
   }
@@ -416,6 +417,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     if (super.isSubtypeOf(otherType)) {
       return true;
     }
+    if (debug) {
+      System.out.printf("equal? %s%n", this == otherType);
+    }
     if ((this instanceof NonParameterizedType)
         && otherType.isGeneric()
         && (this.getRuntimeClass() == otherType.getRuntimeClass())) {
@@ -459,6 +463,9 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
     if (superClassType == null || superClassType.isObject()) {
       // Search has failed; stop.
+      if (debug) {
+        System.out.printf("  search has failed; stop and return false%n");
+      }
       return false;
     }
 
