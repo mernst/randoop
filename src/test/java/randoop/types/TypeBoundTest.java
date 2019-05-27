@@ -193,8 +193,26 @@ public class TypeBoundTest {
     ParameterBound lowerBound = typeParameter.getLowerTypeBound();
     ParameterBound upperBound = typeParameter.getUpperTypeBound();
     Substitution substitution = new Substitution(typeParameter, candidateType);
-    return lowerBound.isLowerBound(candidateType, substitution)
-        && upperBound.isUpperBound(candidateType, substitution);
+    boolean lbResult = lowerBound.isLowerBound(candidateType, substitution);
+    boolean ubResult = upperBound.isUpperBound(candidateType, substitution);
+    boolean result = lbResult && ubResult;
+    if (!result) {
+      if (false)
+        System.out.printf(
+            "checkBound(%s [%s], %s [%s]) => false%n  bounds=%s [%s] %s [%s]%n  substitution=%s%n  lbResult=%s ubResult=%s",
+            typeParameter,
+            typeParameter.getClass(),
+            candidateType,
+            candidateType.getClass(),
+            lowerBound,
+            lowerBound.getClass(),
+            upperBound,
+            upperBound.getClass(),
+            substitution,
+            lbResult,
+            ubResult);
+    }
+    return result;
   }
 
   private Map<String, TypeVariable> getArgumentTypes(Class<?> classType) {

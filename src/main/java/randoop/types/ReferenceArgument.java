@@ -117,8 +117,18 @@ public class ReferenceArgument extends TypeArgument {
     }
 
     ReferenceType otherReferenceType = ((ReferenceArgument) otherArgument).getReferenceType();
-
-    return referenceType.isInstantiationOf(otherReferenceType);
+    boolean result = referenceType.isInstantiationOf(otherReferenceType);
+    if (false)
+      System.out.printf(
+          "isInstantiationOfTypeArgument(%s, %s)%n  => isInstantiationOf(%s [%s], %s [%s])%n  => %s%n",
+          this,
+          otherArgument,
+          referenceType,
+          referenceType.getClass(),
+          otherReferenceType,
+          otherReferenceType.getClass(),
+          result);
+    return result;
   }
 
   @Override

@@ -119,17 +119,28 @@ public abstract class TypeVariable extends ParameterType {
    * @return true if the given type can instantiate this variable, false otherwise
    */
   boolean canBeInstantiatedBy(ReferenceType otherType) {
+    if (false)
+      System.out.printf(
+          "canBeInstantiatedBy(%s, %s [%s])%n", this, otherType, otherType.getClass());
     Substitution substitution;
     if (getLowerTypeBound().isVariable()) {
       substitution = getSubstitution(this, otherType);
       ParameterBound boundType = getLowerTypeBound().substitute(substitution);
       TypeVariable checkType = (TypeVariable) ((ReferenceBound) boundType).getBoundType();
       if (!checkType.canBeInstantiatedBy(otherType)) {
+        if (false)
+          System.out.printf(
+              "canBeInstantiatedBy(%s, %s [%s])%n => false (1)%n",
+              this, otherType, otherType.getClass());
         return false;
       }
     } else {
       substitution = getSubstitution(this, otherType);
       if (!getLowerTypeBound().isLowerBound(otherType, substitution)) {
+        if (false)
+          System.out.printf(
+              "canBeInstantiatedBy(%s, %s [%s])%n => false (2)%n",
+              this, otherType, otherType.getClass());
         return false;
       }
     }
@@ -138,11 +149,27 @@ public abstract class TypeVariable extends ParameterType {
       ParameterBound boundType = getUpperTypeBound().substitute(substitution);
       TypeVariable checkType = (TypeVariable) ((ReferenceBound) boundType).getBoundType();
       if (!checkType.canBeInstantiatedBy(otherType)) {
+        if (false)
+          System.out.printf(
+              "canBeInstantiatedBy(%s, %s [%s])%n => false (3)%n",
+              this, otherType, otherType.getClass());
         return false;
       }
     } else {
       substitution = getSubstitution(this, otherType);
       if (!getUpperTypeBound().isUpperBound(otherType, substitution)) {
+        if (false)
+          System.out.printf(
+              "canBeInstantiatedBy(%s, %s [%s])%n => false (4)%n",
+              this, otherType, otherType.getClass());
+        if (false)
+          System.out.printf(
+              "  because of isUpperBound(%n      %s [%s],%n      %s [%s],%n      substitution=%s%n",
+              getUpperTypeBound(),
+              getUpperTypeBound().getClass(),
+              otherType,
+              otherType.getClass(),
+              substitution);
         return false;
       }
     }

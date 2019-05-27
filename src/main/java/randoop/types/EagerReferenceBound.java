@@ -9,6 +9,9 @@ import randoop.types.LazyParameterBound.LazyBoundException;
  */
 class EagerReferenceBound extends ReferenceBound {
 
+  /** Whether to enable debugging output to standard out. */
+  private static boolean debug = true;
+
   /**
    * Creates a bound for the given reference type.
    *
@@ -43,15 +46,22 @@ class EagerReferenceBound extends ReferenceBound {
 
   @Override
   public boolean isLowerBound(Type argType, Substitution subst) {
+    if (debug)
+      System.out.printf(
+          "EagerReferenceBound.isLowerBound(%s [%s],%n %s [%s] [isParameterized()=%s], subst=%s%n",
+          this, this.getClass(), argType, argType.getClass(), argType.isParameterized(), subst);
     ReferenceType boundType = this.getBoundType().substitute(subst);
     if (boundType.equals(JavaTypes.NULL_TYPE)) {
       return true;
     }
     if (boundType.isVariable()) {
+      if (debug) System.out.printf("Case 1%n");
       return ((TypeVariable) boundType).getLowerTypeBound().isLowerBound(argType, subst);
     }
     if (argType.isParameterized()) {
+      if (debug) System.out.printf("Case 2%n");
       if (!(boundType instanceof ClassOrInterfaceType)) {
+        if (debug) System.out.printf("Case 4%n");
         return false;
       }
       InstantiatedType argClassType = (InstantiatedType) argType.applyCaptureConversion();
@@ -59,12 +69,31 @@ class EagerReferenceBound extends ReferenceBound {
           ((ClassOrInterfaceType) boundType)
               .getMatchingSupertype(argClassType.getGenericClassType());
       if (boundSuperType == null) {
+        if (debug) System.out.printf("Case 5%n");
         return false;
       }
       boundSuperType = boundSuperType.applyCaptureConversion();
-      return boundSuperType.isInstantiationOf(argClassType);
+      if (debug)
+        System.out.printf(
+            "EagerReferenceBound.isLowerBound calling isInstantiationOf(%s [%s], %s [%s])%n",
+            boundSuperType, boundSuperType.getClass(), argClassType, argClassType.getClass());
+      boolean result = boundSuperType.isInstantiationOf(argClassType);
+      if (debug)
+        System.out.printf(
+            "EagerReferenceBound.isLowerBound called isInstantiationOf(%s [%s], %s [%s]) =>%s%n",
+            boundSuperType,
+            boundSuperType.getClass(),
+            argClassType,
+            argClassType.getClass(),
+            result);
+      return result;
     }
-    return boundType.isSubtypeOf(argType);
+    boolean result = boundType.isSubtypeOf(argType);
+    if (debug)
+      System.out.printf(
+          "Case 3: isSubtypeOf(%s [%s] %s [%s]) => %s %n",
+          boundType, boundType.getClass(), argType, argType.getClass(), result);
+    return result;
   }
 
   @Override
@@ -84,15 +113,25 @@ class EagerReferenceBound extends ReferenceBound {
 
   @Override
   public boolean isUpperBound(Type argType, Substitution subst) {
+    if (debug)
+      System.out.printf(
+          "EagerReferenceBound.isUpperBound(%s [%s],%n %s [%s] [isParameterized()=%s], subst=%s%n",
+          this, this.getClass(), argType, argType.getClass(), argType.isParameterized(), subst);
     ReferenceType boundType = this.getBoundType().substitute(subst);
     if (boundType.equals(JavaTypes.OBJECT_TYPE)) {
       return true;
     }
     if (boundType.isVariable()) {
+      if (debug) System.out.printf("isUpperBound Case 1%n");
       return ((TypeVariable) boundType).getUpperTypeBound().isUpperBound(argType, subst);
     }
     if (boundType.isParameterized()) {
       if (!(argType instanceof ClassOrInterfaceType)) {
+        if (debug) {
+          System.out.printf(
+              "EagerReferenceBound.isUpperBound(%n      %s,%n      %s,%n      %s) => false (1)%n",
+              this, argType, subst);
+        }
         return false;
       }
       InstantiatedType boundClassType;
@@ -100,18 +139,52 @@ class EagerReferenceBound extends ReferenceBound {
         boundClassType = (InstantiatedType) boundType.applyCaptureConversion();
       } catch (LazyBoundException e) {
         // Capture conversion does not (currently?) work for a lazy bound.
+        if (debug) {
+          System.out.printf(
+              "EagerReferenceBound.isUpperBound(%n      %s,%n      %s,%n      %s) => false (2)%n",
+              this, argType, subst);
+        }
         return false;
       }
       InstantiatedType argSuperType =
           ((ClassOrInterfaceType) argType)
               .getMatchingSupertype(boundClassType.getGenericClassType());
       if (argSuperType == null) {
+        if (debug) {
+          System.out.printf(
+              "EagerReferenceBound.isUpperBound(%n      %s,%n      %s,%n      %s) => false (3)%n",
+              this, argType, subst);
+          System.out.printf(
+              "  because of getMatchingSupertype(%s [%s], %s [%s] => null%n",
+              argType,
+              argType.getClass(),
+              boundClassType.getGenericClassType(),
+              boundClassType.getGenericClassType().getClass());
+        }
         return false;
       }
       argSuperType = argSuperType.applyCaptureConversion();
-      return argSuperType.isInstantiationOf(boundClassType);
+      if (debug)
+        System.out.printf(
+            "EagerReferenceBound.isUpperBound calling isInstantiationOf(%s [%s], %s [%s])%n",
+            argSuperType, argSuperType.getClass(), boundClassType, boundClassType.getClass());
+      boolean result = argSuperType.isInstantiationOf(boundClassType);
+      if (debug)
+        System.out.printf(
+            "EagerReferenceBound.isUpperBound called isInstantiationOf(%s [%s], %s [%s]) =>%s%n",
+            argSuperType,
+            argSuperType.getClass(),
+            boundClassType,
+            boundClassType.getClass(),
+            result);
+      return result;
     }
-    return argType.isSubtypeOf(boundType);
+    boolean result = argType.isSubtypeOf(boundType);
+    if (debug)
+      System.out.printf(
+          "isUpperBound Case 3: isSubtypeOf(%s [%s] %s [%s]) => %s %n",
+          argType, argType.getClass(), boundType, boundType.getClass(), result);
+    return result;
   }
 
   @Override

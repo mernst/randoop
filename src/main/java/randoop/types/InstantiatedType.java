@@ -16,6 +16,9 @@ import java.util.Set;
  */
 public class InstantiatedType extends ParameterizedType {
 
+  /** Whether to enable debugging output to standard out. */
+  private static boolean debug = false;
+
   /** The generic class for this type. */
   private final GenericClassType instantiatedType;
 
@@ -35,6 +38,8 @@ public class InstantiatedType extends ParameterizedType {
 
     this.instantiatedType = instantiatedType;
     this.argumentList = argumentList;
+
+    setEnclosingType(instantiatedType.enclosingType);
   }
 
   /**
@@ -306,7 +311,22 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
+    if (debug)
+      System.out.printf(
+          "InstantiatedType.isInstantiationOf(%n      %s,%n      %s [%s])%n",
+          this, otherType, otherType.getClass());
     if (!this.instantiatedType.isInstantiationOfIgnoringTypeArguments(otherType)) {
+      if (debug) {
+        System.out.printf(
+            "InstantiatedType.isInstantiationOf(%s, %s [%s]) => false%n",
+            this, otherType, otherType.getClass());
+        System.out.printf(
+            "  because of isInstantiationOfIgnoringTypeArguments(%n      %s [%s],%n      %s [%s])%n   => false%n",
+            this.instantiatedType,
+            this.instantiatedType.getClass(),
+            otherType,
+            otherType.getClass());
+      }
       return false;
     }
     if (otherType instanceof GenericClassType) {
@@ -315,15 +335,37 @@ public class InstantiatedType extends ParameterizedType {
     } else if (otherType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) otherType;
       for (int i = 0; i < this.argumentList.size(); i++) {
-        if (!this.argumentList
-            .get(i)
-            .isInstantiationOfTypeArgument(otherInstType.argumentList.get(i))) {
+        TypeArgument thisArg = this.argumentList.get(i);
+        TypeArgument otherArg = otherInstType.argumentList.get(i);
+        if (!thisArg.isInstantiationOfTypeArgument(otherArg)) {
+          if (debug)
+            System.out.printf(
+                "InstantiatedType.isInstantiationOf(%s, %s) => false%n  because of type args #1:%n  isInstantiationOfTypeArgument(%s [%s], %s [%s])=>false%n",
+                this, otherType, thisArg, thisArg.getClass(), otherArg, otherArg.getClass());
           return false;
         }
       }
       return true;
+    } else
+    // otherType is not a ClassOrInterfaceType
+    if (otherType instanceof ParameterType) {
+      ParameterType otherPType = (ParameterType) otherType;
+      if (debug)
+        System.out.printf(
+            "InstantiatedType.isInstantiationOf(%s [%s])%n", otherPType, otherPType.getClass());
+
+      if (debug)
+        System.out.printf(
+            "InstantiatedType.isInstantiationOf: getLowerTypeBound()=%s, getUpperTypeBound()=%s%n",
+            otherPType.getLowerTypeBound(), otherPType.getUpperTypeBound());
+
+      boolean result = isInstantiationOfTypeVariable(otherPType);
+      if (debug)
+        System.out.printf(
+            "InstantiatedType.isInstantiationOf(%s [%s]) => %s%n",
+            otherPType, otherPType.getClass(), result);
+      return result;
     } else {
-      // otherType is not a ClassOrInterfaceType
       return false;
     }
   }

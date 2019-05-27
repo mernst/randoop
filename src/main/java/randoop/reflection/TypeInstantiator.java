@@ -28,6 +28,9 @@ import randoop.util.Randomness;
 /** Instantiates type parameters from a set of input types. */
 public class TypeInstantiator {
 
+  /** Whether to produce debuging output to standard out. */
+  private static boolean debug = false;
+
   /**
    * The set of input types for this model. The input types need to be closed on supertypes: if a
    * type is in the input types, then so are all of its supertypes.
@@ -51,6 +54,10 @@ public class TypeInstantiator {
    * @return an instantiated version of the operation
    */
   public TypedClassOperation instantiate(TypedClassOperation operation) {
+    if (debug) {
+      System.out.printf("instantiate(%s [%s])%n", operation, operation.getClass());
+    }
+
     assert operation.isGeneric() || operation.hasWildcardTypes()
         : "operation " + operation + " must be generic or have wildcards";
 
@@ -59,6 +66,10 @@ public class TypeInstantiator {
 
     // if declaring type of operation is generic, select instantiation
     ClassOrInterfaceType declaringType = operation.getDeclaringType();
+    if (debug) {
+      System.out.printf(
+          "declaringType = %s isGeneric()=%s%n", declaringType, declaringType.isGeneric());
+    }
     if (declaringType.isGeneric()) {
       Substitution substitution;
 
@@ -72,22 +83,38 @@ public class TypeInstantiator {
         }
       } else { // otherwise, select from existing one
         substitution = selectSubstitution(declaringType);
+        if (debug) {
+          System.out.printf("instantiate: substitution = %s%n", substitution);
+        }
       }
+      System.out.printf("instantiate: substitution = %s%n", substitution);
       if (substitution == null) { // return null if fail to find instantiation
         return null;
       }
       // instantiate type parameters of declaring type
       operation = operation.substitute(substitution);
+      if (debug) {
+        System.out.printf("instantiate: operation (1) = %s%n", operation);
+      }
     }
     // type parameters of declaring type are instantiated
 
     // if necessary, do capture conversion first
     if (operation != null && operation.hasWildcardTypes()) {
+      if (debug) {
+        System.out.printf("Applying capture conversion to %s%n", operation);
+      }
       Log.logPrintf("Applying capture conversion to %s%n", operation);
       operation = operation.applyCaptureConversion();
+      if (debug) {
+        System.out.printf("instantiate: operation (2) = %s%n", operation);
+      }
     }
     if (operation != null) {
       operation = instantiateOperationTypes(operation);
+    }
+    if (debug) {
+      System.out.printf("instantiate: operation (3) = %s%n", operation);
     }
 
     // if operation == null failed to build instantiation
@@ -201,14 +228,44 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
+    if (debug) {
+      System.out.printf(
+          "selectSubstitution(%n    %s [%s],%n    %s [%s])%n",
+          type, type.getClass(), patternType, patternType.getClass());
+    }
     List<ReferenceType> matches = new ArrayList<>();
-    for (Type inputType : inputTypes) {
-      if (inputType.isParameterized()
-          && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
-        matches.add((ReferenceType) inputType);
+    for (Type possibleInstantiation : inputTypes) {
+      boolean shouldPrint = possibleInstantiation.toString().contains("CaptureInstantiationCase");
+      shouldPrint = true;
+      if (shouldPrint) {
+        System.out.printf(
+            "  possibleInstantiation = %s [%s] [isParameterized()=%s]%n",
+            possibleInstantiation,
+            possibleInstantiation.getClass(),
+            possibleInstantiation.isParameterized());
+      }
+      if (possibleInstantiation.isParameterized()
+          && ((ReferenceType) possibleInstantiation).isInstantiationOf(patternType)) {
+        matches.add((ReferenceType) possibleInstantiation);
+        if (shouldPrint) {
+          System.out.printf(
+              "  possibleInstantiation MATCHED! = %s [%s]%n",
+              possibleInstantiation, possibleInstantiation.getClass());
+        }
+      } else {
+        if (shouldPrint) {
+          System.out.printf(
+              "  possibleInstantiation NOT MATCHED! = %s [%s]%n",
+              possibleInstantiation, possibleInstantiation.getClass());
+        }
       }
     }
     if (matches.isEmpty()) {
+      if (debug) {
+        System.out.printf(
+            "no matches for selectSubstitution(%n    %s [%s],%n    %s [%s])%n",
+            type, type.getClass(), patternType, patternType.getClass());
+      }
       return null;
     }
     ReferenceType selectedType = Randomness.randomSetMember(matches);
@@ -236,6 +293,9 @@ public class TypeInstantiator {
    */
   private TypedClassOperation instantiateOperationTypes(TypedClassOperation operation) {
     // answer question: what type instantiation would allow a call to this operation?
+    if (debug) {
+      System.out.printf("instantiateOperationTypes(%s [%s])%n", operation, operation.getClass());
+    }
     Set<TypeVariable> typeParameters = new LinkedHashSet<>();
     Substitution substitution = new Substitution();
     for (Type parameterType : operation.getInputTypes()) {
@@ -246,6 +306,11 @@ public class TypeInstantiator {
               selectSubstitution(
                   (ParameterizedType) parameterType, (ParameterizedType) workingType);
           if (subst == null) {
+            if (debug) {
+              System.out.printf(
+                  "subst = null from selectSubstitution(%n    %s,%n    %s)%n",
+                  parameterType, workingType);
+            }
             return null;
           }
           substitution = substitution.extend(subst);
@@ -267,14 +332,28 @@ public class TypeInstantiator {
     }
 
     if (!typeParameters.isEmpty()) {
+      if (debug) {
+        System.out.printf(
+            "About to call selectSubstitution(%s, %s)%n", typeParameters, substitution);
+      }
       substitution = selectSubstitution(new ArrayList<>(typeParameters), substitution);
       if (substitution == null) {
+        if (debug) {
+          System.out.printf(
+              "instantiateOperationTypes => null because substitution = null from selectSubstitution(%s, ...)%n",
+              typeParameters);
+        }
         return null;
       }
     }
 
     operation = operation.substitute(substitution);
     if (operation.isGeneric()) {
+      if (debug) {
+        System.out.printf(
+            "instantiateOperationTypes => null because operation is not generic: %s [%s]%n",
+            operation, operation.getClass());
+      }
       return null;
     }
     return operation;
@@ -424,9 +503,11 @@ public class TypeInstantiator {
     for (TypeVariable typeArgument : parameters) {
       List<ReferenceType> candidates = allCandidates(typeArgument);
       if (candidates.isEmpty()) {
-        Log.logPrintf(
-            "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
-            typeArgument);
+        if (debug) {
+          Log.logPrintf(
+              "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
+              typeArgument);
+        }
         return null;
       }
       selectedTypes.add(Randomness.randomMember(candidates));
@@ -477,7 +558,9 @@ public class TypeInstantiator {
     for (TypeVariable typeArgument : parameters) {
       List<ReferenceType> candidates = allCandidates(typeArgument);
       if (candidates.isEmpty()) {
-        Log.logPrintf("No candidate types for %s%n", typeArgument);
+        if (debug) {
+          Log.logPrintf("No candidate types for %s%n", typeArgument);
+        }
         return Collections.emptyList();
       }
       candidateTypes.add(candidates);

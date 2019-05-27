@@ -18,6 +18,8 @@ import java.util.List;
  */
 public abstract class ReferenceType extends Type {
 
+  private static boolean debug = true;
+
   /**
    * Returns a {@code ReferenceType} object for the given {@code Class} object. Creates arrays,
    * classes, and interfaces. For arrays, calls {@link ArrayType#forClass(Class)}. For other
@@ -151,7 +153,17 @@ public abstract class ReferenceType extends Type {
    * @return true iff othertype is a TypeVariable and this is an instantiation of it
    */
   protected boolean isInstantiationOfTypeVariable(ReferenceType otherType) {
-    return otherType.isVariable() && ((TypeVariable) otherType).canBeInstantiatedBy(this);
+    if (!otherType.isVariable()) {
+      return false;
+    }
+    TypeVariable var = (TypeVariable) otherType;
+    if (debug)
+      System.out.printf("isInstantiationOfTypeVariable(%s, %s [%s])%n", this, var, var.getClass());
+    boolean result = var.canBeInstantiatedBy(this);
+    if (debug)
+      System.out.printf(
+          "isInstantiationOfTypeVariable(%s, %s [%s]) => %s%n", this, var, var.getClass(), result);
+    return result;
   }
 
   /**

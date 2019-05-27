@@ -30,6 +30,7 @@ import randoop.types.TypeTuple;
  */
 public class OperationExtractor extends DefaultClassVisitor {
 
+  /** Whether to produce debuging output to standard out. */
   private static boolean debug = false;
 
   /** The type of the declaring class for the collected operations. */

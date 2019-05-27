@@ -27,7 +27,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   private static boolean debug = false;
 
   /** The enclosing type: non-null only if this is a member class. */
-  private ClassOrInterfaceType enclosingType = null;
+  protected ClassOrInterfaceType enclosingType = null;
 
   /**
    * Translates a {@code Class} object that represents a class or interface into a {@code
@@ -48,9 +48,6 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
       type = ParameterizedType.forClass(classType);
     } else {
       type = new NonParameterizedType(classType);
-    }
-    if (classType.isMemberClass()) {
-      type.setEnclosingType(ClassOrInterfaceType.forClass(classType.getEnclosingClass()));
     }
     return type;
   }
@@ -226,6 +223,16 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return the instantiated type matching the goal type, or null
    */
   public InstantiatedType getMatchingSupertype(GenericClassType goalType) {
+    if (debug) {
+      System.out.printf(
+          "getMatchingSupertype(%s [%s], %s [%s]), equals=%s%n",
+          this, this.getClass(), goalType, goalType.getClass(), this.equals(goalType));
+    }
+    if (this.equals(goalType)) {
+      System.out.printf("Can this even happen?%n");
+      return (InstantiatedType) this;
+    }
+
     if (goalType.isInterface()) {
       for (ClassOrInterfaceType interfaceType : this.getInterfaces()) {
         if (goalType.getRuntimeClass().isAssignableFrom(interfaceType.getRuntimeClass())) {
@@ -246,15 +253,38 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     }
 
     ClassOrInterfaceType superclass = this.getSuperclass();
-    if (superclass != null
-        && !superclass.isObject()
-        && goalType.getRuntimeClass().isAssignableFrom(superclass.getRuntimeClass())) {
+    boolean test =
+        superclass != null
+            && !superclass.isObject()
+            && goalType.getRuntimeClass().isAssignableFrom(superclass.getRuntimeClass());
+    if (debug) {
+      System.out.printf(
+          "getMatchingSupertype(%s [%s], %s [%s]): test=%s%n",
+          this, this.getClass(), goalType, goalType.getClass(), test);
+      System.out.printf(
+          "    goalType.getRuntimeClass()=%s superclass.getRuntimeClass()=%s isAssignableFrom=%s%n",
+          goalType.getRuntimeClass(),
+          superclass.getRuntimeClass(),
+          goalType.getRuntimeClass().isAssignableFrom(superclass.getRuntimeClass()));
+    }
+    if (test) {
 
       if (superclass.isInstantiationOf(goalType)) {
         return (InstantiatedType) superclass;
       }
 
-      return superclass.getMatchingSupertype(goalType);
+      if (debug) {
+        System.out.printf(
+            "getMatchingSupertype(%s [%s], %s [%s]):%n    about to call getMatchingSupertype(%s, %s)%n",
+            this, this.getClass(), goalType, goalType.getClass(), superclass, goalType);
+      }
+      InstantiatedType result = superclass.getMatchingSupertype(goalType);
+      if (debug) {
+        System.out.printf(
+            "getMatchingSupertype(%s [%s], %s [%s]):%n    called getMatchingSupertype(%s, %s) => result = %s%n",
+            this, this.getClass(), goalType, goalType.getClass(), superclass, goalType, result);
+      }
+      return result;
     }
 
     return null;
@@ -356,6 +386,10 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return true if this instantiates otherType, ignoring type arguments
    */
   protected final boolean isInstantiationOfIgnoringTypeArguments(ReferenceType otherType) {
+    if (debug)
+      System.out.printf(
+          "isInstantiationOfIgnoringTypeArguments(%n      %s,%n      %s [%s])%n",
+          this, otherType, otherType.getClass());
     if (this.equals(otherType)) {
       return true;
     }
@@ -372,7 +406,17 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
     ClassOrInterfaceType thisEnclosingType = this.enclosingType;
     ClassOrInterfaceType otherEnclosingType = ((ClassOrInterfaceType) otherType).enclosingType;
-    assert !((thisEnclosingType == null) ^ (otherEnclosingType == null));
+    if ((thisEnclosingType == null) ^ (otherEnclosingType == null)) {
+      throw new Error(
+          String.format(
+              "Mismatch in enclosing types:%n     this = %s [%s] enclosingType = %s%notherType = %s [%s] enclosingType = %s",
+              this,
+              this.getClass(),
+              thisEnclosingType,
+              otherType,
+              otherType.getClass(),
+              otherEnclosingType));
+    }
     if (thisEnclosingType != null) {
       return thisEnclosingType.isInstantiationOf(otherEnclosingType);
     }
@@ -392,6 +436,8 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
   @Override
   public boolean isParameterized() {
+    // Because this implementation is running, this is not an InstantiatedType.
+    // Count it as parameterized if its enclosing type is parameterized.
     return this.isMemberClass() && !this.isStatic() && enclosingType.isParameterized();
   }
 
@@ -491,7 +537,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    *
    * @param enclosingType the type for the class enclosing the declaration of this type
    */
-  private void setEnclosingType(ClassOrInterfaceType enclosingType) {
+  protected void setEnclosingType(ClassOrInterfaceType enclosingType) {
     this.enclosingType = enclosingType;
   }
 

@@ -30,6 +30,10 @@ public class GenericClassType extends ParameterizedType {
       TypeVariable variable = TypeVariable.forType(v);
       this.parameters.add(variable);
     }
+    Class<?> enclosingClass = rawType.getEnclosingClass();
+    if (enclosingClass != null) {
+      setEnclosingType(ClassOrInterfaceType.forClass(enclosingClass));
+    }
   }
 
   /**
