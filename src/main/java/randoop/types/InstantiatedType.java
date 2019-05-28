@@ -331,7 +331,7 @@ public class InstantiatedType extends ParameterizedType {
         for (int i = 0; i < this.argumentList.size(); i++) {
           TypeArgument thisTypeArg = this.argumentList.get(i);
           TypeArgument otherTypeArg = otherInstType.argumentList.get(i);
-          if (!thisTypeArg.isInstantiationOfArgument(otherTypeArg)) {
+          if (!thisTypeArg.isInstantiationOfTypeArgument(otherTypeArg)) {
             System.out.printf(
                 "InstantiatedType.isInstantiationOf%n  %s%n  %s%n  =>false due to type arg #%d: %s %s%n",
                 this, otherType, i, thisTypeArg, otherTypeArg);
@@ -346,7 +346,8 @@ public class InstantiatedType extends ParameterizedType {
 
       return false; // instantiated generic class types are not same
     }
-    // Should this be checking enclosing types instead of instantiated types?
+    // TODO: Problem: a GenericClassType is never an instance of another type.
+    // So, should this be checking enclosing types instead of instantiated types?
     System.out.printf(
         "InstantiatedType.isInstantiationOf%n  %s%n  %s%n  good so far, about to try  %s%n  against %s%n",
         this, otherType, this.instantiatedType, otherType);
