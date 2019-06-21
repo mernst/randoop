@@ -30,6 +30,8 @@ plugins {
 
 def checkerFrameworkVersion = "2.8.2" // Checker Framework version
 
+def checkerFrameworkVersion = "2.8.2" // Checker Framework version
+
 /* Common build configuration for Randoop and agents */
 allprojects {
 
