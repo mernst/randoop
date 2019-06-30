@@ -17,6 +17,8 @@ import randoop.util.SimpleSet;
  */
 public class SubTypeSet {
 
+  public int has_no_javadoc = 22;
+
   /** The members of the set. */
   public ISimpleSet<Type> types;
 
