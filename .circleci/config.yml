@@ -4,7 +4,7 @@ jobs:
   nonSystemTest:
 
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: mdernst/ubuntu-for-randoop-jdk8
 
     steps:
 
@@ -35,7 +35,7 @@ jobs:
   systemTest:
 
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: mdernst/ubuntu-for-randoop-jdk8
 
     steps:
 
@@ -56,7 +56,9 @@ jobs:
             - gradle-v2-{{ .Branch }}-
             - gradle-v2-
 
-      - run: ./.circleci/systemTest.sh
+      - run:
+          command: ./.circleci/systemTest.sh
+          no_output_timeout: 20m
 
       - save_cache:
           paths:
@@ -66,7 +68,7 @@ jobs:
   misc:
 
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: mdernst/ubuntu-for-randoop-jdkany
 
     steps:
 
@@ -80,8 +82,6 @@ jobs:
           key: source-v2-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
-
-      - run: sudo pip install html5validator
 
       - restore_cache:
           keys:
