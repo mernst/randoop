@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  circle-compare-url: iynere/compare-url@x.y.z
+  circle-compare-url: iynere/compare-url@1.2.0
 
 jobs:
   nonSystemTest:
