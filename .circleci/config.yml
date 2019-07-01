@@ -96,7 +96,7 @@ jobs:
 
       # - run: ./.circleci/misc.sh
       - circle-compare-url/use:
-          step-name: Desired step name to display on CircleCI
+          step-name: misc
           attach-workspace: # set this to `true` if `reconstruct` was called as a job; default is `false`
           custom-logic: |
             ./.circleci/misc.sh
