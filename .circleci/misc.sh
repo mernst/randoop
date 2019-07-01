@@ -12,6 +12,9 @@ export SHELLOPTS
 ./gradlew checkstyle checkstyleMain checkstyleCoveredTest checkstyleReplacecallTest
 ./gradlew manual
 
+echo CIRCLE_COMPARE_URL=$CIRCLE_COMPARE_URL
+echo CIRCLE_BRANCH=$CIRCLE_BRANCH
+
 # $TRAVIS_COMMIT_RANGE is empty for builds triggered by the initial commit of a new branch.
 # Until https://github.com/travis-ci/travis-ci/issues/4596 is fixed, $TRAVIS_COMMIT_RANGE is a
 # good argument to `git diff` but a bad argument to `git log` (they interpret "..." differently!).
@@ -28,6 +31,7 @@ echo COMMIT_RANGE=$COMMIT_RANGE
 echo BRANCH=$COMMIT_RANGE
 
 if [ -n "$COMMIT_RANGE" ] ; then
+  echo "COMMIT_RANGE is set"
   (git diff $COMMIT_RANGE > /tmp/diff.txt 2>&1) || true
   (./gradlew requireJavadocPrivate > /tmp/rjp-output.txt 2>&1) || true
   [ -s /tmp/diff.txt ] || ([[ "${BRANCH}" != "master" && "${TRAVIS_EVENT_TYPE}" == "push" ]] || (echo "/tmp/diff.txt is empty; try pulling base branch (often master) into compare branch (often feature branch)" && false))
