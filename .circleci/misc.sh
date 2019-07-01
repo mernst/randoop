@@ -30,7 +30,6 @@ BRANCH=${TRAVIS_BRANCH:=$CIRCLE_BRANCH}
 echo COMMIT_RANGE=$COMMIT_RANGE
 echo BRANCH=$COMMIT_RANGE
 echo "As a pull request"
-echo "With an orb"
 
 if [ -n "$COMMIT_RANGE" ] ; then
   echo "COMMIT_RANGE is set"
