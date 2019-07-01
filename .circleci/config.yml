@@ -97,7 +97,6 @@ jobs:
           key: gradle-v2-{{ .Branch }}-{{ checksum "build.gradle" }}
 
 workflows:
-  version: 2
   build:
     jobs:
       # - nonSystemTest
