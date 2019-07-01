@@ -99,10 +99,7 @@ jobs:
           step-name: Desired step name to display on CircleCI
           attach-workspace: # set this to `true` if `reconstruct` was called as a job; default is `false`
           custom-logic: |
-            # what would you like to do with the $CIRCLE_COMPARE_URL/$COMMIT_RANGE values?
-            # this typically involves some kind of dynamic decision-making about release types,
-            # based on what level of changes were made to your source code between the base commit and the current commit
-            # for examples, see below
+            ./.circleci/misc.sh
 
       - save_cache:
           paths:
