@@ -276,6 +276,7 @@ public class RandoopSystemTest {
     options.setPackageName("foo.bar");
     options.setRegressionBasename("NaiveRegression");
     options.setErrorBasename("NaiveError");
+    // TODO: Increase again when Randoop uses less memory.
     // options.setOption("output_limit", "2000");
     options.setOption("attempted_limit", "4000");
     options.addTestClass("java7.util7.TreeSet");
