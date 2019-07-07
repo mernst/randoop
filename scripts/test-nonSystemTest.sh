@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This runs all of `./gradlew check` except for `./gradlew systemTest`.
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This is the "misc" job of the pull request.
 
