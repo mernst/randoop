@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # This is the "misc" job of the pull request.
 
@@ -28,7 +28,7 @@ if [ -n "$SYSTEM_PULLREQUEST_TARGETBRANCH" ] ; then
   git rev-parse HEAD^2
   COMMIT_RANGE=`git rev-parse HEAD^2`..$BUILD_SOURCEVERSION
   BRANCH=$SYSTEM_PULLREQUEST_TARGETBRANCH
-if [ -n "$TRAVIS_COMMIT_RANGE" ] ; then
+elif [ -n "$TRAVIS_COMMIT_RANGE" ] ; then
   ## Travis CI
   # $TRAVIS_COMMIT_RANGE is empty for builds triggered by the initial commit of a new branch.
   # Until https://github.com/travis-ci/travis-ci/issues/4596 is fixed, $TRAVIS_COMMIT_RANGE is a
