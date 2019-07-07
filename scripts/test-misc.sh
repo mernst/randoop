@@ -27,7 +27,7 @@ if [ -n "$SYSTEM_PULLREQUEST_TARGETBRANCH" ] ; then
   git rev-parse HEAD^
   git rev-parse HEAD^1
   git rev-parse HEAD^2
-  COMMIT_RANGE=`git rev-parse HEAD^1`..$BUILD_SOURCEVERSION
+  COMMIT_RANGE=`git rev-parse HEAD^1`...$BUILD_SOURCEVERSION
   BRANCH=$SYSTEM_PULLREQUEST_TARGETBRANCH
 elif [ -n "$TRAVIS_COMMIT_RANGE" ] ; then
   ## Travis CI
@@ -51,11 +51,9 @@ echo BRANCH=$BRANCH
 if [ -n "$COMMIT_RANGE" ] ; then
 echo "COMMIT_RANGE is set to $COMMIT_RANGE"
   (git diff $COMMIT_RANGE > /tmp/diff.txt 2>&1) || true
-cat /tmp/diff.txt
-echo "end of /tmp/diff.txt"
+cat /tmp/diff.txt; echo "end of /tmp/diff.txt"
   (./gradlew requireJavadocPrivate > /tmp/rjp-output.txt 2>&1) || true
-cat /tmp/rjp-output.txt
-echo "end of /tmp/rjp-output.txt"
+cat /tmp/rjp-output.txt; echo "end of /tmp/rjp-output.txt"
   [ -s /tmp/diff.txt ] || ([[ "${BRANCH}" != "master" && "${TRAVIS_EVENT_TYPE}" == "push" ]] || (echo "/tmp/diff.txt is empty for COMMIT_RANGE=$COMMIT_RANGE; try pulling base branch (often master) into compare branch (often feature branch)" && false))
 echo "tmp/diff.txt is not empty"
   wget https://raw.githubusercontent.com/plume-lib/plume-scripts/master/lint-diff.py
