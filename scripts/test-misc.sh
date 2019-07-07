@@ -22,7 +22,7 @@ echo pull request commit = `git rev-parse HEAD^2`
 # If it's a pull request, set COMMIT_RANGE and BRANCH
 if [ -n "$SYSTEM_PULLREQUEST_TARGETBRANCH" ] ; then
   ## Azure Pipelines
-  git log --graph | head --lines=100
+  git log --graph
   git rev-parse HEAD
   git rev-parse HEAD^
   git rev-parse HEAD^1
