@@ -22,7 +22,7 @@ echo pull request commit = `git rev-parse HEAD^2`
 # If it's a pull request, set COMMIT_RANGE and BRANCH
 if [ -n "$SYSTEM_PULLREQUEST_TARGETBRANCH" ] ; then
   ## Azure Pipelines
-  git log --graph
+  git log --graph | head 100
   git rev-parse HEAD
   git rev-parse HEAD^
   git rev-parse HEAD^2
@@ -55,7 +55,7 @@ echo "end of /tmp/diff.txt"
   (./gradlew requireJavadocPrivate > /tmp/rjp-output.txt 2>&1) || true
 cat /tmp/rjp-output.txt
 echo "end of /tmp/rjp-output.txt"
-  [ -s /tmp/diff.txt ] || ([[ "${BRANCH}" != "master" && "${TRAVIS_EVENT_TYPE}" == "push" ]] || (echo "/tmp/diff.txt is empty; try pulling base branch (often master) into compare branch (often feature branch)" && false))
+  [ -s /tmp/diff.txt ] || ([[ "${BRANCH}" != "master" && "${TRAVIS_EVENT_TYPE}" == "push" ]] || (echo "/tmp/diff.txt is empty for COMMIT_RANGE=$COMMIT_RANGE; try pulling base branch (often master) into compare branch (often feature branch)" && false))
 echo "tmp/diff.txt is not empty"
   wget https://raw.githubusercontent.com/plume-lib/plume-scripts/master/lint-diff.py
   python lint-diff.py --strip-diff=1 --strip-lint=2 /tmp/diff.txt /tmp/rjp-output.txt
