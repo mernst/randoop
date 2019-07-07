@@ -25,8 +25,9 @@ if [ -n "$SYSTEM_PULLREQUEST_TARGETBRANCH" ] ; then
   git log --graph | head 100
   git rev-parse HEAD
   git rev-parse HEAD^
+  git rev-parse HEAD^1
   git rev-parse HEAD^2
-  COMMIT_RANGE=`git rev-parse HEAD^2`..$BUILD_SOURCEVERSION
+  COMMIT_RANGE=`git rev-parse HEAD^1`..$BUILD_SOURCEVERSION
   BRANCH=$SYSTEM_PULLREQUEST_TARGETBRANCH
 elif [ -n "$TRAVIS_COMMIT_RANGE" ] ; then
   ## Travis CI
