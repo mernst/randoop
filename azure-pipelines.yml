@@ -18,20 +18,20 @@ jobs:
 #   steps:
 #   - bash: ./scripts/test-systemTest.sh
 #     displayName: test-systemTest.sh
-# - job: nonSystemTest_jdk11
-#   pool:
-#     vmImage: 'ubuntu-16.04'
-#   container: mdernst/ubuntu-for-randoop-jdk11:latest
-#   steps:
-#   - bash: ./scripts/test-nonSystemTest.sh
-#     displayName: test-nonSystemTest.sh
-# - job: systemTest_jdk11
-#   pool:
-#     vmImage: 'ubuntu-16.04'
-#   container: mdernst/ubuntu-for-randoop-jdk11:latest
-#   steps:
-#   - bash: ./scripts/test-systemTest.sh
-#     displayName: test-systemTest.sh
+- job: nonSystemTest_jdk11
+  pool:
+    vmImage: 'ubuntu-16.04'
+  container: mdernst/ubuntu-for-randoop-jdk11:latest
+  steps:
+  - bash: ./scripts/test-nonSystemTest.sh
+    displayName: test-nonSystemTest.sh
+- job: systemTest_jdk11
+  pool:
+    vmImage: 'ubuntu-16.04'
+  container: mdernst/ubuntu-for-randoop-jdk11:latest
+  steps:
+  - bash: ./scripts/test-systemTest.sh
+    displayName: test-systemTest.sh
 - job: misc
   pool:
     vmImage: 'ubuntu-16.04'
