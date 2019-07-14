@@ -59,6 +59,8 @@ class RandoopOptions {
       options.setOption("log", testEnvironment.workingDir + "/randoop-log.txt");
     }
     options.unsetFlag("deterministic");
+    options.setOption("progressintervalmillis", "-1");
+    options.setOption("progressintervalsteps", "1000");
     options.setOption("time_limit", "0");
     options.unsetFlag("minimize-error-test");
     options.setFlag("print-non-compiling-file");
