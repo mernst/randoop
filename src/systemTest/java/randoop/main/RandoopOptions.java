@@ -58,7 +58,7 @@ class RandoopOptions {
       options.setOption("junit-output-dir", testEnvironment.sourceDir.toString());
       options.setOption("log", testEnvironment.workingDir + "/randoop-log.txt");
     }
-    options.setFlag("deterministic");
+    options.unsetFlag("deterministic");
     options.setOption("time_limit", "0");
     options.unsetFlag("minimize-error-test");
     options.setFlag("print-non-compiling-file");
