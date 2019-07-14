@@ -49,7 +49,7 @@ public class CoveredClassTest {
   public static void setup() {
     optionsCache = new OptionsCache();
     optionsCache.saveState();
-    GenInputsAbstract.deterministic = true;
+    GenInputsAbstract.deterministic = false;
     GenInputsAbstract.minimize_error_test = false;
     GenInputsAbstract.time_limit = 0;
     GenInputsAbstract.generated_limit = 10000;
