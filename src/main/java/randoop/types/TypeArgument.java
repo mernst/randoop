@@ -91,7 +91,7 @@ public abstract class TypeArgument {
    * @return true if this type is an instantiation of the other argument, false otherwise
    * @see InstantiatedType#isInstantiationOf(ReferenceType)
    */
-  boolean isInstantiationOf(TypeArgument otherArgument) {
+  boolean isInstantiationOfTypeArgument(TypeArgument otherArgument) {
     return false;
   }
 
@@ -104,8 +104,15 @@ public abstract class TypeArgument {
     return false;
   }
 
-  public Substitution getInstantiatingSubstitution(TypeArgument otherArgument) {
-    System.out.printf("TypeArgument.getInstantiatingSubstitution(%s) => null%n", otherArgument);
+  /**
+   * Returns a unifying substitution.
+   *
+   * @param goalType the generic type for which a substitution is needed
+   * @return a substitution unifying this type or a supertype of this type with the goal type
+   */
+  public Substitution getInstantiatingSubstitution(TypeArgument goalType) {
+    System.out.printf("TypeArgument.getInstantiatingSubstitution(%s) => null%n", goalType);
+    // This implementation is overridden by subclasses.
     return null;
   }
 

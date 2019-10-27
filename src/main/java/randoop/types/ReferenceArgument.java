@@ -111,7 +111,7 @@ public class ReferenceArgument extends TypeArgument {
   }
 
   @Override
-  boolean isInstantiationOf(TypeArgument otherArgument) {
+  boolean isInstantiationOfTypeArgument(TypeArgument otherArgument) {
     System.out.printf("ReferenceArgument.isInstantiationOf: %s %s%n", this, otherArgument);
 
     if (!(otherArgument instanceof ReferenceArgument)) {

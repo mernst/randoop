@@ -177,10 +177,8 @@ public class TypeInstantiator {
 
   /**
    * Chooses an instantiating substitution for the given class. Performs a coin flip to determine
-   * whether to use a previous instantiation, or to create a new one. If a new instantiating
-   * substitution is required, uses {@link #selectSubstitution(List, Substitution)} to construct and
-   * choose one. Verifies that all of the type parameters of the type are instantiated, and logs
-   * failure if not.
+   * whether to use a previous instantiation, or to create a new one. Verifies that all of the type
+   * parameters of the type are instantiated, and logs failure if not.
    *
    * @param type the type to be instantiated
    * @return a substitution instantiating the given type; null if none is found
@@ -298,7 +296,7 @@ public class TypeInstantiator {
     }
 
     if (!typeParameters.isEmpty()) {
-      substitution = selectSubstitution(new ArrayList<>(typeParameters), substitution);
+      substitution = extendSubstitution(new ArrayList<>(typeParameters), substitution);
       if (substitution == null) {
         return null;
       }
@@ -317,11 +315,11 @@ public class TypeInstantiator {
    * @param typeParameters the type variables to be instantiated
    * @return a substitution instantiating the type variables; null if some type variable has no
    *     instantiating types
-   * @see #selectSubstitution(List, Substitution)
+   * @see #extendSubstitution(List, Substitution)
    */
   private Substitution selectSubstitution(List<TypeVariable> typeParameters) {
     Substitution substitution = new Substitution();
-    return selectSubstitution(typeParameters, substitution);
+    return extendSubstitution(typeParameters, substitution);
   }
 
   /**
@@ -335,9 +333,9 @@ public class TypeInstantiator {
    * @return the substitution extended by instantiating type variables; null if any of the variables
    *     has no instantiating types
    */
-  private Substitution selectSubstitution(
+  private Substitution extendSubstitution(
       List<TypeVariable> typeParameters, Substitution substitution) {
-    List<Substitution> substitutionList = allSubstitutions(typeParameters, substitution);
+    List<Substitution> substitutionList = allExtendingSubstitutions(typeParameters, substitution);
     if (substitutionList.isEmpty()) {
       return null;
     }
@@ -352,7 +350,7 @@ public class TypeInstantiator {
    * @return the list of possible substitutions, empty if none are found
    */
   @SuppressWarnings("MixedMutabilityReturnType")
-  private List<Substitution> allSubstitutions(
+  private List<Substitution> allExtendingSubstitutions(
       List<TypeVariable> typeParameters, Substitution substitution) {
 
     // Partition parameters based on whether they might have independent bounds:
@@ -379,7 +377,8 @@ public class TypeInstantiator {
       }
     }
 
-    List<Substitution> substitutionList = new ArrayList<>();
+    // These are the candidates that this routine will return.
+    List<Substitution> result = new ArrayList<>();
     if (!genericParameters.isEmpty()) {
       // if there are type parameters with generic bounds
       if (!nongenericParameters.isEmpty()) {
@@ -402,40 +401,40 @@ public class TypeInstantiator {
             }
           }
           // choose instantiation for parameters with generic-bounds
-          substitutionList.addAll(allSubstitutions(parameters, initialSubstitution));
+          result.addAll(allExtendingSubstitutions(parameters, initialSubstitution));
         }
       } else {
         // if no parameters with non-generic bounds, choose instantiation for parameters
         // with generic bounds
         BoundsCheck boundsCheck = new BoundsCheck(genericParameters);
-        substitutionList = allInstantiations(genericParameters, substitution, boundsCheck);
+        result = allInstantiations(genericParameters, substitution, boundsCheck);
       }
-      if (substitutionList.isEmpty()) {
-        return substitutionList;
+      if (result.isEmpty()) {
+        return result;
       }
     } else if (!nongenericParameters.isEmpty()) {
       // if there are no type parameters with generic bounds, can select others independently
-      substitution = selectSubstitutionIndependently(nongenericParameters, substitution);
+      substitution = extendSubstitutionIndependently(nongenericParameters, substitution);
       if (substitution == null) {
         return Collections.emptyList();
       }
-      substitutionList.add(substitution);
+      result.add(substitution);
     }
 
-    // Can always select captured wildcards independently
+    // Can always select captured wildcards independently.  Augment each existing candidate.
     if (!captureParameters.isEmpty()) {
-      List<Substitution> substList = new ArrayList<>();
-      if (substitutionList.isEmpty()) {
-        substList.add(selectSubstitutionIndependently(captureParameters, substitution));
+      if (result.isEmpty()) {
+        result.add(extendSubstitutionIndependently(captureParameters, substitution));
       } else {
-        for (Substitution s : substitutionList) {
-          substList.add(selectSubstitutionIndependently(captureParameters, s));
+        List<Substitution> substList = new ArrayList<>();
+        for (Substitution s : result) {
+          substList.add(extendSubstitutionIndependently(captureParameters, s));
         }
+        result = substList;
       }
-      substitutionList = substList;
     }
 
-    return substitutionList;
+    return result;
   }
 
   /**
@@ -449,14 +448,14 @@ public class TypeInstantiator {
    * @return the substitution extended by mapping given parameters to selected types; null, if there
    *     are no candidate types for some parameter
    */
-  private Substitution selectSubstitutionIndependently(
+  private Substitution extendSubstitutionIndependently(
       List<TypeVariable> parameters, Substitution substitution) {
     List<ReferenceType> selectedTypes = new ArrayList<>();
     for (TypeVariable typeArgument : parameters) {
       List<ReferenceType> candidates = allCandidates(typeArgument);
       if (candidates.isEmpty()) {
         Log.logPrintf(
-            "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
+            "TypeInstantiator.extendSubstitutionIndependently: No candidate types for %s%n",
             typeArgument);
         return null;
       }
