@@ -236,6 +236,12 @@ class LazyParameterBound extends ParameterBound {
     return hasCaptureVariable(boundType);
   }
 
+  /*
+   * Indicates whether the given type has a capture variable.
+   *
+   * @param type the type to test
+   * @return whether the given type has a capture variable
+   */
   private static boolean hasCaptureVariable(java.lang.reflect.Type type) {
     // if (type instanceof java.lang.reflect.CaptureType) {
     //   return true;

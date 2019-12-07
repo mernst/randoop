@@ -3,7 +3,7 @@ package randoop.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
@@ -40,7 +40,7 @@ import randoop.reflection.TypeNames;
 import randoop.types.JavaTypes;
 
 // Implementation notes:  All string, float, and double constants are in the
-// the constant table.  Integer constants less that 64K are in the code.
+// the constant table.  Integer constants less than 64K are in the code.
 // There are also special opcodes to push values from -1 to 5.  This code
 // does not include them, but it would be easy to add them.  This code also
 // does not include class literals as constants.
@@ -55,22 +55,39 @@ public class ClassFileConstants {
 
   // Some test values when this class file is used as input.
   // Byte, int, short, and char values are all stored in the .class file as int.
+  /** A test byte value. */
   static byte bb = 23;
+  /** A test double value. */
   static double d = 35.3;
+  /** A test float value. */
   static float f = 3.0f;
+  /** A test int value. */
   static int ii = 20;
+  /** A test long value. */
   static long ll = 200000;
+  /** A test short value. */
   static short s = 32000;
+  /** A test char value. */
   static char c = 'a';
 
+  /** The set of constants in the constant table of a classfile. */
+  // TODO: This design is strange.  This should be the main class in this file, and the static
+  // methods should be instance methods of it.
   public static class ConstantSet {
+    /** The class name. */
     public @ClassGetName String classname;
+    /** The ints. */
     public Set<Integer> ints = new TreeSet<>();
+    /** The ints. */
     public Set<Long> longs = new TreeSet<>();
+    /** The floats. */
     public Set<Float> floats = new TreeSet<>();
+    /** The doubles. */
     public Set<Double> doubles = new TreeSet<>();
+    /** The strings. */
     public Set<String> strings = new TreeSet<>();
-    public Set<Class<?>> classes = new HashSet<>();
+    /** The classes. */
+    public Set<Class<?>> classes = new LinkedHashSet<>();
 
     @Override
     public String toString() {

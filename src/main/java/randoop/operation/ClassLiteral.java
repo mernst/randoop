@@ -101,6 +101,15 @@ public final class ClassLiteral extends CallableOperation {
     return theClass.getName();
   }
 
+  /**
+   * Create a class literal from the given string, which must be of the form "CLASSNAME.class",
+   * where CLASSNAME is in the format accepted by {@code Class.forName()}.
+   *
+   * @param signature a string of the format accepted by {@code Class.forName()}, followed by
+   *     ".class"
+   * @return a new class literal for the given class
+   * @throws OperationParseException if the given string is malformed
+   */
   @SuppressWarnings("signature") // parsing
   public static ClassLiteral parse(String signature) throws OperationParseException {
     if (signature == null) {
