@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import randoop.reflection.TypeInstantiator;
 import randoop.util.Log;
 
 /**
@@ -406,8 +407,8 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   public abstract boolean isAbstract();
 
   @Override
-  public boolean isGeneric() {
-    return this.isMemberClass() && enclosingType.isGeneric();
+  public boolean isGeneric(boolean ignoreWildcards) {
+    return this.isMemberClass() && enclosingType.isGeneric(ignoreWildcards);
   }
 
   /**
@@ -419,6 +420,11 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
+    if (TypeInstantiator.debug) {
+      System.out.printf(
+          "ClassOrInterfaceType.isInstantiationOf(%n    %s,%n    %s)%n",
+          Log.toStringAndClass(this), Log.toStringAndClass(otherType));
+    }
     if (super.isInstantiationOf(otherType)) {
       return true;
     }

@@ -5,6 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import randoop.reflection.TypeInstantiator;
+import randoop.util.Log;
 
 /**
  * Represents a parameterized type as a generic class instantiated with type arguments.
@@ -53,7 +55,8 @@ public class InstantiatedType extends ParameterizedType {
       return false;
     }
     InstantiatedType other = (InstantiatedType) obj;
-    return genericType.equals(other.genericType) && argumentList.equals(other.argumentList);
+    return genericType.equals(other.getGenericClassType())
+        && argumentList.equals(other.argumentList);
   }
 
   @Override
@@ -204,7 +207,7 @@ public class InstantiatedType extends ParameterizedType {
   public ClassOrInterfaceType getSuperclass() {
     Substitution substitution =
         new Substitution(genericType.getTypeParameters(), getReferenceArguments());
-    return this.genericType.getSuperclass(substitution);
+    return this.getGenericClassType().getSuperclass(substitution);
   }
 
   /**
@@ -285,12 +288,12 @@ public class InstantiatedType extends ParameterizedType {
   }
 
   @Override
-  public boolean isGeneric() {
-    if (super.isGeneric()) { // enclosing type is generic
+  public boolean isGeneric(boolean ignoreWildcards) {
+    if (super.isGeneric(ignoreWildcards)) { // enclosing type is generic
       return true;
     }
     for (TypeArgument argument : argumentList) {
-      if (argument.isGeneric()) {
+      if (argument.isGeneric(ignoreWildcards)) {
         return true;
       }
     }
@@ -315,44 +318,108 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
-    if (super.isInstantiationOf(otherType) && !(otherType instanceof InstantiatedType)) {
-      return true;
+    if (TypeInstantiator.debug) {
+      System.out.printf(
+          "InstantiatedType.isInstantiationOf(%n    %s,%n    %s)%n",
+          Log.toStringAndClass(this), Log.toStringAndClass(otherType));
     }
+    // 3 cases:  otherType is InstantiatedType, GenericClassType, or something else.
+    // Recall that ParameterizedType's two subtypes are InstantiatedType and GenericClassType.
+
     if (otherType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) otherType;
-      if (this.genericType.equals(otherInstType.genericType)) {
-        for (int i = 0; i < this.argumentList.size(); i++) {
-          TypeArgument thisTypeArg = this.argumentList.get(i);
-          TypeArgument otherTypeArg = otherInstType.argumentList.get(i);
-          if (!thisTypeArg.isInstantiationOfTypeArgument(otherTypeArg)) {
-            return false;
+      if (!this.getGenericClassType().equals(otherInstType.getGenericClassType())) {
+        return false;
+      }
+      for (int i = 0; i < this.argumentList.size(); i++) {
+        TypeArgument thisTypeArg = this.argumentList.get(i);
+        TypeArgument otherTypeArg = otherInstType.argumentList.get(i);
+        if (!thisTypeArg.isInstantiationOfTypeArgument(otherTypeArg)) {
+          if (TypeInstantiator.debug) {
+            System.out.printf(
+                "InstantiatedType.isInstantiationOf(%n    %s,%n    %s)%n    => false due to %s.isInstantiationOfTypeArgument(%s)%n",
+                Log.toStringAndClass(this),
+                Log.toStringAndClass(otherType),
+                Log.toStringAndClass(thisTypeArg),
+                Log.toStringAndClass(otherTypeArg));
+            if (otherTypeArg instanceof ReferenceArgument) {
+              System.out.printf(
+                  "    where otherTypeArg.referenceType = %s%n",
+                  Log.toStringAndClass(((ReferenceArgument) otherTypeArg).getReferenceType()));
+            }
           }
+          return false;
         }
+      }
+      if (TypeInstantiator.debug) {
+        System.out.printf("InstantiatedType.isInstantiationOf true due to typeargs%n");
+      }
+      return true;
+    } else if (otherType instanceof GenericClassType) {
+      GenericClassType otherGenClass = (GenericClassType) otherType;
+      if (!this.getGenericClassType().equals(otherGenClass)) {
+        return false;
+      }
+      // TODO: Ensure that a substitution exists.
+      // This incorrectly returns true for
+      // isInstantiationOf("foo(Integer, String)", "foo(T,T)").
+
+      if (TypeInstantiator.debug) {
+        System.out.printf("InstantiatedType.isInstantiationOf true due to type params%n");
+      }
+      return true;
+    } else {
+      // otherType is not a ParameterizedType (not a InstantiatedType or GenericClassType)
+      if (TypeInstantiator.debug) {
+        System.out.printf("InstantiatedType.isInstantiationOf about to call super%n");
+      }
+      if (super.isInstantiationOf(otherType)) {
         return true;
       }
-      return false; // instantiated generic class types are not same
+      if (TypeInstantiator.debug) {
+        System.out.printf(
+            "InstantiatedType.isInstantiationOf: super returned false, will keep computing%n");
+      }
+      return false;
     }
-    return (otherType instanceof GenericClassType) && this.genericType.isInstantiationOf(otherType);
   }
 
   @Override
   public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
+    if (TypeInstantiator.debug) {
+      System.out.printf(
+          "InstantiatedType.getInstantiatingSubstitution(%n    this    =%s,%n    goalType=%s%n",
+          Log.toStringAndClass(this), Log.toStringAndClass(goalType));
+    }
     Substitution superResult =
         ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
+    if (TypeInstantiator.debug) {
+      System.out.printf(
+          "InstantiatedType.getInstantiatingSubstitution: superResult = %s%n", superResult);
+    }
     if (superResult != null) {
       return superResult;
+    }
+    if (TypeInstantiator.debug) {
+      System.out.printf(
+          "InstantiatedType.getInstantiatingSubstitution: proceeding after superResult = null%n");
     }
 
     assert goalType.isGeneric();
     Substitution substitution = super.getInstantiatingSubstitution(goalType);
     if (goalType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) goalType;
-      if (this.genericType.equals(otherInstType.genericType)) {
+      if (this.getGenericClassType().equals(otherInstType.getGenericClassType())) {
         for (int i = 0; i < this.argumentList.size(); i++) {
           TypeArgument thisTArg = this.argumentList.get(i);
           TypeArgument otherTArg = otherInstType.argumentList.get(i);
           Substitution subst = thisTArg.getInstantiatingSubstitution(otherTArg);
           if (subst == null) {
+            if (TypeInstantiator.debug) {
+              System.out.printf(
+                  "getInstantiatingSubstitution(%s, %s) => null%n",
+                  Log.toStringAndClass(thisTArg), Log.toStringAndClass(otherTArg));
+            }
             return null;
           }
           substitution = substitution.extend(subst);
@@ -361,6 +428,7 @@ public class InstantiatedType extends ParameterizedType {
       }
       return null;
     }
+    // TODO: Why is this test so late, after expensive computation?
     if (goalType instanceof GenericClassType) {
       return substitution;
     }
@@ -417,8 +485,8 @@ public class InstantiatedType extends ParameterizedType {
 
       // second clause: rawtype same and parameters S_i of otherType contains T_i of this
       if (otherType.runtimeClassIs(this.getRuntimeClass())) {
-        ParameterizedType otherParameterizedType = (ParameterizedType) otherType;
-        List<TypeArgument> otherTypeArguments = otherParameterizedType.getTypeArguments();
+        InstantiatedType otherInstantiatedType = (InstantiatedType) otherType;
+        List<TypeArgument> otherTypeArguments = otherInstantiatedType.getTypeArguments();
         List<TypeArgument> thisTypeArguments = this.getTypeArguments();
         assert otherTypeArguments.size() == thisTypeArguments.size();
         int i = 0;
@@ -433,7 +501,8 @@ public class InstantiatedType extends ParameterizedType {
 
       // first clause.
       InstantiatedType otherInstandiatedType = (InstantiatedType) otherType;
-      InstantiatedType superType = this.getMatchingSupertype(otherInstandiatedType.genericType);
+      InstantiatedType superType =
+          this.getMatchingSupertype(otherInstandiatedType.getGenericClassType());
       if (superType != null && superType.equals(otherType)) {
         return true;
       }

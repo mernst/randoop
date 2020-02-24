@@ -2,6 +2,8 @@ package randoop.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import randoop.reflection.TypeInstantiator;
+import randoop.util.Log;
 
 /**
  * Represents a reference type defined in <a
@@ -137,12 +139,20 @@ public abstract class ReferenceType extends Type {
    * @return true if this type instantiates the other reference type, false otherwise
    */
   public boolean isInstantiationOf(ReferenceType otherType) {
+    if (TypeInstantiator.debug) {
+      System.out.printf(
+          "ReferenceType.isInstantiationOf(%n    %s,%n    %s)%n",
+          Log.toStringAndClass(this), Log.toStringAndClass(otherType));
+    }
     if (this.equals(otherType)) {
       return true;
     }
     if (otherType.isVariable()) {
       TypeVariable variable = (TypeVariable) otherType;
       return variable.canBeInstantiatedBy(this);
+    }
+    if (TypeInstantiator.debug) {
+      System.out.printf("ReferenceType.isInstantiationOf(%s, %s) => false%n", this, otherType);
     }
     return false;
   }

@@ -7,10 +7,12 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import randoop.operation.TypedClassOperation;
 import randoop.types.BoundsCheck;
 import randoop.types.ClassOrInterfaceType;
 import randoop.types.GenericClassType;
+import randoop.types.InstantiatedType;
 import randoop.types.JDKTypes;
 import randoop.types.JavaTypes;
 import randoop.types.ParameterBound;
@@ -28,6 +30,17 @@ import randoop.util.Randomness;
 /** Instantiates type parameters from a set of input types. */
 public class TypeInstantiator {
 
+  /** If true, produce debugging output. */
+  private static final boolean DEBUG = true;
+
+  /** Whether to debug the current call. */
+  public static boolean debug = false;
+
+  /** If non-null, produce debugging only for operations whose toString() matches this pattern. */
+  // private static final Pattern DEBUG_PATTERN = Pattern.compile("ArrayListMultimap.*create");
+  private static final Pattern DEBUG_PATTERN = Pattern.compile("ArrayListMultimap.*isEmpty");
+
+  // This field is side-effected by aliases held outside the class.
   /**
    * The set of input types for this model. The input types need to be closed on supertypes: if a
    * type is in the input types, then so are all of its supertypes.
@@ -41,7 +54,9 @@ public class TypeInstantiator {
    * @param inputTypes the ground types for instantiations
    */
   public TypeInstantiator(Set<Type> inputTypes) {
+    // No defensive copy:  the field changes with time, but this class doesn't change it.
     this.inputTypes = inputTypes;
+    System.out.printf("Created a TypeInstantiator: %s%n", inputTypes);
   }
 
   /**
@@ -54,24 +69,63 @@ public class TypeInstantiator {
     assert operation.isGeneric() || operation.hasWildcardTypes()
         : "operation " + operation + " must be generic or have wildcards";
 
+    debug = DEBUG && (DEBUG_PATTERN == null || DEBUG_PATTERN.matcher(operation.toString()).find());
+    if (debug) {
+      System.out.printf("TypeInstantiator.instantiate(%s)%n", operation);
+    }
+
     // Need to allow for backtracking, because choice of instantiation for declaring type may fail
     // for generic operation --- OR maybe not.
 
     // if declaring type of operation is generic, select instantiation
     ClassOrInterfaceType declaringType = operation.getDeclaringType();
+    if (debug) {
+      System.out.printf("declaringType.isGeneric() => %s%n", declaringType.isGeneric());
+    }
     if (declaringType.isGeneric()) {
       Substitution substitution;
 
+      Type outputType = operation.getOutputType();
+
+      if (debug) {
+        System.out.printf("operation.isConstructorCall()=%s%n", operation.isConstructorCall());
+        System.out.printf("operation.isStatic()=%s%n", operation.isStatic());
+        System.out.printf(
+            "output=declaring: %s%n", operation.getOutputType().equals(declaringType));
+        System.out.printf("outputType=%s%n", Log.toStringAndClass(outputType));
+        System.out.printf("declaringType=%s%n", Log.toStringAndClass(declaringType));
+        if (outputType instanceof InstantiatedType) {
+          InstantiatedType outputTypeIT = (InstantiatedType) outputType;
+          System.out.printf(
+              "outputType args = %s%n", Log.toStringAndClass(outputTypeIT.getTypeArguments()));
+          System.out.printf(
+              "outputType.getGenericClassType() = %s%n",
+              Log.toStringAndClass(outputTypeIT.getGenericClassType()));
+          System.out.printf(
+              "outputTypeIT.ggct==declaringType: %s%n",
+              outputTypeIT.getGenericClassType().equals(declaringType));
+        }
+      }
       // if operation creates objects of its declaring type, may create new instantiation
       if (operation.isConstructorCall()
-          || (operation.isStatic() && operation.getOutputType().equals(declaringType))) {
+          || (operation.isStatic()
+              && ((InstantiatedType) outputType).getGenericClassType().equals(declaringType))) {
         if (declaringType.isSubtypeOf(JDKTypes.SORTED_SET_TYPE)) {
           substitution = instantiateSortedSetType(operation);
+          if (debug) {
+            System.out.printf("substitution (1) = %s%n", substitution);
+          }
         } else {
           substitution = instantiateClass(declaringType);
+          if (debug) {
+            System.out.printf("substitution (2) = %s%n", substitution);
+          }
         }
       } else { // otherwise, select from existing one
         substitution = selectSubstitution(declaringType);
+        if (debug) {
+          System.out.printf("substitution (3) = %s%n", substitution);
+        }
       }
       if (substitution == null) { // return null if fail to find instantiation
         return null;
@@ -81,13 +135,27 @@ public class TypeInstantiator {
     }
     // type parameters of declaring type are instantiated
 
+    if (debug) {
+      System.out.printf(
+          "operation = %s, operation.hasWildcardTypes()=%s%n",
+          operation, operation != null && operation.hasWildcardTypes());
+    }
+
     // if necessary, do capture conversion first
     if (operation != null && operation.hasWildcardTypes()) {
       Log.logPrintf("Applying capture conversion to %s%n", operation);
       operation = operation.applyCaptureConversion();
     }
+    if (debug) {
+      System.out.printf("operation = %s%n", operation);
+    }
+
     if (operation != null) {
       operation = instantiateOperationTypes(operation);
+    }
+
+    if (debug) {
+      System.out.printf("result = %s%n", operation);
     }
 
     // if operation == null failed to build instantiation
@@ -199,18 +267,56 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
+    if (debug) {
+      System.out.printf("selectSubstitution(%s, %s)%n", type, patternType);
+      System.out.printf("  inputTypes = %s%n", inputTypes);
+      System.out.printf("  looking for matches for %s%n", patternType);
+    }
+
     List<ReferenceType> matches = new ArrayList<>();
+
+    // inputTypes are just the types created by this sequence (and their supertypes).
     for (Type inputType : inputTypes) {
+      if (debug) {
+        if (inputType.isParameterized()) {
+          System.out.println();
+          System.out.printf(
+              "selectSubstitution considering inputType %s%n", Log.toStringAndClass(inputType));
+          System.out.printf(
+              "  inputType.isInstantiationOf(patternType) = %s%n    for   inputType=%s%n    for patternType=%s%n",
+              ((ReferenceType) inputType).isInstantiationOf(patternType),
+              Log.toStringAndClass(inputType),
+              Log.toStringAndClass(patternType));
+        }
+      }
       if (inputType.isParameterized()
           && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
         matches.add((ReferenceType) inputType);
       }
     }
+    if (debug) {
+      System.out.printf("matches = %s%n", matches);
+    }
     if (matches.isEmpty()) {
+      if (debug) {
+        System.out.printf(
+            "selectSubstitution(%s, %s) => null because matches is empty%n", type, patternType);
+      }
       return null;
     }
     ReferenceType selectedType = Randomness.randomSetMember(matches);
+    if (debug) {
+      System.out.printf(
+          "selectSubstitution is about to call getInstantiatingSubstitution(%n    selectedType=%s,%n    type=        %s)%n",
+          Log.toStringAndClass(selectedType), Log.toStringAndClass(type));
+    }
     Substitution result = selectedType.getInstantiatingSubstitution(type);
+    if (debug) {
+      System.out.printf(
+          "getInstantiatingSubstitution(%n    selectedType=%s,%n    type=        %s)%n    => %s%n",
+          Log.toStringAndClass(selectedType), Log.toStringAndClass(type), result);
+      System.out.printf("selectSubstitution(%s, %s) => %s%n", type, patternType, result);
+    }
     return result;
   }
 
@@ -232,7 +338,12 @@ public class TypeInstantiator {
    * @param operation the operation
    * @return the operation with generic types instantiated
    */
+  // TODO: This seems redundant with isInstantiationOf.  Should they be combined?
   private TypedClassOperation instantiateOperationTypes(TypedClassOperation operation) {
+    if (debug) {
+      System.out.printf("instantiateOperationTypes(%s)%n", operation);
+    }
+
     // answer question: what type instantiation would allow a call to this operation?
     Set<TypeVariable> typeParameters = new LinkedHashSet<>();
     Substitution substitution = new Substitution();
@@ -244,6 +355,11 @@ public class TypeInstantiator {
               selectSubstitution(
                   (ParameterizedType) parameterType, (ParameterizedType) workingType);
           if (subst == null) {
+            if (debug) {
+              System.out.printf(
+                  "instantiateOperationTypes => null because subst = null for%n    %s%n    %s%n",
+                  parameterType, workingType);
+            }
             return null;
           }
           substitution = substitution.extend(subst);
@@ -266,14 +382,31 @@ public class TypeInstantiator {
 
     if (!typeParameters.isEmpty()) {
       substitution = extendSubstitution(new ArrayList<>(typeParameters), substitution);
+      if (debug) {
+        System.out.printf("instantiateOperationTypes: extended substitution = %s%n", substitution);
+      }
       if (substitution == null) {
+        if (debug) {
+          System.out.printf(
+              "instantiateOperationTypes => null because extended substitution is null%n");
+        }
         return null;
       }
     }
 
     operation = operation.substitute(substitution);
-    if (operation.isGeneric()) {
+    if (operation.isGeneric(/*ignoreWildcards=*/ true)) {
+      // An operation is generic if it has type variables.  Does that mean that substitution failed,
+      // because it left some type variables unreplaced?
+      if (debug) {
+        System.out.printf(
+            "instantiateOperationTypes => null because operation is generic: %s%n",
+            Log.toStringAndClass(operation));
+      }
       return null;
+    }
+    if (debug) {
+      System.out.printf("instantiateOperationTypes => %s%n", operation);
     }
     return operation;
   }

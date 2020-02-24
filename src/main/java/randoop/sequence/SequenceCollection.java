@@ -147,6 +147,7 @@ public class SequenceCollection {
    * @param sequence the sequence to add to this collection
    */
   public void add(Sequence sequence) {
+    // System.out.printf("SequenceCollection.add:%n%s%n", sequence);
     List<Type> formalTypes = sequence.getTypesForLastStatement();
     List<Variable> arguments = sequence.getVariablesOfLastStatement();
     assert formalTypes.size() == arguments.size();
@@ -158,6 +159,9 @@ public class SequenceCollection {
               + argument.getType().getBinaryName();
       if (sequence.isActive(argument.getDeclIndex())) {
         Type type = formalTypes.get(i);
+        // if (!typesAndSupertypes.contains(type)) {
+        //   System.out.printf("SequenceCollection.add adding %s%n", type);
+        // }
         typesAndSupertypes.add(type);
         if (type.isClassOrInterfaceType()) {
           // This adds all the supertypes, not just immediate ones.
