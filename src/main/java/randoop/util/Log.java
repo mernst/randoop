@@ -195,6 +195,6 @@ public final class Log {
     }
 
     throw new IllegalArgumentException(
-        "Argument is not an array, but has class " + a.getClass().getName());
+        "Argument is not an array; its class is " + a.getClass().getName());
   }
 }

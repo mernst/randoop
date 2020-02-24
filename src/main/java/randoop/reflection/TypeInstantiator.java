@@ -274,8 +274,6 @@ public class TypeInstantiator {
     }
 
     List<ReferenceType> matches = new ArrayList<>();
-
-    // inputTypes are just the types created by this sequence (and their supertypes).
     for (Type inputType : inputTypes) {
       if (debug) {
         if (inputType.isParameterized()) {
@@ -395,9 +393,9 @@ public class TypeInstantiator {
     }
 
     operation = operation.substitute(substitution);
+    // An operation is generic if it has type variables.  This seems to assume that substitution
+    // failed, because it left some type variables unreplaced.  Should that be an error?
     if (operation.isGeneric(/*ignoreWildcards=*/ true)) {
-      // An operation is generic if it has type variables.  Does that mean that substitution failed,
-      // because it left some type variables unreplaced?
       if (debug) {
         System.out.printf(
             "instantiateOperationTypes => null because operation is generic: %s%n",
