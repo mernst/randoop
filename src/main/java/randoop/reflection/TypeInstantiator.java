@@ -106,6 +106,7 @@ public class TypeInstantiator {
               outputTypeIT.getGenericClassType().equals(declaringType));
         }
       }
+
       // if operation creates objects of its declaring type, may create new instantiation
       if (operation.isConstructorCall()
           || (operation.isStatic()
