@@ -1,10 +1,13 @@
 package randoop.types;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import randoop.util.Log;
 
 /**
@@ -32,7 +35,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * The enclosing type. Non-null only if this is a nested type (either a member type or a nested
    * static type).
    */
-  private ClassOrInterfaceType enclosingType = null;
+  protected ClassOrInterfaceType enclosingType = null;
 
   /**
    * Translates a {@code Class} object that represents a class or interface into a {@code
@@ -372,6 +375,26 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   }
 
   /**
+   * Return all supertypes of this type, including itself.
+   *
+   * @return all supertypes of this type, including itself
+   */
+  public Collection<ClassOrInterfaceType> getAllSupertypesInclusive() {
+    LinkedHashSet<ClassOrInterfaceType> result = new LinkedHashSet<>();
+
+    Queue<ClassOrInterfaceType> worklist = new ArrayDeque<>();
+    worklist.add(this);
+    while (!worklist.isEmpty()) {
+      ClassOrInterfaceType type = worklist.remove();
+      if (result.add(type)) {
+        // result did not already contain the element
+        worklist.addAll(type.getImmediateSupertypes());
+      }
+    }
+    return result;
+  }
+
+  /**
    * Indicate whether this class is abstract.
    *
    * @return true if this class is abstract, false otherwise
@@ -379,8 +402,8 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
   public abstract boolean isAbstract();
 
   @Override
-  public boolean isGeneric() {
-    return this.isMemberClass() && enclosingType.isGeneric();
+  public boolean isGeneric(boolean ignoreWildcards) {
+    return this.isMemberClass() && enclosingType.isGeneric(ignoreWildcards);
   }
 
   /**
@@ -521,12 +544,17 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     return false;
   }
 
+  @Override
+  public boolean hasCaptureVariable() {
+    return false;
+  }
+
   /**
    * Sets the enclosing type for this class type.
    *
    * @param enclosingType the type for the class enclosing the declaration of this type
    */
-  private void setEnclosingType(ClassOrInterfaceType enclosingType) {
+  protected void setEnclosingType(ClassOrInterfaceType enclosingType) {
     this.enclosingType = enclosingType;
   }
 

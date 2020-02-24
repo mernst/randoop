@@ -151,9 +151,11 @@ public class ExecutableBooleanExpression {
               "  contractSource = %s%n  comment = %s%n  cause = %s",
               contractSource, comment, e.getCause());
       if (GenInputsAbstract.ignore_condition_exception) {
-        System.out.printf(
-            "Failure executing expression method; fix the specification.%n" + messageDetails);
-        e.printStackTrace(System.out);
+        if (!GenInputsAbstract.ignore_condition_exception_quiet) {
+          System.out.printf(
+              "Failure executing expression method; fix the specification.%n" + messageDetails);
+          e.printStackTrace(System.out);
+        }
         return false;
       } else {
         throw new RandoopSpecificationError(
@@ -249,15 +251,12 @@ public class ExecutableBooleanExpression {
     if (packageName != null) {
       packageDeclaration = "package " + packageName + ";" + Globals.lineSep + Globals.lineSep;
     }
-    return UtilPlume.join(
-        new String[] {
-          packageDeclaration + "public class " + expressionClassName + " {",
-          "  public static boolean " + methodName + parameterDeclarations + " throws Throwable {",
-          "    return " + expressionText + ";",
-          "  }",
-          "}" + Globals.lineSep
-        },
-        Globals.lineSep);
+    return UtilPlume.joinLines(
+        packageDeclaration + "public class " + expressionClassName + " {",
+        "  public static boolean " + methodName + parameterDeclarations + " throws Throwable {",
+        "    return " + expressionText + ";",
+        "  }",
+        "}" + Globals.lineSep);
   }
 
   /**

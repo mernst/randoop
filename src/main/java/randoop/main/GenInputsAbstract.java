@@ -125,6 +125,12 @@ public abstract class GenInputsAbstract extends CommandHandler {
   @Option("File that lists methods under test")
   public static Path methodlist = null;
 
+  // Documentation to add.
+  //  Suppose that the class hierarchy is A :> B :> C. If method B.m omitted, Randoop might still
+  //  create a test case that calls A.m, and at run time that call might dispatch to the B.m
+  //  implementation. Also, Randoop might still call C.m that overrides B.m. Alternatives to these
+  //  behaviors may be desirable in certain curcimstances and may be be added in the future,
+  //  depending on user requests.
   /**
    * A regex that indicates methods that should not be called directly in generated tests. This does
    * not prevent indirect calls to such methods from other, allowed methods.
@@ -134,16 +140,16 @@ public abstract class GenInputsAbstract extends CommandHandler {
    * signature</a> matches the regular expression, or a method inherited from a superclass or
    * interface whose signature matches the regular expression.
    *
-   * <p>Methods replaced by the {@code replacecall} agent are also automatically added to this list.
-   *
    * <p>If the regular expression contains anchors "{@code ^}" or "{@code $}", they refer to the
    * beginning and the end of the signature string.
+   *
+   * <p>Methods replaced by the {@code replacecall} agent are also automatically omitted.
    */
   @Option("Do not call methods that match regular expression <string>")
-  public static List<Pattern> omit_methods = null;
+  public static List<Pattern> omit_methods = new ArrayList<>();
 
   /**
-   * Temporary alias for --omit-methods, which you should use instead.
+   * Temporary alias for --omit-methods. You should use --omit-methods instead.
    *
    * <p>Will be removed in the future.
    */
@@ -455,6 +461,14 @@ public abstract class GenInputsAbstract extends CommandHandler {
   @Option("Terminate Randoop if specification condition throws an exception")
   public static boolean ignore_condition_exception = false;
 
+  /**
+   * If true, don't print diagnostics about specification that throw an exception. Has no effect
+   * unless {@code --ignore-condition-exception} is set.
+   */
+  @Unpublicized
+  @Option("Terminate Randoop if specification condition throws an exception")
+  public static boolean ignore_condition_exception_quiet = false;
+
   ///////////////////////////////////////////////////////////////////
   /**
    * File containing side-effect-free methods, each given as a <a
@@ -655,7 +669,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
   }
 
   // Implementation note: when checking whether a String S exceeds the given
-  // maxlength, we test if StringEscapeUtils.escapeJava(S), because this is
+  // maxlength, we test if UtilPlume.escapeJava(S), because this is
   // the length of the string that will actually be printed out as code.
   /**
    * Maximum length of strings in generated tests, including in assertions. Strings longer than 65KB
