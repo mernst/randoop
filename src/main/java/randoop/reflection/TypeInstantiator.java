@@ -102,7 +102,7 @@ public class TypeInstantiator {
     }
     if (operation != null) {
       operation = instantiateOperationTypes(operation);
-      System.out.printf("operation (3) = %s%n", operation);
+      Log.logPrintf("instantiated operation       = %s%n", operation);
     }
 
     // if operation == null failed to build instantiation
@@ -272,10 +272,13 @@ public class TypeInstantiator {
    */
   // TODO: This seems redundant with isInstantiationOf.  Should they be combined?
   private TypedClassOperation instantiateOperationTypes(TypedClassOperation operation) {
+    Log.logPrintf("instantiateOperationTypes(%s)%n", operation);
     // answer question: what type instantiation would allow a call to this operation?
     Set<TypeVariable> typeParameters = new LinkedHashSet<>();
     Substitution substitution = new Substitution();
     for (Type parameterType : operation.getInputTypes()) {
+      Log.logPrintf(
+          "instantiateOperationTypes: parameterType = %s%n", Log.toStringAndClass(parameterType));
       Type workingType = parameterType.substitute(substitution);
       if (workingType.isGeneric()) {
         if (workingType.isClassOrInterfaceType()) {
@@ -289,11 +292,15 @@ public class TypeInstantiator {
         } else {
           typeParameters.addAll(((ReferenceType) workingType).getTypeParameters());
         }
+        Log.logPrintf(
+            "instantiateOperationTypes: substitution = %s%n", Log.toStringAndClass(substitution));
       }
     }
     // return types don't have to exist, but do need to have their type parameters instantiated
     if (operation.getOutputType().isReferenceType()) {
       Type workingType = operation.getOutputType().substitute(substitution);
+      Log.logPrintf(
+          "output type      %s%n  substituted = %s%n", operation.getOutputType(), workingType);
       if (workingType.isGeneric()) {
         typeParameters.addAll(((ReferenceType) workingType).getTypeParameters());
       }
@@ -310,8 +317,12 @@ public class TypeInstantiator {
       }
     }
 
+    Log.logPrintf(
+        "instantiateOperationTypes: final substitution = %s%n", Log.toStringAndClass(substitution));
+
     operation = operation.substitute(substitution);
-    System.out.printf("operation = %s, isGeneric=%s%n", operation, operation.isGeneric());
+    Log.logPrintf(
+        "instantiateOperationTypes => %s, isGeneric=%s%n", operation, operation.isGeneric());
     // An operation is generic if it has type variables.  This seems to assume that substitution
     // failed, because it left some type variables unreplaced.  Should that be an error?
     if (operation.isGeneric(/*ignoreWildcards=*/ true)) {
