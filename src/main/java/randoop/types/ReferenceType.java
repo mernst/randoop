@@ -137,6 +137,7 @@ public abstract class ReferenceType extends Type {
    * @return true if this type instantiates the other reference type, false otherwise
    */
   public boolean isInstantiationOf(ReferenceType otherType) {
+    System.out.printf("ReferenceType.isInstantiationOf: %s %s%n", this, otherType);
     if (this.equals(otherType)) {
       return true;
     }
@@ -158,12 +159,13 @@ public abstract class ReferenceType extends Type {
    * @return a substitution unifying this type or a supertype of this type with the goal type
    */
   public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
+    System.out.printf("ReferenceType.getInstantiatingSubstitution(%s)%n", goalType);
     return ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
   }
 
   /**
    * Static helper method that does the work of getInstantiatingSubstitution, if goalType is a type
-   * variable.
+   * variable (but not a wildcard argument).
    *
    * @param instantiatedType the first type
    * @param goalType the generic type for which a substitution is needed

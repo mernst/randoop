@@ -115,6 +115,19 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   public boolean hasCaptureVariable() {
+    System.out.printf(
+        "ReferenceArgument.hasCaptureVariable(%s [%s]), referenceType=%s [%s] isParameterized=%s%n",
+        this,
+        this.getClass(),
+        referenceType,
+        referenceType.getClass(),
+        referenceType.isParameterized());
+    // Infinite loop (or something) for:
+    // return referenceType.hasCaptureVariable();
+    // Also infinite loop (or something) for:
+    // return referenceType instanceof CaptureTypeVariable || ...
+    // WHAT IS UP?
+
     return referenceType instanceof CaptureTypeVariable
         || (referenceType.isParameterized()
             && ((ClassOrInterfaceType) referenceType).hasCaptureVariable());
@@ -132,6 +145,8 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   boolean isInstantiationOfTypeArgument(TypeArgument otherArgument) {
+    System.out.printf("ReferenceArgument.isInstantiationOf: %s %s%n", this, otherArgument);
+
     if (!(otherArgument instanceof ReferenceArgument)) {
       return false;
     }
@@ -143,10 +158,22 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   public Substitution getInstantiatingSubstitution(TypeArgument otherArgument) {
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: this = %s [%s]%n", this, this.getClass());
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: otherArgument = %s [%s]%n",
+        otherArgument, otherArgument.getClass());
     if (!(otherArgument instanceof ReferenceArgument)) {
       return null;
     }
     ReferenceType otherReferenceType = ((ReferenceArgument) otherArgument).getReferenceType();
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: this.referenceType = %s [%s]%n",
+        this.referenceType, this.referenceType.getClass());
+    System.out.printf(
+        "ReferenceArgument.getInstantiatingSubstitution: otherReferenceType = %s [%s]%n",
+        otherReferenceType, otherReferenceType.getClass());
+
     return referenceType.getInstantiatingSubstitution(otherReferenceType);
   }
 

@@ -56,12 +56,14 @@ public class TypeInstantiator {
   public TypedClassOperation instantiate(TypedClassOperation operation) {
     assert operation.isGeneric() || operation.hasWildcardTypes()
         : "operation " + operation + " must be generic or have wildcards";
+    System.out.printf("instantiate(%s)%n", operation);
 
     // Need to allow for backtracking, because choice of instantiation for declaring type may fail
     // for generic operation --- OR maybe not.
 
     // if declaring type of operation is generic, select instantiation
     ClassOrInterfaceType declaringType = operation.getDeclaringType();
+    System.out.printf("declaringType = %s%n", declaringType);
     if (declaringType.isGeneric()) {
       Substitution substitution;
 
@@ -72,28 +74,35 @@ public class TypeInstantiator {
           || (operation.isStatic()
               && ((InstantiatedType) outputType).getGenericClassType().equals(declaringType))) {
         if (declaringType.isSubtypeOf(JDKTypes.SORTED_SET_TYPE)) {
+          System.out.printf("setting substitution (1)%n");
           substitution = instantiateSortedSetType(operation);
         } else {
+          System.out.printf("setting substitution (2)%n");
           substitution = instantiateClass(declaringType);
         }
       } else { // otherwise, select from existing one
+        System.out.printf("setting substitution (3)%n");
         substitution = selectSubstitution(declaringType);
       }
       if (substitution == null) { // return null if fail to find instantiation
+        System.out.printf("substitution = null (4)%n");
         return null;
       }
       // instantiate type parameters of declaring type
       operation = operation.substitute(substitution);
     }
     // type parameters of declaring type are instantiated
+    System.out.printf("operation (1) = %s%n", operation);
 
     // if necessary, do capture conversion first
     if (operation != null && operation.hasWildcardTypes()) {
       Log.logPrintf("Applying capture conversion to %s%n", operation);
       operation = operation.applyCaptureConversion();
+      System.out.printf("operation (2) = %s%n", operation);
     }
     if (operation != null) {
       operation = instantiateOperationTypes(operation);
+      System.out.printf("operation (3) = %s%n", operation);
     }
 
     // if operation == null failed to build instantiation
@@ -112,34 +121,44 @@ public class TypeInstantiator {
   private Substitution instantiateSortedSetType(TypedClassOperation operation) {
     assert operation.isConstructorCall() : "only call with constructors of SortedSet subtype";
 
+    System.out.printf("instantiateSortedSetType(%s)%n", operation);
+
     // TODO: we have no guaranteed that there is a type parameter.
     // For example, "class MyClass implements SortedSet<String>".
     // TODO: we have no guarantee that the first type parameter is the set element type.
     // For example, "class MyClass<A, B> implements SortedSet<B>".
     TypeVariable typeParameter = operation.getDeclaringType().getTypeParameters().get(0);
+    System.out.printf("typeParameter = %s%n", typeParameter);
 
     TypeTuple opInputTypes = operation.getInputTypes();
+    System.out.printf("opInputTypes = %s%n", opInputTypes);
 
     // There are four constructors in the SortedSet interface.
 
     if (opInputTypes.isEmpty()) {
       // This is the default constructor, choose a type E that is Comparable<E>.
+      System.out.printf("instantiateSortedSetType (1)%n");
       return selectSubstitutionForSortedSet(JavaTypes.COMPARABLE_TYPE, typeParameter);
     } else if (opInputTypes.size() == 1) {
       ClassOrInterfaceType inputType = (ClassOrInterfaceType) opInputTypes.get(0);
+      System.out.printf("instantiateSortedSetType: inputType = %s%n", inputType);
       if (inputType.isInstantiationOf(JDKTypes.COMPARATOR_TYPE)) {
         // This constructor has Comparator<E> arg, choose type E with Comparator<E>.
+        System.out.printf("instantiateSortedSetType (2)%n");
         return selectSubstitutionForSortedSet(JDKTypes.COMPARATOR_TYPE, typeParameter);
       } else if (inputType.isInstantiationOf(JDKTypes.COLLECTION_TYPE)) {
         // This constructor has Collection<E> arg, choose type E that is Comparable<E>.
+        System.out.printf("instantiateSortedSetType (3)%n");
         return selectSubstitutionForSortedSet(JavaTypes.COMPARABLE_TYPE, typeParameter);
       } else if (inputType.isInstantiationOf(JDKTypes.SORTED_SET_TYPE)) {
         // This constructor has SortedSet<E> arg, choose existing matching type.
+        System.out.printf("instantiateSortedSetType (4)%n");
         return selectSubstitutionForSortedSet(JDKTypes.SORTED_SET_TYPE, typeParameter);
       }
     }
 
     // This isn't one of the four standard SortedSet constructors.  We don't know what to do.
+    System.out.printf("instantiateSortedSetType no match%n");
     return null;
   }
 
@@ -152,6 +171,7 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitutionForSortedSet(
       GenericClassType searchType, TypeVariable typeParameter) {
+    System.out.printf("selectSubstitutionForSortedSet(%s, %s)%n", searchType, typeParameter);
     // Select a substitution for searchType's formal parameter.
     Substitution substitution = selectSubstitution(searchType);
     if (substitution == null) {
@@ -171,6 +191,7 @@ public class TypeInstantiator {
    * @return a substitution instantiating the given type; null if none is found
    */
   private Substitution instantiateClass(ClassOrInterfaceType type) {
+    System.out.printf("instantiateClass(%s)%n", type);
     if (Randomness.weightedCoinFlip(0.5)) {
       Substitution substitution = selectSubstitution(type);
       if (substitution != null) {
@@ -205,18 +226,29 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
+    System.out.printf("selectSubstitution(%s, %s)%n", type, patternType);
     List<ReferenceType> matches = new ArrayList<>();
     for (Type inputType : inputTypes) {
+      System.out.printf(
+          "inputType = %s [%s] isParameterized = %s%n",
+          inputType, inputType.getClass(), inputType.isParameterized());
       if (inputType.isParameterized()
           && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
+        System.out.printf("matched inputType %s%n", inputType);
         matches.add((ReferenceType) inputType);
       }
     }
+    System.out.printf(
+        "selectSubstitution(%s, %s): %d matches%n", type, patternType, matches.size());
     if (matches.isEmpty()) {
+      System.out.printf("selectSubstitution: no matches%n");
       return null;
     }
     ReferenceType selectedType = Randomness.randomSetMember(matches);
+    System.out.printf("selectedType = %s [%s]%n", selectedType, selectedType.getClass());
+    System.out.printf("type = %s [%s]%n", type, type.getClass());
     Substitution result = selectedType.getInstantiatingSubstitution(type);
+    System.out.printf("selectSubstitution: result = %s%n", result);
     return result;
   }
 
@@ -279,6 +311,7 @@ public class TypeInstantiator {
     }
 
     operation = operation.substitute(substitution);
+    System.out.printf("operation = %s, isGeneric=%s%n", operation, operation.isGeneric());
     // An operation is generic if it has type variables.  This seems to assume that substitution
     // failed, because it left some type variables unreplaced.  Should that be an error?
     if (operation.isGeneric(/*ignoreWildcards=*/ true)) {
@@ -313,11 +346,20 @@ public class TypeInstantiator {
    */
   private Substitution extendSubstitution(
       List<TypeVariable> typeParameters, Substitution substitution) {
+    System.out.printf(
+        "selectSubstitution(typeParameters=%s, substitution=%s)%n", typeParameters, substitution);
     List<Substitution> substitutionList = allExtendingSubstitutions(typeParameters, substitution);
+    System.out.printf(
+        "selectSubstitution(typeParameters=%s, substitution=%s): possibilities = %s%n",
+        typeParameters, substitution, substitutionList);
     if (substitutionList.isEmpty()) {
       return null;
     }
-    return Randomness.randomMember(substitutionList);
+    Substitution result = Randomness.randomMember(substitutionList);
+    System.out.printf(
+        "selectSubstitution(typeParameters=%s, substitution=%s) => %s%n",
+        typeParameters, substitution, result);
+    return result;
   }
 
   /**

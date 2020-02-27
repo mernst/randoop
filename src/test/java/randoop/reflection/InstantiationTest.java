@@ -305,6 +305,12 @@ public class InstantiationTest {
       Set<TypedOperation> classOperations,
       Set<Type> inputTypes,
       Set<String> nullOKNames) {
+    System.out.printf("getOperations:%n");
+    System.out.printf("model: %s%n", model);
+    System.out.printf("classOperations: %s%n", classOperations);
+    System.out.printf("inputTypes: %s%n", inputTypes);
+    System.out.printf("nullOKNames: %s%n", nullOKNames);
+
     TypeInstantiator instantiator = new TypeInstantiator(inputTypes);
 
     Set<TypedClassOperation> genericConstructors = new LinkedHashSet<>();

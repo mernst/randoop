@@ -267,8 +267,17 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    * @return the instantiated type matching the goal type, or null
    */
   public InstantiatedType getMatchingSupertype(GenericClassType goalType) {
+    System.out.printf(
+        "ClassOrInterfaceType.getMatchingSupertype %s %s [isInterface=%s]%n",
+        this, goalType, goalType.isInterface());
     if (goalType.isInterface()) {
+      System.out.printf("interfaces of this = %s%n", this.getInterfaces());
       for (ClassOrInterfaceType interfaceType : this.getInterfaces()) {
+        System.out.printf(
+            "ClassOrInterfaceType.getMatchingSupertype interfaceType=%s%n", interfaceType);
+        System.out.printf(
+            "ClassOrInterfaceType.getMatchingSupertype assigneable test=%s%n",
+            goalType.getRuntimeClass().isAssignableFrom(interfaceType.getRuntimeClass()));
         if (goalType.getRuntimeClass().isAssignableFrom(interfaceType.getRuntimeClass())) {
           if (interfaceType.isParameterized()) {
             InstantiatedType type = (InstantiatedType) interfaceType;
@@ -303,8 +312,13 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
 
   @Override
   public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
+    System.out.printf("ClassOrInterfaceType.getInstantiatingSubstitution(%s)%n", goalType);
+
     Substitution superResult =
         ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
+    System.out.printf(
+        "ClassOrInterfaceType.getInstantiatingSubstitution(%s): superResult=%s %n",
+        goalType, superResult);
     if (superResult != null) {
       return superResult;
     }
@@ -315,20 +329,33 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
     if (this.isMemberClass()) {
       substitution = enclosingType.getInstantiatingSubstitution(goalType);
       if (substitution == null) {
+        System.out.printf("ClassOrInterfaceType.getInstantiatingSubstitution => null (1)%n");
         return null;
       }
     }
+
+    System.out.printf(
+        "ClassOrInterfaceType.getInstantiatingSubstitution: substitution (1) = %s%n", substitution);
 
     if (goalType instanceof GenericClassType) {
       InstantiatedType supertype = this.getMatchingSupertype((GenericClassType) goalType);
       if (supertype != null) {
         Substitution supertypeSubstitution = supertype.getTypeSubstitution();
+        System.out.printf(
+            "ClassOrInterfaceType.getInstantiatingSubstitution: supertypeSubstitution (2) = %s%n",
+            supertypeSubstitution);
         if (supertypeSubstitution == null) {
+          System.out.printf("ClassOrInterfaceType.getInstantiatingSubstitution => null (2)%n");
           return null;
         }
         substitution = substitution.extend(supertypeSubstitution);
+        System.out.printf(
+            "ClassOrInterfaceType.getInstantiatingSubstitution: substitution (2) = %s%n",
+            substitution);
       }
     }
+    System.out.printf("ClassOrInterfaceType.getInstantiatingSubstitution => %s%n", substitution);
+
     return substitution;
   }
 
@@ -419,6 +446,7 @@ public abstract class ClassOrInterfaceType extends ReferenceType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
+    System.out.printf("ClassOrInterfaceType.isInstantiationOf: %s %s%n", this, otherType);
     if (super.isInstantiationOf(otherType)) {
       return true;
     }

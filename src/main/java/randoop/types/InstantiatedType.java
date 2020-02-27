@@ -90,6 +90,7 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public InstantiatedType applyCaptureConversion() {
+    System.out.printf("InstantiatedType.applyCaptureConversion: %s%n", this);
 
     if (!this.hasWildcard()) {
       return this;
@@ -157,6 +158,7 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public InstantiatedType getMatchingSupertype(GenericClassType goalType) {
+    System.out.printf("InstantiatedType.getMatchingSupertype %s %s%n", this, goalType);
     /*
     if (this.hasWildcard()) {
       return this.applyCaptureConversion().getMatchingSupertype(goalType);
@@ -262,11 +264,19 @@ public class InstantiatedType extends ParameterizedType {
 
   @Override
   public boolean hasCaptureVariable() {
+    System.out.printf("InstantiatedType.hasCaptureVariable(%s [%s])%n", this, this.getClass());
     for (TypeArgument argument : argumentList) {
+      System.out.printf(
+          "InstantiatedType.hasCaptureVariable: argument = %s [%s]%n",
+          argument, argument.getClass());
       if (argument.hasCaptureVariable()) {
+        System.out.printf(
+            "InstantiatedType.hasCaptureVariable(%s [%s]) => true%n", this, this.getClass());
         return true;
       }
     }
+    System.out.printf(
+        "InstantiatedType.hasCaptureVariable(%s [%s]) => false%n", this, this.getClass());
     return false;
   }
 
@@ -316,6 +326,7 @@ public class InstantiatedType extends ParameterizedType {
    */
   @Override
   public boolean isInstantiationOf(ReferenceType otherType) {
+    System.out.printf("InstantiatedType.isInstantiationOf: %s %s%n", this, otherType);
     if (super.isInstantiationOf(otherType) && !(otherType instanceof InstantiatedType)) {
       return true;
     }
@@ -355,21 +366,40 @@ public class InstantiatedType extends ParameterizedType {
 
   @Override
   public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
+    System.out.printf(
+        "InstantiatedType.getInstantiatingSubstitution(this=%s, goalType=%s [%s])%n",
+        this, goalType, goalType.getClass());
+
     Substitution superResult =
         ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
+    System.out.printf(
+        "ClassOrInterfaceType.getInstantiatingSubstitution(%s): superResult=%s %n",
+        goalType, superResult);
     if (superResult != null) {
       return superResult;
     }
 
     assert goalType.isGeneric();
     Substitution substitution = super.getInstantiatingSubstitution(goalType);
+    System.out.printf(
+        "InstantiatedType.getInstantiatingSubstitution: substitution = %s%n", substitution);
+    System.out.printf(
+        "InstantiatedType.getInstantiatingSubstitution: goalType = %s [%s]%n",
+        goalType, goalType.getClass());
+
     if (goalType instanceof InstantiatedType) {
       InstantiatedType otherInstType = (InstantiatedType) goalType;
       if (this.getGenericClassType().equals(otherInstType.getGenericClassType())) {
         for (int i = 0; i < this.argumentList.size(); i++) {
           TypeArgument thisTArg = this.argumentList.get(i);
           TypeArgument otherTArg = otherInstType.argumentList.get(i);
+          System.out.printf(
+              "InstantiatedType.getInstantiatingSubstitution: about to compute subst[%d] for %s %s%n",
+              i, thisTArg, otherTArg);
           Substitution subst = thisTArg.getInstantiatingSubstitution(otherTArg);
+          System.out.printf(
+              "InstantiatedType.getInstantiatingSubstitution: subst[%d] for %s %s = %s%n",
+              i, thisTArg, otherTArg, subst);
           if (subst == null) {
             return null;
           }

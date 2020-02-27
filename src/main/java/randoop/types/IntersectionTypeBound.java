@@ -185,6 +185,8 @@ class IntersectionTypeBound extends ParameterBound {
    */
   @Override
   public boolean isUpperBound(Type argType, Substitution subst) {
+    System.out.printf("IntersectionTypeBound.isUpperBound: %s %s %s%n", this, argType, subst);
+
     for (ParameterBound b : boundList) {
       if (!b.isUpperBound(argType, subst)) {
         return false;

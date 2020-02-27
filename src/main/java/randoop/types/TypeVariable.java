@@ -119,6 +119,8 @@ public abstract class TypeVariable extends ParameterType {
    * @return true if the given type can instantiate this variable, false otherwise
    */
   boolean canBeInstantiatedBy(ReferenceType otherType) {
+    System.out.printf("InstantiatedType.canBeInstantiatedBy: %s %s%n", this, otherType);
+
     Substitution substitution;
     if (getLowerTypeBound().isVariable()) {
       substitution = getSubstitution(this, otherType);

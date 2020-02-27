@@ -133,6 +133,7 @@ public abstract class TypeArgument {
    */
   public Substitution getInstantiatingSubstitution(TypeArgument goalType) {
     // This implementation indicates failure.  It is overridden by subclasses.
+    System.out.printf("TypeArgument.getInstantiatingSubstitution(%s) => null%n", goalType);
     return null;
   }
 
