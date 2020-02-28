@@ -2,6 +2,7 @@ package randoop.types;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -174,6 +175,12 @@ class LazyParameterBound extends ParameterBound {
   @Override
   public List<TypeVariable> getTypeParameters() {
     return getTypeParameters(boundType);
+  }
+
+  @Override
+  public List<TypeVariable> getTypeVariableBounds() {
+    // TODO: Is this correct??
+    return Collections.emptyList();
   }
 
   /**

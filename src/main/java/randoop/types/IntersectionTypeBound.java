@@ -104,6 +104,16 @@ class IntersectionTypeBound extends ParameterBound {
   }
 
   @Override
+  public List<TypeVariable> getTypeVariableBounds() {
+    List<TypeVariable> result = new ArrayList<>();
+    for (ParameterBound b : boundList) {
+      List<TypeVariable> subresult = b.getTypeVariableBounds();
+      result.addAll(subresult);
+    }
+    return result;
+  }
+
+  @Override
   boolean hasWildcard() {
     for (ParameterBound b : boundList) {
       if (b.hasWildcard()) {

@@ -1,6 +1,7 @@
 package randoop.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,6 +85,12 @@ class LazyReferenceBound extends ReferenceBound {
       }
     }
     return parameters;
+  }
+
+  @Override
+  public List<TypeVariable> getTypeVariableBounds() {
+    // TODO: Is this correct??
+    return Collections.emptyList();
   }
 
   @Override

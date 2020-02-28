@@ -150,7 +150,7 @@ public abstract class TypeVariable extends ParameterType {
   }
 
   /**
-   * Returns the type parameters in this type, which is this variable.
+   * Returns the type parameters in this type.
    *
    * @return this variable
    */
@@ -158,7 +158,17 @@ public abstract class TypeVariable extends ParameterType {
   public List<TypeVariable> getTypeParameters() {
     Set<TypeVariable> parameters = new LinkedHashSet<>(super.getTypeParameters());
     parameters.add(this);
+    parameters.addAll(getLowerTypeBound().getTypeParameters());
+    parameters.addAll(getUpperTypeBound().getTypeParameters());
     return new ArrayList<>(parameters);
+  }
+
+  /** Return other variables that are equivalent to this one. */
+  public List<TypeVariable> equivalentVariables() {
+    List<TypeVariable> result = new ArrayList<>();
+    result.addAll(getLowerTypeBound().getTypeVariableBounds());
+    result.addAll(getUpperTypeBound().getTypeVariableBounds());
+    return result;
   }
 
   public abstract TypeVariable createCopyWithBounds(
@@ -167,5 +177,21 @@ public abstract class TypeVariable extends ParameterType {
   @Override
   public Type getRawtype() {
     return JavaTypes.OBJECT_TYPE;
+  }
+
+  @Override
+  public String toString() {
+    ParameterBound lowerBound = getLowerTypeBound();
+    ParameterBound upperBound = getUpperTypeBound();
+    StringBuilder result = new StringBuilder(getSimpleName());
+    if (!(lowerBound instanceof ReferenceBound
+        && ((ReferenceBound) lowerBound).getBoundType() instanceof NullReferenceType)) {
+      result.append(" super ").append(lowerBound);
+    }
+    if (!(upperBound instanceof ReferenceBound
+        && ((ReferenceBound) upperBound).getBoundType().isObject())) {
+      result.append(" super ").append(upperBound);
+    }
+    return result.toString();
   }
 }

@@ -152,7 +152,11 @@ public class Substitution {
    * @return a new substitution that is this substitution extended by the given mappings
    */
   public Substitution extend(List<TypeVariable> parameters, List<ReferenceType> arguments) {
-    return extend(new Substitution(parameters, arguments));
+    if (parameters.isEmpty()) {
+      return this;
+    } else {
+      return extend(new Substitution(parameters, arguments));
+    }
   }
 
   /**
