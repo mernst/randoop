@@ -59,8 +59,20 @@ class CaptureTypeVariable extends TypeVariable {
     this.wildcard = wildcard;
   }
 
+  /**
+   * Returns the wildcard.
+   *
+   * @return the wildcard
+   */
+  WildcardArgument getWildcard() {
+    return wildcard;
+  }
+
   @Override
   public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
     if (!(obj instanceof CaptureTypeVariable)) {
       return false;
     }

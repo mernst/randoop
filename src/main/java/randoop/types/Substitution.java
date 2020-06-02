@@ -151,6 +151,19 @@ public class Substitution {
   }
 
   /**
+   * Creates a new substitution that contains the mappings of this substitution, extended by the
+   * given mapping. If this and the additional mapping contains the same type variable, both must
+   * map it to the same type.
+   *
+   * @param parameter the type parameter
+   * @param argument the type argument
+   * @return a new substitution that is this substitution extended by the given mapping
+   */
+  public Substitution extend(TypeVariable parameter, ReferenceType argument) {
+    return extend(new Substitution(parameter, argument));
+  }
+
+  /**
    * Creates a new substitution that contains the entries of two substitutions. If both
    * substitutions contain the same type variable, they must map to the same type.
    *
@@ -164,6 +177,56 @@ public class Substitution {
     }
     for (Entry<java.lang.reflect.Type, ReferenceType> entry : other.rawMap.entrySet()) {
       result.rawMap.merge(entry.getKey(), entry.getValue(), requireSameEntry);
+    }
+    return result;
+  }
+
+  // TODO: maybe I should do this as I add bindings, rather than as a postpass that looks for
+  // bindings of the given type
+  /**
+   * To "ground" a substitution is to choose a type for any type parameters that exist only in
+   * wildcards.
+   *
+   * @return a new substitution that extends this one to ground type parameters that exist ony in
+   *     wildcards
+   */
+  public Substitution ground() {
+    // Implementation strategy:  choose the least restrictive type, which is generally the top
+    // type if there is any constraint. (?)
+    // TODO: Skip anything that isn't actually constrained.  That is, skip "? extends Object".
+    Substitution result = this;
+    System.out.printf("ground(): this=%s%n", this);
+    for (Map.Entry<TypeVariable, ReferenceType> entry : map.entrySet()) {
+      TypeVariable typevar = entry.getKey();
+      ReferenceType type = entry.getValue();
+      if (type.equals(JavaTypes.OBJECT_TYPE)) {
+        System.out.printf("ground(): maps to Object%n");
+      }
+      if (typevar instanceof CaptureTypeVariable) {
+        CaptureTypeVariable ctypevar = (CaptureTypeVariable) typevar;
+        System.out.printf("ground(): %s : %s%n", ctypevar, type);
+        System.out.printf(
+            "ground(): lower bound = %s, upper bound = %s%n",
+            ctypevar.getLowerTypeBound(), ctypevar.getUpperTypeBound());
+        WildcardArgument wildarg = ctypevar.getWildcard();
+        WildcardType wildtype = wildarg.getWildcardType();
+        System.out.printf("ground(): wildcard = %s, wildcard type = %s%n", wildarg, wildtype);
+        ParameterBound wildUpperBound = wildtype.getUpperTypeBound();
+        System.out.printf(
+            "ground(): upper bound = %s [%s] isReferenceBound = %s %n",
+            wildUpperBound, wildUpperBound.getClass(), wildUpperBound instanceof ReferenceBound);
+        if (wildUpperBound instanceof ReferenceBound) {
+          ReferenceBound wildUpperReferenceBound = (ReferenceBound) wildUpperBound;
+          ReferenceType boundType = wildUpperReferenceBound.getBoundType();
+          System.out.printf("ground(): boundType = %s [%s]%n", boundType, boundType.getClass());
+          if (boundType instanceof ExplicitTypeVariable) {
+            // The substitution contains an entry
+            System.out.printf(
+                "ground(): extending with boundType = %s, type = %s%n", boundType, type);
+            result = result.extend((TypeVariable) boundType, type);
+          }
+        }
+      }
     }
     return result;
   }
