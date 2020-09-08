@@ -2,6 +2,7 @@ package randoop.types;
 
 import java.util.List;
 import java.util.Objects;
+import randoop.util.Log;
 
 /**
  * Represents a reference type as a type argument to a parameterized type. (See <a
@@ -158,21 +159,18 @@ public class ReferenceArgument extends TypeArgument {
 
   @Override
   public Substitution getInstantiatingSubstitution(TypeArgument otherArgument) {
-    System.out.printf(
+    Log.logPrintf(
         "ReferenceArgument.getInstantiatingSubstitution: this = %s [%s]%n", this, this.getClass());
-    System.out.printf(
+    Log.logPrintf(
         "ReferenceArgument.getInstantiatingSubstitution: otherArgument = %s [%s]%n",
         otherArgument, otherArgument.getClass());
     if (!(otherArgument instanceof ReferenceArgument)) {
       return null;
     }
     ReferenceType otherReferenceType = ((ReferenceArgument) otherArgument).getReferenceType();
-    System.out.printf(
-        "ReferenceArgument.getInstantiatingSubstitution: this.referenceType = %s [%s]%n",
-        this.referenceType, this.referenceType.getClass());
-    System.out.printf(
-        "ReferenceArgument.getInstantiatingSubstitution: otherReferenceType = %s [%s]%n",
-        otherReferenceType, otherReferenceType.getClass());
+    Log.logPrintf(
+        "About to call getInstantiatingSubstitution(this=%s, other=%s)%n",
+        Log.toStringAndClass(this.referenceType), Log.toStringAndClass(otherReferenceType));
 
     return referenceType.getInstantiatingSubstitution(otherReferenceType);
   }

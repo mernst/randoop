@@ -226,29 +226,28 @@ public class TypeInstantiator {
    */
   private Substitution selectSubstitution(
       ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
-    System.out.printf("selectSubstitution(%s, %s)%n", type, patternType);
+    Log.logPrintf("selectSubstitution(%s, %s)%n", type, patternType);
     List<ReferenceType> matches = new ArrayList<>();
     for (Type inputType : inputTypes) {
-      System.out.printf(
-          "inputType = %s [%s] isParameterized = %s%n",
-          inputType, inputType.getClass(), inputType.isParameterized());
       if (inputType.isParameterized()
           && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
-        System.out.printf("matched inputType %s%n", inputType);
+        Log.logPrintf("matched inputType %s%n", inputType);
+        System.out.printf("isInstantiationOf returned true: %s %s%n", inputType, patternType);
         matches.add((ReferenceType) inputType);
       }
     }
+    Log.logPrintf("selectSubstitution(%s, %s): %d matches%n", type, patternType, matches.size());
     System.out.printf(
         "selectSubstitution(%s, %s): %d matches%n", type, patternType, matches.size());
     if (matches.isEmpty()) {
-      System.out.printf("selectSubstitution: no matches%n");
+      Log.logPrintf("selectSubstitution: no matches%n");
       return null;
     }
     ReferenceType selectedType = Randomness.randomSetMember(matches);
-    System.out.printf("selectedType = %s [%s]%n", selectedType, selectedType.getClass());
-    System.out.printf("type = %s [%s]%n", type, type.getClass());
+    Log.logPrintf("selectedType = %s [%s]%n", selectedType, selectedType.getClass());
+    Log.logPrintf("type = %s [%s]%n", type, type.getClass());
     Substitution result = selectedType.getInstantiatingSubstitution(type);
-    System.out.printf("selectSubstitution: result = %s%n", result);
+    Log.logPrintf("selectSubstitution: result = %s%n", result);
     return result;
   }
 
@@ -272,6 +271,7 @@ public class TypeInstantiator {
    */
   // TODO: This seems redundant with isInstantiationOf.  Should they be combined?
   private TypedClassOperation instantiateOperationTypes(TypedClassOperation operation) {
+    System.out.printf("entering instantiateOperationTypes(%s)%n", operation);
     Log.logPrintf("instantiateOperationTypes(%s)%n", operation);
     // answer question: what type instantiation would allow a call to this operation?
     Set<TypeVariable> typeParameters = new LinkedHashSet<>();
@@ -279,12 +279,32 @@ public class TypeInstantiator {
     for (Type parameterType : operation.getInputTypes()) {
       Log.logPrintf(
           "instantiateOperationTypes: parameterType = %s%n", Log.toStringAndClass(parameterType));
+      System.out.printf(
+          "instantiateOperationTypes: parameterType = %s%n", Log.toStringAndClass(parameterType));
       Type workingType = parameterType.substitute(substitution);
+      System.out.printf("instantiateOperationTypes: substitution = %s%n", substitution);
+      System.out.printf(
+          "instantiateOperationTypes: workingType = %s%n", Log.toStringAndClass(workingType));
       if (workingType.isGeneric()) {
         if (workingType.isClassOrInterfaceType()) {
+          // First call is identical to later output, to permit bracketing the call
+          System.out.printf(
+              "about to call selectSubstitution(%s, %s):%n", parameterType, workingType);
+          System.out.printf(
+              "about to call selectSubstitution(%s, %s)%n",
+              Log.toStringAndClass(parameterType), Log.toStringAndClass(workingType));
+          System.out.printf(
+              "workingType.getTypeParameters() = %s%n",
+              Log.toStringAndClass(((ParameterizedType) workingType).getTypeParameters()));
+          System.out.printf(
+              "workingType.getTypeArguments() = %s%n",
+              Log.toStringAndClass(((ParameterizedType) workingType).getTypeArguments()));
           Substitution subst =
               selectSubstitution(
                   (ParameterizedType) parameterType, (ParameterizedType) workingType);
+          Log.logPrintf("selectSubstitution(%s, %s) => %s%n", parameterType, workingType, subst);
+          System.out.printf(
+              "selectSubstitution(%s, %s) => %s%n", parameterType, workingType, subst);
           if (subst == null) {
             return null;
           }

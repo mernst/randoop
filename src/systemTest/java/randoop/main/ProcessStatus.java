@@ -93,7 +93,8 @@ class ProcessStatus {
     executor.setStreamHandler(streamHandler);
 
     if (cmdLine.toString().length() > 4095) {
-      System.out.printf("Command line is too long:%n%s%n", cmdLine);
+      System.out.printf(
+          "Command line is too long (%d characters):%n%s%n", cmdLine.toString().length(), cmdLine);
     }
 
     try {

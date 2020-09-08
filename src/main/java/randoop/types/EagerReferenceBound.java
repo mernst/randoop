@@ -1,7 +1,10 @@
 package randoop.types;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import randoop.types.LazyParameterBound.LazyBoundException;
+import randoop.util.Log;
 
 /**
  * Represents a bound on a type variable where the bound is a {@link ReferenceType} that can be used
@@ -39,6 +42,23 @@ class EagerReferenceBound extends ReferenceBound {
   @Override
   public List<TypeVariable> getTypeParameters() {
     return getBoundType().getTypeParameters();
+  }
+
+  @Override
+  @SuppressWarnings("MixedMutabilityReturnType")
+  public List<TypeVariable> getTypeVariableBounds() {
+    ReferenceType boundType = getBoundType();
+    Log.logPrintf("EagerReferenceBound.getTypeVariableBounds(%s)%n", this);
+    Log.logPrintf("   = %s%n", Log.toStringAndClass(boundType));
+    if (boundType instanceof TypeVariable) {
+      TypeVariable thisVariable = (TypeVariable) boundType;
+      List<TypeVariable> result = new ArrayList<>();
+      result.add(thisVariable);
+      result.addAll(thisVariable.equivalentVariables());
+      return result;
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @Override

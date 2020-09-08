@@ -125,6 +125,13 @@ public abstract class ParameterBound {
   public abstract List<TypeVariable> getTypeParameters();
 
   /**
+   * Returns any type variable that is this bound.
+   *
+   * @return the list of {@code TypeVariable} objects in this bound
+   */
+  public abstract List<TypeVariable> getTypeVariableBounds();
+
+  /**
    * Indicates whether the given (reflection) type reference represents a type in which a type
    * variable occurs.
    *

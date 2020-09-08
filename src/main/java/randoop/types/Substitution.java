@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import randoop.main.RandoopBug;
 
 /**
  * A substitution maps type parameters/variables (including wildcards) to concrete types. It
@@ -152,7 +153,11 @@ public class Substitution {
    * @return a new substitution that is this substitution extended by the given mappings
    */
   public Substitution extend(List<TypeVariable> parameters, List<ReferenceType> arguments) {
-    return extend(new Substitution(parameters, arguments));
+    if (parameters.isEmpty()) {
+      return this;
+    } else {
+      return extend(new Substitution(parameters, arguments));
+    }
   }
 
   /**
@@ -163,14 +168,18 @@ public class Substitution {
    * @return a new substitution that is this substitution extended by the given substitution
    */
   public Substitution extend(Substitution other) {
-    Substitution result = new Substitution(this);
-    for (Entry<TypeVariable, ReferenceType> entry : other.map.entrySet()) {
-      result.map.merge(entry.getKey(), entry.getValue(), requireSameEntry);
+    try {
+      Substitution result = new Substitution(this);
+      for (Entry<TypeVariable, ReferenceType> entry : other.map.entrySet()) {
+        result.map.merge(entry.getKey(), entry.getValue(), requireSameEntry);
+      }
+      for (Entry<java.lang.reflect.Type, ReferenceType> entry : other.rawMap.entrySet()) {
+        result.rawMap.merge(entry.getKey(), entry.getValue(), requireSameEntry);
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      throw new RandoopBug(String.format("extend(this=%s, other=%s)", this, other), e);
     }
-    for (Entry<java.lang.reflect.Type, ReferenceType> entry : other.rawMap.entrySet()) {
-      result.rawMap.merge(entry.getKey(), entry.getValue(), requireSameEntry);
-    }
-    return result;
   }
 
   /**

@@ -119,7 +119,9 @@ public abstract class TypeVariable extends ParameterType {
    * @return true if the given type can instantiate this variable, false otherwise
    */
   boolean canBeInstantiatedBy(ReferenceType otherType) {
-    System.out.printf("InstantiatedType.canBeInstantiatedBy: %s %s%n", this, otherType);
+    // No notification of exit unless it returns true.
+    System.out.printf(
+        "entering InstantiatedType.canBeInstantiatedBy(this=%s, otherType=%s)%n", this, otherType);
 
     Substitution substitution;
     if (getLowerTypeBound().isVariable()) {
@@ -148,11 +150,13 @@ public abstract class TypeVariable extends ParameterType {
         return false;
       }
     }
+    System.out.printf(
+        "InstantiatedType.canBeInstantiatedBy(this=%s, otherType=%s) => true%n", this, otherType);
     return true;
   }
 
   /**
-   * Returns the type parameters in this type, which is this variable.
+   * Returns the type parameters in this type.
    *
    * @return this variable
    */
@@ -160,7 +164,17 @@ public abstract class TypeVariable extends ParameterType {
   public List<TypeVariable> getTypeParameters() {
     Set<TypeVariable> parameters = new LinkedHashSet<>(super.getTypeParameters());
     parameters.add(this);
+    parameters.addAll(getLowerTypeBound().getTypeParameters());
+    parameters.addAll(getUpperTypeBound().getTypeParameters());
     return new ArrayList<>(parameters);
+  }
+
+  /** Return other variables that are equivalent to this one. */
+  public List<TypeVariable> equivalentVariables() {
+    List<TypeVariable> result = new ArrayList<>();
+    result.addAll(getLowerTypeBound().getTypeVariableBounds());
+    result.addAll(getUpperTypeBound().getTypeVariableBounds());
+    return result;
   }
 
   public abstract TypeVariable createCopyWithBounds(

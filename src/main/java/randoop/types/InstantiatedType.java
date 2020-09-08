@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import randoop.util.Log;
 
 /**
  * Represents a parameterized type as a generic class instantiated with type arguments.
@@ -366,13 +367,13 @@ public class InstantiatedType extends ParameterizedType {
 
   @Override
   public Substitution getInstantiatingSubstitution(ReferenceType goalType) {
-    System.out.printf(
+    Log.logPrintf(
         "InstantiatedType.getInstantiatingSubstitution(this=%s, goalType=%s [%s])%n",
         this, goalType, goalType.getClass());
 
     Substitution superResult =
         ReferenceType.getInstantiatingSubstitutionforTypeVariable(this, goalType);
-    System.out.printf(
+    Log.logPrintf(
         "ClassOrInterfaceType.getInstantiatingSubstitution(%s): superResult=%s %n",
         goalType, superResult);
     if (superResult != null) {
@@ -381,9 +382,9 @@ public class InstantiatedType extends ParameterizedType {
 
     assert goalType.isGeneric();
     Substitution substitution = super.getInstantiatingSubstitution(goalType);
-    System.out.printf(
+    Log.logPrintf(
         "InstantiatedType.getInstantiatingSubstitution: substitution = %s%n", substitution);
-    System.out.printf(
+    Log.logPrintf(
         "InstantiatedType.getInstantiatingSubstitution: goalType = %s [%s]%n",
         goalType, goalType.getClass());
 
@@ -393,12 +394,12 @@ public class InstantiatedType extends ParameterizedType {
         for (int i = 0; i < this.argumentList.size(); i++) {
           TypeArgument thisTArg = this.argumentList.get(i);
           TypeArgument otherTArg = otherInstType.argumentList.get(i);
-          System.out.printf(
-              "InstantiatedType.getInstantiatingSubstitution: about to compute subst[%d] for %s %s%n",
-              i, thisTArg, otherTArg);
+          Log.logPrintf(
+              "InstantiatedType.getInstantiatingSubstitution: about to compute subst[%d] for thisTArg=%s otherTArg=%s%n",
+              i, Log.toStringAndClass(thisTArg), Log.toStringAndClass(otherTArg));
           Substitution subst = thisTArg.getInstantiatingSubstitution(otherTArg);
-          System.out.printf(
-              "InstantiatedType.getInstantiatingSubstitution: subst[%d] for %s %s = %s%n",
+          Log.logPrintf(
+              "InstantiatedType.getInstantiatingSubstitution: subst[%d] = %s for thisTArg=%s otherTArg=%s%n",
               i, thisTArg, otherTArg, subst);
           if (subst == null) {
             return null;

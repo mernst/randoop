@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.plumelib.util.UtilPlume;
+import randoop.util.Log;
 
 /**
  * Represents an intersection type bound on a type parameter in a class, interface, method or
@@ -101,6 +102,18 @@ class IntersectionTypeBound extends ParameterBound {
       paramList.addAll(b.getTypeParameters());
     }
     return paramList;
+  }
+
+  @Override
+  public List<TypeVariable> getTypeVariableBounds() {
+    List<TypeVariable> result = new ArrayList<>();
+    for (ParameterBound b : boundList) {
+      List<TypeVariable> subresult = b.getTypeVariableBounds();
+      Log.logPrintf(
+          "from boundList: getTypeVariableBounds(%s) => %s%n", Log.toStringAndClass(b), subresult);
+      result.addAll(subresult);
+    }
+    return result;
   }
 
   @Override
