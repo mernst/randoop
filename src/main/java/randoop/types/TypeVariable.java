@@ -171,6 +171,13 @@ public abstract class TypeVariable extends ParameterType {
     return result;
   }
 
+  /**
+   * Create a copy of this, but with the given bounds.
+   *
+   * @param lowerBound the lower type bound for the created copy
+   * @param upperBound the upper type bound for the created copy
+   * @return a copy of this, but with the given bounds.
+   */
   public abstract TypeVariable createCopyWithBounds(
       ParameterBound lowerBound, ParameterBound upperBound);
 
