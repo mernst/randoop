@@ -191,7 +191,7 @@ public class RandoopSystemTest {
     options.addTestClass("java7.util7.TreeSet");
     options.addTestClass("java7.util7.Collections");
     options.setFlag("no-error-revealing-tests");
-    options.setOption("output_limit", "1000");
+    options.setOption("output_limit", "2000");
     options.setOption("npe-on-null-input", "EXPECTED");
     options.setFlag("debug_checks");
     options.setOption("omit-field-file", "resources/systemTest/testclassomitfields.txt");
@@ -270,7 +270,7 @@ public class RandoopSystemTest {
     options.setPackageName("foo.bar");
     options.setRegressionBasename("NaiveRegression");
     options.setErrorBasename("NaiveError");
-    options.setOption("output_limit", "2000");
+    options.setOption("output_limit", "10000");
     options.addTestClass("java7.util7.TreeSet");
     options.addTestClass("java7.util7.ArrayList");
     options.addTestClass("java7.util7.LinkedList");
@@ -369,7 +369,7 @@ public class RandoopSystemTest {
     options.setRegressionBasename("JDK_Tests_regression");
     options.setErrorBasename("JDK_Tests_error");
 
-    options.setOption("generated_limit", "6000");
+    options.setOption("generated_limit", "10000");
     options.setOption("null-ratio", "0.3");
     options.setOption("alias-ratio", "0.3");
     options.setOption("input-selection", "small-tests");
@@ -891,7 +891,7 @@ public class RandoopSystemTest {
     options.setRegressionBasename("CMExceptionTest");
     options.setErrorBasename("CMExceptionErr");
     options.addTestClass("misc.MyCmeList");
-    options.setOption("output_limit", "100");
+    options.setOption("output_limit", "200");
 
     ExpectedTests expectedRegressionTests = ExpectedTests.SOME;
     ExpectedTests expectedErrorTests = ExpectedTests.NONE;
