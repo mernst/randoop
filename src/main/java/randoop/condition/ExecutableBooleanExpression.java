@@ -2,6 +2,7 @@ package randoop.condition;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.tools.Diagnostic;
@@ -140,6 +141,8 @@ public class ExecutableBooleanExpression {
    * @return true if this expression is satisfied by the values, false otherwise
    */
   public boolean check(Object[] values) {
+    System.out.printf(
+        "check(%s), expressionMethod = %s%n", Arrays.toString(values), expressionMethod);
     try {
       return (boolean) expressionMethod.invoke(null, values);
     } catch (IllegalAccessException e) {

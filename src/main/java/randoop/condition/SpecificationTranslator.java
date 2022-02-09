@@ -82,6 +82,9 @@ public class SpecificationTranslator {
     this.poststateExpressionDeclarations = poststateExpressionDeclaration;
     this.replacementMap = replacementMap;
     this.compiler = compiler;
+    System.out.printf(
+        "SpecificationTranslator(preDecl = %s, postDecl = %s)%n",
+        prestateExpressionDeclaration, poststateExpressionDeclaration);
   }
 
   /**
@@ -107,18 +110,35 @@ public class SpecificationTranslator {
     List<String> parameterNames = new ArrayList<>();
 
     // Get expression method parameter declaration strings.
-    if (executable instanceof Method) { // TODO: inner class constructors have a receiver
+    if (executable.getAnnotatedReceiverType() != null) {
       parameterNames.add(identifiers.getReceiverName());
     }
     parameterNames.addAll(identifiers.getParameterNames());
     String prestateExpressionDeclarations =
         prestateExpressionSignature.getDeclarationArguments(parameterNames);
 
-    parameterNames.add(identifiers.getReturnName());
+    if (!executable.getAnnotatedReturnType().toString().equals("void")) {
+      System.out.printf("executable = %s%n", executable);
+      System.out.printf(
+          "executable.getAnnotatedReturnType() = %s [%s]%n",
+          executable.getAnnotatedReturnType(), executable.getAnnotatedReturnType().getClass());
+      System.out.printf(
+          "executable.getAnnotatedReturnType().toString() = %s%n",
+          executable.getAnnotatedReturnType().toString());
+      System.out.printf(
+          "executable.getAnnotatedReturnType().getType() = %s [%s] %n",
+          executable.getAnnotatedReturnType().getType(),
+          executable.getAnnotatedReturnType().getType().getClass());
+      parameterNames.add(identifiers.getReturnName());
+    }
+    System.out.printf("poststateExpressionSignature = %s%n", poststateExpressionSignature);
     String poststateExpressionDeclarations =
         poststateExpressionSignature.getDeclarationArguments(parameterNames);
 
     Map<String, String> replacementMap = createReplacementMap(parameterNames);
+    System.out.printf(
+        "about to call SpecificationTranslator(preDecl = %s, postDecl = %s)%n",
+        prestateExpressionDeclarations, poststateExpressionDeclarations);
     return new SpecificationTranslator(
         prestateExpressionSignature,
         prestateExpressionDeclarations,
@@ -151,8 +171,18 @@ public class SpecificationTranslator {
     // TODO: A constructor for an inner class has a receiver (which is not the declaring class).
     Class<?> receiverType = isMethod ? declaringClass : null;
     Class<?>[] parameterTypes = executable.getParameterTypes();
-    Class<?> returnType =
-        (!postState ? null : (isMethod ? ((Method) executable).getReturnType() : declaringClass));
+    Class<?> returnType = null;
+    if (!postState) {
+      if (isMethod) {
+        Class<?> tmpReturnType = ((Method) executable).getReturnType();
+        if (!tmpReturnType.toString().equals("void")) {
+          returnType = tmpReturnType;
+        }
+      } else {
+        // it's a constructor
+        returnType = declaringClass;
+      }
+    }
     String packageName = renamedPackage(declaringClass.getPackage());
     return getRawSignature(packageName, receiverType, parameterTypes, returnType);
   }

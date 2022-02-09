@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.List;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
-import randoop.NormalExecution;
+import randoop.NormalExecutionWithoutValue;
 import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
@@ -35,7 +35,7 @@ class ArrayElementSet extends CallableOperation {
     } catch (Throwable thrown) {
       return new ExceptionalExecution(thrown, 0);
     }
-    return new NormalExecution(null, 0);
+    return new NormalExecutionWithoutValue(0);
   }
 
   @Override

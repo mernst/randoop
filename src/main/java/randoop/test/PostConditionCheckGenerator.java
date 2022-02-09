@@ -46,6 +46,8 @@ public class PostConditionCheckGenerator extends TestCheckGenerator {
     } else if (result instanceof NormalExecution) {
       ArrayList<Variable> inputs = new ArrayList<>(eseq.sequence.getInputs(finalIndex));
       inputs.add(eseq.sequence.getVariable(finalIndex));
+      System.out.printf("eseq = %s%n", eseq);
+      System.out.printf("finalIndex=%d, result=%s, inputs => %s%n", finalIndex, result, inputs);
       Object[] inputValues = eseq.getRuntimeInputs(inputs);
       if (eseq.sequence.getStatement(finalIndex).getOperation().isStatic()) {
         inputValues = addNullReceiver(inputValues);

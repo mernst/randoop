@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
-import randoop.NormalExecution;
+import randoop.NormalExecutionWithoutValue;
 import randoop.field.AccessibleField;
 import randoop.field.FieldParser;
 import randoop.main.RandoopBug;
@@ -71,7 +71,7 @@ public class FieldSet extends CallableOperation {
       return new ExceptionalExecution(thrown, 0);
     }
 
-    return new NormalExecution(null, 0);
+    return new NormalExecutionWithoutValue(0);
   }
 
   /**
