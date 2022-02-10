@@ -1,5 +1,8 @@
 package randoop.util;
 
+import org.plumelib.util.StringsPlume;
+import randoop.main.RandoopBug;
+
 /**
  * Wraps a method or constructor together with its arguments. Can be run only once. {@link
  * #hasRun()} indicates whether it has been run.
@@ -14,9 +17,13 @@ public abstract class ReflectionCode {
   /** Has this been executed already? */
   private boolean hasRun;
 
-  // Before runReflectionCodeRaw is executed, both of these fields are null. After
-  // runReflectionCodeRaw is executed, if exceptionThrown is null, then retval is the returned value
-  // (which might be null).
+  // Before runReflectionCodeRaw is executed, both of these fields are null.
+  // After runReflectionCodeRaw is executed, one of the following is the case:
+  //   * exceptionThrown is non-null
+  //   * noValue is true (if the reflectioncode yields no value, such as a void method call)
+  //   * noValue is false and retval is the returned value (which might be null).
+  // I cannot make retval Optional<Object> because the content of Optional is always non-null.
+  protected boolean noValue;
   protected Object retval;
   protected Throwable exceptionThrown;
 
@@ -47,8 +54,8 @@ public abstract class ReflectionCode {
    *
    * <ol>
    *   <li>This method calls {@link #runReflectionCodeRaw()} to perform the actual work. {@link
-   *       #runReflectionCodeRaw()} sets the {@code .retVal} or {@code exceptionThrown} field, or
-   *       throws an exception if there is a bug in Randoop.
+   *       #runReflectionCodeRaw()} sets either the {@code noValue} and {@code retVal} fields or the
+   *       {@code exceptionThrown} field, or it throws an exception if there is a bug in Randoop.
    * </ol>
    *
    * @throws ReflectionCodeException if execution results in conflicting error and success states;
@@ -69,9 +76,36 @@ public abstract class ReflectionCode {
    */
   protected abstract void runReflectionCodeRaw() throws ReflectionCodeException;
 
+  /**
+   * Returns true if evaluating this code yields no value (e.g., an assignment statement or a call
+   * to a void method).
+   *
+   * @return true if evaluating this code yields no value
+   */
+  public boolean getNoValue() {
+    if (!hasRun()) {
+      throw new IllegalStateException("run first, then ask");
+    }
+    if (exceptionThrown != null) {
+      throw new RandoopBug("an exception was thrown, don't call getNoValue");
+    }
+    return noValue;
+  }
+
+  /**
+   * Returns the value yielded by executing the code.
+   *
+   * @return the value yielded by executing the code
+   */
   public Object getReturnValue() {
     if (!hasRun()) {
       throw new IllegalStateException("run first, then ask");
+    }
+    if (noValue) {
+      throw new RandoopBug("noValue is set when calling getReturnValue");
+    }
+    if (exceptionThrown != null) {
+      throw new RandoopBug("an exception was thrown, don't call getReturnValue");
     }
     return retval;
   }
@@ -96,7 +130,7 @@ public abstract class ReflectionCode {
     } else if (!hasStarted() && hasRun()) {
       return " ILLEGAL STATE";
     } else if (exceptionThrown == null) {
-      return " returned: " + retval;
+      return " returned: " + (noValue ? "void" : StringsPlume.toStringAndClass(retval));
     } else {
       return " threw: " + exceptionThrown;
     }

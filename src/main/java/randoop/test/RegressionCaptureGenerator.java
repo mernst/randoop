@@ -11,6 +11,7 @@ import java.util.Set;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
 import randoop.NormalExecution;
+import randoop.NormalExecutionWithoutValue;
 import randoop.NotExecuted;
 import randoop.contract.EnumValue;
 import randoop.contract.IsNotNull;
@@ -113,21 +114,12 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
       ExecutionOutcome result = eseq.getResult(i);
       if (result instanceof NotExecuted) {
         throw new Error("Abnormal execution in sequence: " + eseq);
+      } else if (result instanceof NormalExecutionWithoutValue) {
+        // Examples: "int x = 3" or a void-returning method call.
+        continue;
       } else if (result instanceof NormalExecution) {
         if (includeAssertions) {
           NormalExecution execution = (NormalExecution) result;
-          // If value is like x in "int x = 3" don't capture checks (nothing interesting).
-          if (statement.isNonreceivingInitialization()) {
-            continue;
-          }
-
-          // If value's type is void (i.e. its statement is a void-return method call),
-          // don't capture checks (nothing interesting).
-          Type outputType = statement.getOutputType();
-          if (outputType.isVoid()) {
-            continue;
-          }
-
           Object runtimeValue = execution.getRuntimeValue();
 
           Variable var = eseq.sequence.getVariable(i);
@@ -194,7 +186,7 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
           }
         }
       } else if (result instanceof ExceptionalExecution) {
-        // The code threw an exception
+        // The code threw an exception.
 
         // if happens before last statement, sequence is malformed
         if (i != finalIndex) {
@@ -206,7 +198,7 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
         checks.add(exceptionExpectation.getExceptionCheck(e, eseq, i));
 
       } else { // statement not executed
-        throw new Error("Unexecuted statement in sequence");
+        throw new Error("Unexpected result type: " + result + " [" + result.getClass() + "]");
       }
     }
     return checks;

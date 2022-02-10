@@ -479,9 +479,13 @@ public class ExecutableSequence {
   public List<ReferenceValue> getLastStatementValues() {
     Set<ReferenceValue> values = new LinkedHashSet<>();
 
-    Object outputValue = getValue(sequence.size() - 1);
-    Variable outputVariable = sequence.getLastVariable();
-    addReferenceValue(outputVariable, outputValue, values);
+    int lastIndex = sequence.size() - 1;
+    ExecutionOutcome result = getResult(lastIndex);
+    if (result instanceof NormalExecution) {
+      Object outputValue = getValue(lastIndex);
+      Variable outputVariable = sequence.getLastVariable();
+      addReferenceValue(outputVariable, outputValue, values);
+    }
 
     for (Variable inputVariable : sequence.getInputs(sequence.size() - 1)) {
       Object inputValue = getValue(inputVariable.index);
