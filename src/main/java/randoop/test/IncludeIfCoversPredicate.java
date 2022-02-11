@@ -29,14 +29,14 @@ public class IncludeIfCoversPredicate implements Predicate<ExecutableSequence> {
    */
   @Override
   public boolean test(ExecutableSequence t) {
-    System.out.printf("EICP.test(%s)%n", t);
+    // System.out.printf("EICP.test(%s)%n", t);
     for (Class<?> c : coveredClasses) {
       if (t.coversClass(c)) {
-        System.out.printf("EICP.test => true%n");
+        // System.out.printf("EICP.test => true%n");
         return true;
       }
     }
-    System.out.printf("EICP.test => false%n");
+    // System.out.printf("EICP.test => false%n");
     return false;
   }
 }

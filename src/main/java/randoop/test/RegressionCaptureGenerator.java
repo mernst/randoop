@@ -121,6 +121,13 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
       } else if (result instanceof NormalExecution) {
         if (includeAssertions) {
           NormalExecution execution = (NormalExecution) result;
+          // If value is like x in "int x = 3" don't capture checks.  There is nothing interesting
+          // to assert, and the statement might not even appear in the output because the RHS might
+          // get inlined at uses).
+          if (statement.isNonreceivingInitialization()) {
+            continue;
+          }
+
           Object runtimeValue = execution.getRuntimeValue();
 
           Variable var = eseq.sequence.getVariable(i);
@@ -202,6 +209,7 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
         throw new Error("Unexpected result type: " + StringsPlume.toStringAndClass(result));
       }
     }
+    // System.out.printf("generateTestChecks [%s] => %s%n", this.getClass(), checks);
     return checks;
   }
 

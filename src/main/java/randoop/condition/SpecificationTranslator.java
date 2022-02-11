@@ -115,20 +115,22 @@ public class SpecificationTranslator {
         prestateExpressionSignature.getDeclarationArguments(parameterNames);
 
     if (!executable.getAnnotatedReturnType().toString().equals("void")) {
-      System.out.printf("executable = %s%n", executable);
-      System.out.printf(
-          "executable.getAnnotatedReturnType() = %s [%s]%n",
-          executable.getAnnotatedReturnType(), executable.getAnnotatedReturnType().getClass());
-      System.out.printf(
-          "executable.getAnnotatedReturnType().toString() = %s%n",
-          executable.getAnnotatedReturnType().toString());
-      System.out.printf(
-          "executable.getAnnotatedReturnType().getType() = %s [%s] %n",
-          executable.getAnnotatedReturnType().getType(),
-          executable.getAnnotatedReturnType().getType().getClass());
+      if (false) {
+        System.out.printf("executable = %s%n", executable);
+        System.out.printf(
+            "executable.getAnnotatedReturnType() = %s [%s]%n",
+            executable.getAnnotatedReturnType(), executable.getAnnotatedReturnType().getClass());
+        System.out.printf(
+            "executable.getAnnotatedReturnType().toString() = %s%n",
+            executable.getAnnotatedReturnType().toString());
+        System.out.printf(
+            "executable.getAnnotatedReturnType().getType() = %s [%s] %n",
+            executable.getAnnotatedReturnType().getType(),
+            executable.getAnnotatedReturnType().getType().getClass());
+      }
       parameterNames.add(identifiers.getReturnName());
     }
-    System.out.printf("poststateExpressionSignature = %s%n", poststateExpressionSignature);
+    // System.out.printf("poststateExpressionSignature = %s%n", poststateExpressionSignature);
     String poststateExpressionDeclarations =
         poststateExpressionSignature.getDeclarationArguments(parameterNames);
 

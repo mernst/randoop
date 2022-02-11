@@ -1148,8 +1148,8 @@ public class GenTests extends GenInputsAbstract {
 
   public Predicate<ExecutableSequence> createTestOutputPredicate(
       Set<Sequence> excludeSet, Set<Class<?>> coveredClasses, Pattern includePattern) {
-    System.out.printf(
-        "createTestOutputPredicate(%s, %s, %s)%n", excludeSet, coveredClasses, includePattern);
+    // System.out.printf(
+    //     "createTestOutputPredicate(%s, %s, %s)%n", excludeSet, coveredClasses, includePattern);
     if (GenInputsAbstract.dont_output_tests) {
       return new AlwaysFalse<>();
     }

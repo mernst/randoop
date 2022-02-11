@@ -62,6 +62,15 @@ public class ObjectCheck implements Check {
       this.vars[count++] = v;
     }
     // this.stackTrace = new Error();
+    if (false) {
+      try {
+        Thread.sleep(100);
+        new Error(this.toString()).printStackTrace();
+        Thread.sleep(100);
+      } catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+    }
   }
 
   @Override
@@ -83,7 +92,11 @@ public class ObjectCheck implements Check {
 
   @Override
   public String toString() {
-    return "<" + contract.toString() + " " + StringsPlume.escapeJava(Arrays.toString(vars)) + ">";
+    return "<check: "
+        + contract.toString()
+        + " "
+        + StringsPlume.escapeJava(Arrays.toString(vars))
+        + ">";
   }
 
   @Override
