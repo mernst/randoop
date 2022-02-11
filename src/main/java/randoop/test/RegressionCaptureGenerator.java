@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Set;
+import org.plumelib.util.StringsPlume;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
 import randoop.NormalExecution;
@@ -198,7 +199,7 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
         checks.add(exceptionExpectation.getExceptionCheck(e, eseq, i));
 
       } else { // statement not executed
-        throw new Error("Unexpected result type: " + result + " [" + result.getClass() + "]");
+        throw new Error("Unexpected result type: " + StringsPlume.toStringAndClass(result));
       }
     }
     return checks;

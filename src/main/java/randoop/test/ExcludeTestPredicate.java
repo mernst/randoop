@@ -17,6 +17,8 @@ public class ExcludeTestPredicate implements Predicate<ExecutableSequence> {
 
   @Override
   public boolean test(ExecutableSequence eseq) {
-    return !excludeSet.contains(eseq.sequence);
+    boolean result = !excludeSet.contains(eseq.sequence);
+    System.out.printf("ETP.test(%s) => %s%n", eseq, result);
+    return result;
   }
 }

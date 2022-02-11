@@ -3,9 +3,9 @@ package randoop.test;
 import static randoop.main.GenInputsAbstract.BehaviorType.ERROR;
 
 import java.util.List;
+import randoop.AbstractNormalExecution;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
-import randoop.NormalExecution;
 import randoop.NotExecuted;
 import randoop.contract.ObjectContract;
 import randoop.main.ExceptionBehaviorClassifier;
@@ -81,7 +81,7 @@ public final class ContractCheckingGenerator extends TestCheckGenerator {
 
     } else {
       // Otherwise, normal execution, check contracts
-      assert finalResult instanceof NormalExecution;
+      assert finalResult instanceof AbstractNormalExecution;
       if (!contracts.isEmpty()) {
         // 1. check unary over values in last statement
         // TODO: Why aren't unary contracts checked over all values like binary contracts are?

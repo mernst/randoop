@@ -82,9 +82,6 @@ public class SpecificationTranslator {
     this.poststateExpressionDeclarations = poststateExpressionDeclaration;
     this.replacementMap = replacementMap;
     this.compiler = compiler;
-    System.out.printf(
-        "SpecificationTranslator(preDecl = %s, postDecl = %s)%n",
-        prestateExpressionDeclaration, poststateExpressionDeclaration);
   }
 
   /**
