@@ -23,8 +23,11 @@ public abstract class ReflectionCode {
   //   * noValue is true (if the reflectioncode yields no value, such as a void method call)
   //   * noValue is false and retval is the returned value (which might be null).
   // I cannot make retval Optional<Object> because the content of Optional is always non-null.
+  /** True if execution is normal and yields no value, false if execution yields a value. */
   protected boolean noValue;
+  /** The value yielded by execution. */
   protected Object retval;
+  /** The exception thrown by execution. */
   protected Throwable exceptionThrown;
 
   public final boolean hasStarted() {
