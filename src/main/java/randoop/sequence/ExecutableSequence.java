@@ -543,15 +543,8 @@ public class ExecutableSequence {
    * @return the list of values computed in the sequence
    */
   public List<ReferenceValue> getAllValues() {
-    // TODO: I don't understand this logic.  It seems that skipSet contains indices for exactly the
-    // values that this method ought to return, yet skipSet is used to *exclude* values from the
-    // output.
-
     Set<ReferenceValue> values = new LinkedHashSet<>();
-    // System.out.printf(
-    //    "getAllValues: this = %s%n  sequence (size %d) = %s%n", this, sequence.size(), sequence);
     for (int i = 0; i < sequence.size() - 1; i++) {
-      // System.out.printf("i = %d%n", i);
       // TODO: Should this be only reference values, not all values?
       Object value = getValueOrNull(i);
       if (value != null) {

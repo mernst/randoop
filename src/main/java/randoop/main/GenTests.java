@@ -1141,15 +1141,8 @@ public class GenTests extends GenInputsAbstract {
    * @param includePattern the pattern for method name inclusion
    * @return the predicate
    */
-  // GenInputsAbstract.classlist = Paths.get("instrument/testcase/allclasses.txt");
-  // require_classname_in_test = null;
-  // GenInputsAbstract.require_covered_classes =
-  // Paths.get("instrument/testcase/coveredclasses.txt");
-
   public Predicate<ExecutableSequence> createTestOutputPredicate(
       Set<Sequence> excludeSet, Set<Class<?>> coveredClasses, Pattern includePattern) {
-    // System.out.printf(
-    //     "createTestOutputPredicate(%s, %s, %s)%n", excludeSet, coveredClasses, includePattern);
     if (GenInputsAbstract.dont_output_tests) {
       return new AlwaysFalse<>();
     }

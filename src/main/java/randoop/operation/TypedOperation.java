@@ -617,28 +617,6 @@ public abstract class TypedOperation implements Operation, Comparable<TypedOpera
   }
 
   /**
-   * Inserts {@code null} as first argument when this operation is static.
-   *
-   * <p>This is necessary because the argument array for checking an {@link Operation} is always
-   * assumed to have a "receiver" argument, which is null (and ignored) for a static method.
-   *
-   * @param values the argument array for this operation
-   * @return the corresponding operation array for checking a {@link
-   *     randoop.condition.ExecutableBooleanExpression}
-   */
-  /*
-  private Object[] addNullReceiverIfStatic(Object[] values) {
-    Object[] args = values;
-    if (this.isStatic()) {
-      args = new Object[values.length + 1];
-      args[0] = null;
-      System.arraycopy(values, 0, args, 1, values.length);
-    }
-    return args;
-  }
-  */
-
-  /**
    * RankedTypedOperation is a wrapper around a TypedOperation and a number. The number represents a
    * ranking or priority. The purpose of this class is to be put in a priority queue.
    */
