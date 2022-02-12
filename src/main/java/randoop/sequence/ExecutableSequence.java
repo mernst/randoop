@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
+import randoop.AbstractNormalExecution;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
 import randoop.ExecutionVisitor;
@@ -569,7 +570,7 @@ public class ExecutableSequence {
    * @return true if execution of the i-th statement terminated normally
    */
   private boolean isNormalExecution(int i) {
-    return getResult(i) instanceof NormalExecution;
+    return getResult(i) instanceof AbstractNormalExecution;
   }
 
   public int getNonNormalExecutionIndex() {

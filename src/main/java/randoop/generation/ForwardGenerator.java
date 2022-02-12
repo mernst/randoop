@@ -10,9 +10,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
 import org.plumelib.util.SystemPlume;
+import randoop.AbstractNormalExecution;
 import randoop.DummyVisitor;
 import randoop.Globals;
 import randoop.NormalExecution;
+import randoop.NormalExecutionWithoutValue;
 import randoop.SubTypeSet;
 import randoop.main.GenInputsAbstract;
 import randoop.main.RandoopBug;
@@ -330,10 +332,9 @@ public class ForwardGenerator extends AbstractGenerator {
     for (int i = 0; i < seq.sequence.size(); i++) {
 
       // If there is no return value, clear its active flag.
-      // Cast succeeds because of isNormalExecution clause earlier in this method.
-      NormalExecution e = (NormalExecution) seq.getResult(i);
-      Object runtimeValue = e.getRuntimeValue();
-      if (runtimeValue == null) {
+      AbstractNormalExecution e = (AbstractNormalExecution) seq.getResult(i);
+
+      if (e instanceof NormalExecutionWithoutValue) {
         Log.logPrintf("Making index " + i + " inactive (value is null)%n");
         seq.sequence.clearActiveFlag(i);
         continue;
@@ -355,6 +356,7 @@ public class ForwardGenerator extends AbstractGenerator {
         }
       }
 
+      Object runtimeValue = ((NormalExecution) e).getRuntimeValue();
       Class<?> objectClass = runtimeValue.getClass();
 
       // If it is an array that is too long, clear its active flag.
@@ -950,8 +952,9 @@ public class ForwardGenerator extends AbstractGenerator {
                 "subsumed_sequences: " + subsumed_sequences.size(),
                 "num_failed_output_test: " + num_failed_output_test),
             String.join(
-                "sideEffectFreeMethods:" + sideEffectFreeMethods.size(),
-                "runtimePrimitivesSeen:" + runtimePrimitivesSeen.size()))
+                ", ",
+                "sideEffectFreeMethods: " + sideEffectFreeMethods.size(),
+                "runtimePrimitivesSeen: " + runtimePrimitivesSeen.size()))
         + ")";
   }
 }

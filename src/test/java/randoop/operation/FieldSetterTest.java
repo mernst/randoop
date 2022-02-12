@@ -17,6 +17,7 @@ import org.junit.Test;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
 import randoop.NormalExecution;
+import randoop.NormalExecutionWithoutValue;
 import randoop.field.AccessibleField;
 import randoop.field.ClassWithFields;
 import randoop.reflection.StaticCache;
@@ -84,9 +85,7 @@ public class FieldSetterTest {
     Object[] inputs = new Object[1];
     inputs[0] = 24;
     ExecutionOutcome actualExec = op.execute(inputs);
-    assertTrue(actualExec instanceof NormalExecution);
-    NormalExecution actualNExec = (NormalExecution) actualExec;
-    assertEquals(expectedExec.getRuntimeValue(), actualNExec.getRuntimeValue());
+    NormalExecutionWithoutValue actualNExec = (NormalExecutionWithoutValue) actualExec;
     assertEquals(expectedExec.getExecutionTime(), actualNExec.getExecutionTime());
     assertEquals(24, (int) f.getValue(null));
   }
@@ -156,9 +155,7 @@ public class FieldSetterTest {
     assertFalse(9 == (int) f.getValue(inputs2[0]));
     NormalExecution expectedExec = new NormalExecution(null, 0);
     ExecutionOutcome actualExec = op.execute(inputs2);
-    assertTrue(actualExec instanceof NormalExecution);
-    NormalExecution actualNExec = (NormalExecution) actualExec;
-    assertEquals(expectedExec.getRuntimeValue(), actualNExec.getRuntimeValue());
+    NormalExecutionWithoutValue actualNExec = (NormalExecutionWithoutValue) actualExec;
     assertEquals(expectedExec.getExecutionTime(), actualNExec.getExecutionTime());
     assertEquals(9, (int) f.getValue(inputs2[0]));
   }
