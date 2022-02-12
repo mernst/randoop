@@ -171,7 +171,7 @@ public class SpecificationTranslator {
     Class<?> receiverType = isMethod ? declaringClass : null;
     Class<?>[] parameterTypes = executable.getParameterTypes();
     Class<?> returnType = null;
-    if (!postState) {
+    if (postState) {
       if (isMethod) {
         Class<?> tmpReturnType = ((Method) executable).getReturnType();
         if (!tmpReturnType.toString().equals("void")) {
@@ -183,7 +183,9 @@ public class SpecificationTranslator {
       }
     }
     String packageName = renamedPackage(declaringClass.getPackage());
-    return getRawSignature(packageName, receiverType, parameterTypes, returnType);
+    RawSignature result = getRawSignature(packageName, receiverType, parameterTypes, returnType);
+    // System.out.printf("getExpressionSignature(%s, %s) => %s%n", executable, postState, result);
+    return result;
   }
 
   /**
