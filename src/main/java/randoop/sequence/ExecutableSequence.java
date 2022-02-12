@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +16,7 @@ import randoop.ExecutionOutcome;
 import randoop.ExecutionVisitor;
 import randoop.Globals;
 import randoop.NormalExecution;
+import randoop.NormalExecutionWithoutValue;
 import randoop.NotExecuted;
 import randoop.condition.ExpectedOutcomeTable;
 import randoop.main.GenInputsAbstract;
@@ -468,6 +468,27 @@ public class ExecutableSequence {
     if (result instanceof NormalExecution) {
       return ((NormalExecution) result).getRuntimeValue();
     }
+    if (result instanceof NormalExecutionWithoutValue) {
+      throw new Error("Don't call getValue on NormalExecutionWithoutValue");
+    }
+    throw new Error("Abnormal execution in sequence: " + this);
+  }
+
+  /**
+   * The result of executing the index-th element of the sequence, or null if no result.
+   *
+   * @param index which element to obtain
+   * @return the result of executing the index-th element of the sequence, if that element's
+   *     execution completed normally; null if the element doesn't evaluate to a value
+   */
+  private Object getValueOrNull(int index) {
+    ExecutionOutcome result = getResult(index);
+    if (result instanceof NormalExecution) {
+      return ((NormalExecution) result).getRuntimeValue();
+    }
+    if (result instanceof NormalExecutionWithoutValue) {
+      return null;
+    }
     throw new Error("Abnormal execution in sequence: " + this);
   }
 
@@ -483,9 +504,11 @@ public class ExecutableSequence {
     int lastIndex = sequence.size() - 1;
     ExecutionOutcome result = getResult(lastIndex);
     if (result instanceof NormalExecution) {
-      Object outputValue = getValue(lastIndex);
-      Variable outputVariable = sequence.getLastVariable();
-      addReferenceValue(outputVariable, outputValue, values);
+      Object outputValue = getValueOrNull(lastIndex);
+      if (outputValue != null) {
+        Variable outputVariable = sequence.getLastVariable();
+        addReferenceValue(outputVariable, outputValue, values);
+      }
     }
 
     for (Variable inputVariable : sequence.getInputs(sequence.size() - 1)) {
@@ -515,21 +538,23 @@ public class ExecutableSequence {
   }
 
   /**
-   * Returns the list of input reference type values used to compute the input values of the last
-   * statement.
+   * Returns all values computed in the sequence.
    *
-   * @return the list of input values used to compute values in last statement
+   * @return the list of values computed in the sequence
    */
-  public List<ReferenceValue> getInputValues() {
-    Set<Integer> skipSet = new HashSet<>();
-    for (Variable inputVariable : sequence.getInputs(sequence.size() - 1)) {
-      skipSet.add(inputVariable.index);
-    }
+  public List<ReferenceValue> getAllValues() {
+    // TODO: I don't understand this logic.  It seems that skipSet contains indices for exactly the
+    // values that this method ought to return, yet skipSet is used to *exclude* values from the
+    // output.
 
     Set<ReferenceValue> values = new LinkedHashSet<>();
+    // System.out.printf(
+    //    "getAllValues: this = %s%n  sequence (size %d) = %s%n", this, sequence.size(), sequence);
     for (int i = 0; i < sequence.size() - 1; i++) {
-      if (!skipSet.contains(i)) {
-        Object value = getValue(i);
+      // System.out.printf("i = %d%n", i);
+      // TODO: Should this be only reference values, not all values?
+      Object value = getValueOrNull(i);
+      if (value != null) {
         Variable variable = sequence.getVariable(i);
         addReferenceValue(variable, value, values);
       }
