@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signature.qual.DotSeparatedIdentifiers;
 import randoop.compile.SequenceCompiler;
 import randoop.condition.specification.Guard;
@@ -110,6 +111,9 @@ public class SpecificationTranslator {
     if (executable.getAnnotatedReceiverType() != null) {
       parameterNames.add(identifiers.getReceiverName());
     }
+    // System.out.printf(
+    //     "createTranslator: %s%n  %s %s%n",
+    //     executable, executable.getAnnotatedReceiverType(), parameterNames);
     parameterNames.addAll(identifiers.getParameterNames());
     String prestateExpressionDeclarations =
         prestateExpressionSignature.getDeclarationArguments(parameterNames);
@@ -167,8 +171,15 @@ public class SpecificationTranslator {
   private static RawSignature getExpressionSignature(Executable executable, boolean postState) {
     boolean isMethod = executable instanceof Method;
     Class<?> declaringClass = executable.getDeclaringClass();
-    // TODO: A constructor for an inner class has a receiver (which is not the declaring class).
-    Class<?> receiverType = isMethod ? declaringClass : null;
+    Class<?> receiverType = null;
+    if (isMethod) {
+      if (executable.getAnnotatedReceiverType() != null) {
+        receiverType = declaringClass;
+      }
+    } else {
+      // it's a constructor
+      // TODO: A constructor for an inner class has a receiver (which is not the declaring class).
+    }
     Class<?>[] parameterTypes = executable.getParameterTypes();
     Class<?> returnType = null;
     if (postState) {
@@ -205,7 +216,7 @@ public class SpecificationTranslator {
    */
   private static RawSignature getRawSignature(
       @DotSeparatedIdentifiers String packageName,
-      Class<?> receiverType,
+      @Nullable Class<?> receiverType,
       Class<?>[] parameterTypes,
       Class<?> returnType) {
     final int shift = (receiverType != null) ? 1 : 0;
@@ -220,6 +231,7 @@ public class SpecificationTranslator {
     }
     StringJoiner methodName = new StringJoiner("_");
     methodName.add("signature");
+    // System.out.printf("getRawSignature: receiverType = %s%n", receiverType);
     if (receiverType != null) {
       methodName.add(receiverType.getSimpleName());
     }

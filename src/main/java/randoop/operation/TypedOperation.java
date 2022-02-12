@@ -613,7 +613,7 @@ public abstract class TypedOperation implements Operation, Comparable<TypedOpera
     if (execSpec == null) {
       return new ExpectedOutcomeTable();
     }
-    return execSpec.checkPrestate(addNullReceiverIfStatic(values));
+    return execSpec.checkPrestate(values);
   }
 
   /**
@@ -626,6 +626,7 @@ public abstract class TypedOperation implements Operation, Comparable<TypedOpera
    * @return the corresponding operation array for checking a {@link
    *     randoop.condition.ExecutableBooleanExpression}
    */
+  /*
   private Object[] addNullReceiverIfStatic(Object[] values) {
     Object[] args = values;
     if (this.isStatic()) {
@@ -635,6 +636,7 @@ public abstract class TypedOperation implements Operation, Comparable<TypedOpera
     }
     return args;
   }
+  */
 
   /**
    * RankedTypedOperation is a wrapper around a TypedOperation and a number. The number represents a

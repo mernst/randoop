@@ -141,6 +141,7 @@ public class ExecutableBooleanExpression {
    */
   public boolean check(Object[] values) {
     try {
+      // System.out.printf("EBE.check(%s); this=%s%n", Arrays.toString(values), this);
       return (boolean) expressionMethod.invoke(null, values);
     } catch (IllegalAccessException e) {
       throw new RandoopSpecificationError("Failure executing expression method", e);
