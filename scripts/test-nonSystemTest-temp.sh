@@ -22,4 +22,5 @@ sleep 3 # give xvfb some time to start
 ./gradlew printJunitJarPath
 
 # `gradle build` == `gradle check assemble`.
-./gradlew --info --stacktrace test --tests '*testMultipleThrows' || cat /__w/1/s/agent/replacecall/build/test-results/test/*
+./gradlew --info :test --tests '*testMultipleThrows'
+# || cat /__w/1/s/agent/replacecall/build/test-results/test/*
