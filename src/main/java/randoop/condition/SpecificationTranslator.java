@@ -118,8 +118,8 @@ public class SpecificationTranslator {
     String prestateExpressionDeclarations =
         prestateExpressionSignature.getDeclarationArguments(parameterNames);
 
-    if (!executable.getAnnotatedReturnType().toString().equals("void")) {
-      if (false) {
+    if (!executable.getAnnotatedReturnType().getType().toString().equals("void")) {
+      if (true) {
         System.out.printf("executable = %s%n", executable);
         System.out.printf(
             "executable.getAnnotatedReturnType() = %s [%s]%n",
@@ -134,7 +134,7 @@ public class SpecificationTranslator {
       }
       parameterNames.add(identifiers.getReturnName());
     }
-    // System.out.printf("poststateExpressionSignature = %s%n", poststateExpressionSignature);
+    System.out.printf("poststateExpressionSignature = %s%n", poststateExpressionSignature);
     String poststateExpressionDeclarations =
         poststateExpressionSignature.getDeclarationArguments(parameterNames);
 
