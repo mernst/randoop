@@ -25,7 +25,5 @@ sleep 3 # give xvfb some time to start
 # ./gradlew --info --stacktrace test coveredTest replacecallTest
 # ./gradlew --info :test --tests '*testMultipleThrows'
 # ./gradlew --info test
-./gradlew --info test
-./gradlew --info coveredTest
-./gradlew --info replacecallTest
+./gradlew --info test coveredTest replacecallTest
 # || cat /__w/1/s/agent/replacecall/build/test-results/test/*
