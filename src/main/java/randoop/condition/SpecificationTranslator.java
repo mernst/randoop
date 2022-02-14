@@ -111,9 +111,9 @@ public class SpecificationTranslator {
     if (executable.getAnnotatedReceiverType() != null) {
       parameterNames.add(identifiers.getReceiverName());
     }
-    // System.out.printf(
-    //     "createTranslator: %s%n  %s %s%n",
-    //     executable, executable.getAnnotatedReceiverType(), parameterNames);
+    System.out.printf(
+        "createTranslator: %s%n  %s %s%n",
+        executable, executable.getAnnotatedReceiverType(), parameterNames);
     parameterNames.addAll(identifiers.getParameterNames());
     String prestateExpressionDeclarations =
         prestateExpressionSignature.getDeclarationArguments(parameterNames);
