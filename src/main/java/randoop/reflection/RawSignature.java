@@ -15,7 +15,7 @@ import org.plumelib.util.StringsPlume;
 /**
  * Represents the raw type signature for an {@code java.lang.reflect.AccessibleObject}. This
  * signature consists of the classname as a fully-qualified raw type, the method name, and the
- * argument types as fully-qualified raw types. It does not include the method or constructor name.
+ * argument types as fully-qualified raw types.
  *
  * <p>The raw type signature for a constructor {@code C()} is {@code C()} instead of the reflection
  * form {@code C.<init>()}. Also, the name and the classname of a constructor are the same.
@@ -34,7 +34,7 @@ public class RawSignature {
    */
   private final String name;
 
-  /** The method parameter types. */
+  /** The method parameter types, including the receiver type if any. */
   private final Class<?>[] parameterTypes;
 
   /**

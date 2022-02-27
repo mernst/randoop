@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.StringsPlume;
 
 /**
@@ -34,13 +35,13 @@ public class Identifiers {
   // tools
 
   /** The receiver name. */
-  private final String receiverName;
+  private final @Nullable String receiverName;
 
   /** The formal parameter names (not including the receiver). */
   private final List<String> parameters;
 
   /** The return value identifier. */
-  private final String returnName;
+  private final @Nullable String returnName;
 
   /**
    * Create an {@link Identifiers} object with the given names.
@@ -49,10 +50,18 @@ public class Identifiers {
    * @param parameters the list of identifiers for the operation formal parameters
    * @param returnName the return name
    */
-  public Identifiers(String receiverName, List<String> parameters, String returnName) {
+  public Identifiers(
+      @Nullable String receiverName, List<String> parameters, @Nullable String returnName) {
     this.receiverName = receiverName;
     this.parameters = parameters;
     this.returnName = returnName;
+    String msg =
+        "new Identifiers: receiverName: "
+            + receiverName
+            + ", parameters: "
+            + "; returnName: "
+            + returnName;
+    new Error(msg).printStackTrace();
   }
 
   /**
@@ -62,7 +71,7 @@ public class Identifiers {
    * @param parameters the list of identifiers for the operation parameters
    */
   public Identifiers(List<String> parameters) {
-    this("receiver", parameters, "result");
+    this(null, parameters, null);
   }
 
   /**
@@ -78,7 +87,7 @@ public class Identifiers {
    *
    * @return the receiver name
    */
-  public String getReceiverName() {
+  public @Nullable String getReceiverName() {
     return receiverName;
   }
 
@@ -96,7 +105,7 @@ public class Identifiers {
    *
    * @return the return value identifier
    */
-  public String getReturnName() {
+  public @Nullable String getReturnName() {
     return returnName;
   }
 
@@ -113,10 +122,10 @@ public class Identifiers {
         return name;
       }
     }
-    if (!names.add(receiverName)) {
+    if (receiverName != null && !names.add(receiverName)) {
       return receiverName;
     }
-    if (!names.add(returnName)) {
+    if (returnName != null && !names.add(returnName)) {
       return returnName;
     }
     return null;
@@ -131,9 +140,9 @@ public class Identifiers {
       return false;
     }
     Identifiers other = (Identifiers) object;
-    return this.receiverName.equals(other.receiverName)
+    return Objects.equals(this.receiverName, other.receiverName)
         && this.parameters.equals(other.parameters)
-        && this.returnName.equals(other.returnName);
+        && Objects.equals(this.returnName, other.returnName);
   }
 
   @Override

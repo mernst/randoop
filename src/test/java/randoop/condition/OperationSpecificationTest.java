@@ -8,6 +8,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -227,6 +228,7 @@ public class OperationSpecificationTest {
     return new ExecutableSequence(sequence);
   }
 
+  // The method being tested is `category()`.
   /**
    * Creates an {@link OperationSpecification}, places it in a {@link SpecificationCollection}, and
    * gets the {@link ExecutableSpecification}. Effectively, translating the specifications to
@@ -239,7 +241,8 @@ public class OperationSpecificationTest {
   private ExecutableSpecification getMethodSpecification(Method method) {
     List<String> paramNames = Collections.singletonList("value");
     OperationSpecification spec =
-        new OperationSpecification(OperationSignature.of(method), new Identifiers(paramNames));
+        new OperationSpecification(
+            OperationSignature.of(method), new Identifiers("receiver", paramNames, "result"));
 
     List<Precondition> preSpecifications = new ArrayList<>();
     Guard paramGuard = new Guard("positive", "value > 0");
@@ -294,9 +297,11 @@ public class OperationSpecificationTest {
   /** Creates ExecutableSpecification including post-condition for constructor that will fail. */
   private ExecutableSpecification getConstructorConditions(Constructor<?> constructor) {
 
-    List<String> paramNames = Collections.singletonList("value");
+    List<String> paramNames = Arrays.asList("value");
     OperationSpecification spec =
-        new OperationSpecification(OperationSignature.of(constructor), new Identifiers(paramNames));
+        new OperationSpecification(
+            // result is unused, but its name needs to be present
+            OperationSignature.of(constructor), new Identifiers("receiver", paramNames, "result"));
     List<Precondition> preSpecifications = new ArrayList<>();
     Guard paramGuard = new Guard("non-negative value", "value >= 0");
     Precondition paramSpec = new Precondition("must be non-negative", paramGuard);

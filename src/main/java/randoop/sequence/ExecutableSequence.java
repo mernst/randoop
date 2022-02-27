@@ -357,6 +357,7 @@ public class ExecutableSequence {
   }
 
   private Object[] getRuntimeInputs(List<ExecutionOutcome> outcome, List<Variable> inputs) {
+    System.out.printf("getRuntimeInputs(%s, %s) this=%s%n", outcome, inputs, this);
     Object[] ros = getRuntimeValuesForVars(inputs, outcome);
     for (Object ro : ros) {
       if (ro == null) {

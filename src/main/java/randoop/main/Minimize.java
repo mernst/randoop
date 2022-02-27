@@ -107,10 +107,6 @@ import randoop.output.PrimitiveAndWrappedTypeVarNameCollector;
  */
 public class Minimize extends CommandHandler {
 
-  /** True to produce debugging output. */
-  @SuppressWarnings("UnusedVariable") // TEMPORARY
-  private static boolean debug = true;
-
   /** The Java file whose failing tests will be minimized. */
   @SuppressWarnings("WeakerAccess")
   @OptionGroup(value = "Test case minimization")

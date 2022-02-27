@@ -83,12 +83,7 @@ public class CompilableTestPredicate implements Predicate<ExecutableSequence> {
       genTests.incrementSequenceCompileFailureCount();
       Log.logPrintf(
           "%nCompilableTestPredicate => false for%n%nsequence =%n%s%nsource =%n%s%n", eseq, source);
-    } else {
-      // Log.logPrintf(
-      //     "%nCompilableTestPredicate => true for%n%nsequence =%n%s%nsource =%n%s%n", eseq,
-      // source);
     }
-
     return result;
   }
 

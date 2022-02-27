@@ -191,6 +191,7 @@ public class SpecificationCollection {
       Path specificationFile,
       Map<AccessibleObject, OperationSpecification> specificationMap,
       MultiMap<OperationSignature, Method> signatureToMethods) {
+    System.out.printf("readSpecificationFile(%s)%n", specificationFile);
     if (specificationFile.toString().toLowerCase().endsWith(".zip")) {
       readSpecificationZipFile(specificationFile, specificationMap, signatureToMethods);
       return;
@@ -200,6 +201,7 @@ public class SpecificationCollection {
     try (BufferedReader reader = Files.newBufferedReader(specificationFile, UTF_8)) {
       List<OperationSpecification> specificationList =
           gson.fromJson(reader, LIST_OF_OS_TYPE_TOKEN.getType());
+      System.out.printf("readSpecificationFile(%s) => %s%n", specificationFile, specificationList);
 
       for (OperationSpecification specification : specificationList) {
         OperationSignature operation = specification.getOperation();

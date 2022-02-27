@@ -1,5 +1,6 @@
 package randoop.condition;
 
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import randoop.condition.specification.Precondition;
 import randoop.condition.specification.Property;
 import randoop.condition.specification.ThrowsCondition;
 import randoop.main.GenInputsAbstract;
+import randoop.main.RandoopUsageError;
 import randoop.reflection.RawSignature;
 import randoop.types.ClassOrInterfaceType;
 import randoop.util.Log;
@@ -108,13 +110,43 @@ public class SpecificationTranslator {
     List<String> parameterNames = new ArrayList<>();
 
     // Get expression method parameter declaration strings.
-    if (executable.getAnnotatedReceiverType() != null) {
-      parameterNames.add(identifiers.getReceiverName());
+    // The first `if` works around the fact that in JDK 8 (but not 11+) getAnnotatedReceiverType()
+    // returns non-null even for a constructor with no receiver.
+    AnnotatedType receiverAType = executable.getAnnotatedReceiverType();
+    if (receiverAType != null) {
+      Class<?> receiverType = (Class<?>) receiverAType.getType();
+      Class<?> declaringClass = executable.getDeclaringClass();
+      System.out.printf(
+          "receiverType = %s, declaringClass = %s, == = %s%n",
+          receiverType, declaringClass, receiverType == declaringClass);
+      // // TODO: Why does this happen?
+      // if (receiverType != declaringClass) {
+      //   receiverAType = null;
+      // }
     }
     System.out.printf(
-        "createTranslator: %s%n  %s %s%n",
-        executable, executable.getAnnotatedReceiverType(), parameterNames);
+        "createTranslator (1): %s [%s]%n  receiver type = %s ; %s%n  parameterNames = %s%n",
+        executable,
+        executable.getClass(),
+        receiverAType,
+        receiverAType == null ? null : receiverAType.getType().toString(),
+        parameterNames);
+    if (receiverAType != null && !receiverAType.getType().toString().equals("void")) {
+      parameterNames.add(identifiers.getReceiverName());
+    } else if (identifiers.getReceiverName() != null) {
+      throw new RandoopUsageError(
+          String.format(
+              "Specification contains a receiver (named %s), but operation does not: %s",
+              identifiers.getReceiverName(), executable));
+    }
     parameterNames.addAll(identifiers.getParameterNames());
+    System.out.printf(
+        "createTranslator (2): %s [%s]%n  receiver type = %s ; %s%n  parameterNames = %s%n",
+        executable,
+        executable.getClass(),
+        receiverAType,
+        receiverAType == null ? null : receiverAType.getType().toString(),
+        parameterNames);
     String prestateExpressionDeclarations =
         prestateExpressionSignature.getDeclarationArguments(parameterNames);
 
@@ -171,16 +203,14 @@ public class SpecificationTranslator {
   private static RawSignature getExpressionSignature(Executable executable, boolean postState) {
     boolean isMethod = executable instanceof Method;
     Class<?> declaringClass = executable.getDeclaringClass();
-    Class<?> receiverType = null;
-    if (isMethod) {
-      if (executable.getAnnotatedReceiverType() != null) {
-        receiverType = declaringClass;
-      }
+    Class<?> receiverAType;
+    if (executable.getAnnotatedReceiverType() != null) {
+      receiverAType = declaringClass;
     } else {
-      // it's a constructor
-      // TODO: A constructor for an inner class has a receiver (which is not the declaring class).
+      receiverAType = null;
     }
     Class<?>[] parameterTypes = executable.getParameterTypes();
+
     Class<?> returnType = null;
     if (postState) {
       if (isMethod) {
@@ -194,7 +224,7 @@ public class SpecificationTranslator {
       }
     }
     String packageName = renamedPackage(declaringClass.getPackage());
-    RawSignature result = getRawSignature(packageName, receiverType, parameterTypes, returnType);
+    RawSignature result = getRawSignature(packageName, receiverAType, parameterTypes, returnType);
     // System.out.printf("getExpressionSignature(%s, %s) => %s%n", executable, postState, result);
     return result;
   }
@@ -207,7 +237,7 @@ public class SpecificationTranslator {
    * String, SequenceCompiler)} replaces the classname to ensure a unique name.
    *
    * @param packageName the package name for the expression class, or null for the default package
-   * @param receiverType the declaring class of the method or constructor, included first in
+   * @param receiverAType the declaring class of the method or constructor, included first in
    *     parameter types if non-null
    * @param parameterTypes the parameter types for the original method or constructor
    * @param returnType the return type for the method, or the declaring class for a constructor,
@@ -216,14 +246,17 @@ public class SpecificationTranslator {
    */
   private static RawSignature getRawSignature(
       @DotSeparatedIdentifiers String packageName,
-      @Nullable Class<?> receiverType,
+      @Nullable Class<?> receiverAType,
       Class<?>[] parameterTypes,
       Class<?> returnType) {
-    final int shift = (receiverType != null) ? 1 : 0;
+    System.out.printf(
+        "getRawSignature(%s, %s, %s, %s)%n",
+        packageName, receiverAType, parameterTypes, returnType);
+    final int shift = (receiverAType != null) ? 1 : 0;
     final int length = parameterTypes.length + shift + (returnType != null ? 1 : 0);
     Class<?>[] expressionParameterTypes = new Class<?>[length];
-    if (receiverType != null) {
-      expressionParameterTypes[0] = receiverType;
+    if (receiverAType != null) {
+      expressionParameterTypes[0] = receiverAType;
     }
     System.arraycopy(parameterTypes, 0, expressionParameterTypes, shift, parameterTypes.length);
     if (returnType != null) {
@@ -231,16 +264,18 @@ public class SpecificationTranslator {
     }
     StringJoiner methodName = new StringJoiner("_");
     methodName.add("signature");
-    // System.out.printf("getRawSignature: receiverType = %s%n", receiverType);
-    if (receiverType != null) {
-      methodName.add(receiverType.getSimpleName());
+    // System.out.printf("getRawSignature: receiverAType = %s%n", receiverAType);
+    if (receiverAType != null) {
+      methodName.add(receiverAType.getSimpleName());
     }
     for (Class<?> parameterType : parameterTypes) {
       methodName.add(RawSignature.classToIdentifier(parameterType));
     }
+    // TODO: what abot the return value or result?  I guess it isn't in the signature, but where
+    // does it come into play?
     return new RawSignature(
         packageName,
-        (receiverType == null) ? "ClassName" : receiverType.getSimpleName(),
+        (receiverAType == null) ? "ClassName" : receiverAType.getSimpleName(),
         methodName.toString(),
         expressionParameterTypes);
   }

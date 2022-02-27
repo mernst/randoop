@@ -119,6 +119,7 @@ public class OperationSpecification {
     this.preSpecifications = preSpecifications;
     this.postSpecifications = postSpecifications;
     this.throwsSpecifications = throwsSpecifications;
+    System.out.println("Created: " + this);
   }
 
   /**
@@ -233,20 +234,23 @@ public class OperationSpecification {
 
   @Override
   public String toString() {
-    return "{ \"operation\": "
-        + this.operation.toString()
-        + ", "
-        + "\"identifiers\": "
-        + this.identifiers
-        + ", "
-        + "\"preSpecifications\": "
-        + this.preSpecifications
-        + " }"
-        + ", "
-        + "\"postSpecifications\": "
-        + this.postSpecifications
-        + ", "
-        + "\"throwsSpecifications\": "
-        + this.throwsSpecifications;
+    // Use a temporary variable to avoid interleaved output, when callees produce output.
+    String result =
+        "{ \"operation\": "
+            + this.operation.toString()
+            + ", "
+            + "\"identifiers\": "
+            + this.identifiers
+            + ", "
+            + "\"preSpecifications\": "
+            + this.preSpecifications
+            + " }"
+            + ", "
+            + "\"postSpecifications\": "
+            + this.postSpecifications
+            + ", "
+            + "\"throwsSpecifications\": "
+            + this.throwsSpecifications;
+    return result;
   }
 }

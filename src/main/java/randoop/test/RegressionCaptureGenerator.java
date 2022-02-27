@@ -123,7 +123,7 @@ public final class RegressionCaptureGenerator extends TestCheckGenerator {
           NormalExecution execution = (NormalExecution) result;
           // If value is like x in "int x = 3" don't capture checks.  There is nothing interesting
           // to assert, and the statement might not even appear in the output because the RHS might
-          // get inlined at uses).
+          // get inlined at uses.
           if (statement.isNonreceivingInitialization()) {
             continue;
           }
