@@ -16,28 +16,44 @@ import java.util.Set;
  */
 public class CheckpointingMultimap<K, V> implements SetMultimap<K, V> {
 
+  /** If true, log verbosely. */
   public static boolean verbose_log = false;
 
+  /** The backing map. */
   private final SetMultimap<K, V> map;
 
   /** A stack, each element of which is a count of operations. */
   public final List<Integer> marks;
 
+  /** Types of map operations. */
   private enum Operation {
+    /** An addition operation. */
     ADD,
+    /** A removal operation. */
     REMOVE
   }
 
   private final List<OpKeyVal> ops;
 
+  /** The number of operations that have been performed on the multimap so far. */
   private int steps;
 
-  // A triple of an operation, a key, and a value
+  /** A triple of an operation, a key, and a value. */
   private class OpKeyVal {
+    /** The operation. */
     final Operation op;
+    /** The key. */
     final K key;
+    /** The value. */
     final V val;
 
+    /**
+     * Create a new OpKeyVal.
+     *
+     * @param op the operation
+     * @param key the key
+     * @param val the value
+     */
     OpKeyVal(final Operation op, final K key, final V val) {
       this.op = op;
       this.key = key;
@@ -45,6 +61,7 @@ public class CheckpointingMultimap<K, V> implements SetMultimap<K, V> {
     }
   }
 
+  /** Create a new, empty CheckpointingMultimap. */
   public CheckpointingMultimap() {
     map = HashMultimap.create();
     marks = new ArrayList<>();
@@ -100,6 +117,7 @@ public class CheckpointingMultimap<K, V> implements SetMultimap<K, V> {
     steps = marks.remove(marks.size() - 1);
   }
 
+  /** Undo the last operation. */
   private void undoLastOp() {
     if (ops.isEmpty()) throw new IllegalStateException("ops empty.");
     OpKeyVal last = ops.remove(ops.size() - 1);

@@ -10,10 +10,15 @@ import java.util.Set;
  */
 public class CheckpointingSet<E> implements Set<E> {
 
-  // This uses a MultiMap just because that is an existing checkpointing data structure.
-  // The value is always true in this mapping, never false.
+  /**
+   * The backing map -- that is, the internal representation.
+   *
+   * <p>This uses a MultiMap just because that is an existing checkpointing data structure. The
+   * value is always true in this mapping, never false.
+   */
   public final CheckpointingMultimap<E, Boolean> map;
 
+  /** Creates a new, empty CheckpointingSet. */
   public CheckpointingSet() {
     this.map = new CheckpointingMultimap<>();
   }

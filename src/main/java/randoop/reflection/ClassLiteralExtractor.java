@@ -19,8 +19,14 @@ import randoop.util.ClassFileConstants;
  */
 class ClassLiteralExtractor extends DefaultClassVisitor {
 
+  /** Map from a type to a set of sequences that create values of that type. */
   private SetMultimap<ClassOrInterfaceType, Sequence> literalMap;
 
+  /**
+   * Create a new ClassLiteralExtractor.
+   *
+   * @param literalMap a map from a type to a set of sequences that create values of that type
+   */
   ClassLiteralExtractor(SetMultimap<ClassOrInterfaceType, Sequence> literalMap) {
     this.literalMap = literalMap;
   }
