@@ -9,12 +9,17 @@ description = "covered-class instrumentation agent"
 
 configurations {
   javassist
-  compile.extendsFrom javassist
+  implementation.extendsFrom javassist
 }
 
 dependencies {
   javassist group: 'org.javassist', name: 'javassist', version: '3.+'
-  implementation project(':')
+  implementation project(path: ':', configuration: 'shadow')
+  implementation project(path: ':')
+}
+
+javadoc {
+   options.addStringOption('Xwerror', '-Xdoclint:all,-missing')
 }
 
 jar {
@@ -27,13 +32,9 @@ jar {
   }
 }
 
-checkstyle {
-  configFile = rootProject.file('checkstyle.xml')
-}
-
 shadowJar {
   // Name the jar file covered-class-version.jar
-  classifier = null
+  archiveClassifier = null
 
   exclude '**/pom*'
 

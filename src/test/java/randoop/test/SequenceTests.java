@@ -3,7 +3,7 @@ package randoop.test;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static randoop.reflection.VisibilityPredicate.IS_PUBLIC;
+import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
 import com.google.common.collect.HashMultimap;
 import java.io.BufferedReader;
@@ -24,8 +24,8 @@ import randoop.contract.EqualsToNullRetFalse;
 import randoop.main.GenInputsAbstract;
 import randoop.main.GenInputsAbstract.BehaviorType;
 import randoop.main.OptionsCache;
+import randoop.reflection.AccessibilityPredicate;
 import randoop.reflection.OmitMethodsPredicate;
-import randoop.reflection.VisibilityPredicate;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
 import randoop.sequence.SequenceParseException;
@@ -110,15 +110,15 @@ public class SequenceTests {
     contracts.add(EqualsSymmetric.getInstance());
 
     GenInputsAbstract.unchecked_exception = BehaviorType.EXPECTED;
-    VisibilityPredicate visibility = IS_PUBLIC;
-    ExpectedExceptionCheckGen expectation = new ExpectedExceptionCheckGen(visibility);
+    AccessibilityPredicate accessibility = IS_PUBLIC;
+    ExpectedExceptionCheckGen expectation = new ExpectedExceptionCheckGen(accessibility);
     testGen =
         new ExtendGenerator(
             new ContractCheckingGenerator(contracts),
             new RegressionCaptureGenerator(
                 expectation,
                 HashMultimap.create(),
-                visibility,
+                accessibility,
                 OmitMethodsPredicate.NO_OMISSION,
                 true));
   }

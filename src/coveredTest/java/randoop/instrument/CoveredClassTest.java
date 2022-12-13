@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static randoop.main.GenInputsAbstract.require_classname_in_test;
-import static randoop.reflection.VisibilityPredicate.IS_PUBLIC;
+import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
 import com.google.common.collect.SetMultimap;
 import io.github.classgraph.ClassGraph;
@@ -32,12 +32,12 @@ import randoop.main.OptionsCache;
 import randoop.main.ThrowClassNameError;
 import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
+import randoop.reflection.AccessibilityPredicate;
 import randoop.reflection.DefaultReflectionPredicate;
 import randoop.reflection.OperationModel;
 import randoop.reflection.ReflectionPredicate;
 import randoop.reflection.SignatureParseException;
 import randoop.reflection.TypeNames;
-import randoop.reflection.VisibilityPredicate;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
 import randoop.test.ContractSet;
@@ -105,7 +105,7 @@ public class CoveredClassTest {
     Class<?> ac;
     try {
       ac = TypeNames.getTypeForName("instrument.testcase.A");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -113,7 +113,7 @@ public class CoveredClassTest {
     Class<?> cc;
     try {
       cc = TypeNames.getTypeForName("instrument.testcase.C");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -146,7 +146,7 @@ public class CoveredClassTest {
     Class<?> ac;
     try {
       ac = TypeNames.getTypeForName("instrument.testcase.A");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -154,7 +154,7 @@ public class CoveredClassTest {
     Class<?> cc;
     try {
       cc = TypeNames.getTypeForName("instrument.testcase.C");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -186,7 +186,7 @@ public class CoveredClassTest {
     Class<?> ac;
     try {
       ac = TypeNames.getTypeForName("instrument.testcase.A");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -194,7 +194,7 @@ public class CoveredClassTest {
     Class<?> cc;
     try {
       cc = TypeNames.getTypeForName("instrument.testcase.C");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -206,8 +206,8 @@ public class CoveredClassTest {
   }
 
   private ForwardGenerator getGeneratorForTest() {
-    VisibilityPredicate visibility = IS_PUBLIC;
-    Set<@ClassGetName String> classnames = GenInputsAbstract.getClassnamesFromArgs(visibility);
+    AccessibilityPredicate accessibility = IS_PUBLIC;
+    Set<@ClassGetName String> classnames = GenInputsAbstract.getClassnamesFromArgs(accessibility);
     Set<@ClassGetName String> coveredClassnames =
         GenInputsAbstract.getClassNamesFromFile(GenInputsAbstract.require_covered_classes);
     Set<String> omitFields =
@@ -219,7 +219,7 @@ public class CoveredClassTest {
     try {
       operationModel =
           OperationModel.createModel(
-              visibility,
+              accessibility,
               reflectionPredicate,
               GenInputsAbstract.omit_methods,
               classnames,
@@ -292,7 +292,7 @@ public class CoveredClassTest {
     ContractSet contracts = operationModel.getContracts();
     TestCheckGenerator checkGenerator =
         GenTests.createTestCheckGenerator(
-            visibility,
+            accessibility,
             contracts,
             sideEffectFreeMethodsByType,
             operationModel.getOmitMethodsPredicate());

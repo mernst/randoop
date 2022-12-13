@@ -1,3 +1,50 @@
+Version 4.3.2 (?? ??, 2022)
+---------------------------
+
+Randoop supports Java 19 (and still supports Java 8, Java 11, and Java 17).
+
+
+Version 4.3.1 (July 13, 2022)
+-----------------------------
+
+Several bug fixes.
+
+Minor documentation improvements.
+
+
+Version 4.3.0 (January 31, 2022)
+--------------------------------
+
+Randoop supports Java 17 (and still supports Java 8 and Java 11).
+
+Removed command-line argiments `--omitmethods` and `--omitmethods-file`,
+which were deprecated two years ago.
+
+Support escaping dollar sign from variable name.
+
+
+Version 4.2.7 (December 17, 2021)
+---------------------------------
+
+New `--test-package` command-line option means to test all classes on the
+classpath within the given.  Thanks to Ivan Kocherhin.
+
+Randoop tests public static methods in classes that cannot be instantiated.
+
+Bug fixes.
+ * Fixed a problem when calling Randoop twice.
+
+Minor documentation improvements.
+
+
+Version 4.2.6 (May 3, 2021)
+---------------------------
+
+Bug fixes.  The most important are:
+ * Fix `NullPointerException` that may occur when using JDK 8.
+ * Use correct jar path for Windows hosts
+
+
 Version 4.2.5 (December 2, 2020)
 --------------------------------
 
@@ -249,13 +296,13 @@ Fixes and improves error handling.
 Version 3.1.4 (April 11, 2017)
 ------------------------------
 
-Fixes a bug uncovered in obscure cases when package visibility is used.
+Fixes a bug uncovered in obscure cases when package accessibility is used.
 
 
 Version 3.1.3 (April 11, 2017)
 ------------------------------
 
-Fixes a bug where package visibility checks fail to work correctly.
+Fixes a bug where package accessibility checks fail to work correctly.
 
 
 Version 3.1.2 (March 21, 2017)
@@ -376,7 +423,7 @@ Version 3.0.4 (August 29, 2016)
 -------------------------------
 
 Randoop now:
-- collects all member types visible to generated tests (fixes issue #88).
+- collects all member types accessible by generated tests (fixes issue #88).
 - generates EnumSet objects for an Enum that is an input class (fixes issue #100)
 - generates assertions on Enum values (fixes issue #87)
 - generates Collection objects with parameterized element type (fixes issue #115)
@@ -634,7 +681,7 @@ observers when you run Randoop, then you are not using Randoop as intended
 and Randoop may be generating sub-optimal test suites.
 
 Fix bugs, notably:
- * #18 Handle non-visible thrown exceptions
+ * #18 Handle non-accessible thrown exceptions
  * #51 Use better variable names in generated tests
  * Use equals, not ==, to compare NaN
 

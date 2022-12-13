@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
 import org.plumelib.util.SystemPlume;
@@ -189,7 +190,7 @@ public class ForwardGenerator extends AbstractGenerator {
   }
 
   @Override
-  public ExecutableSequence step() {
+  public @Nullable ExecutableSequence step() {
 
     final int nanoPerMilli = 1000000;
     final long nanoPerOne = 1000000000L;
@@ -360,6 +361,7 @@ public class ForwardGenerator extends AbstractGenerator {
       // If it is an array that is too long, clear its active flag.
       if (objectClass.isArray() && !Value.arrayLengthOk(runtimeValue)) {
         seq.sequence.clearActiveFlag(i);
+        continue;
       }
 
       // If its runtime value is a primitive value, clear its active flag,
@@ -385,9 +387,10 @@ public class ForwardGenerator extends AbstractGenerator {
           // Have not seen this value before; add it to the component set.
           componentManager.addGeneratedSequence(Sequence.createSequenceForPrimitive(runtimeValue));
         }
-      } else {
-        Log.logPrintf("Making index " + i + " active.%n");
+        continue;
       }
+
+      Log.logPrintf("Making index " + i + " active.%n");
     }
   }
 
@@ -540,25 +543,25 @@ public class ForwardGenerator extends AbstractGenerator {
    * @return a new {@code Sequence}
    */
   private Sequence repeat(Sequence seq, TypedOperation operation, int times) {
-    Sequence retval = new Sequence(seq.statements);
+    Sequence retseq = new Sequence(seq.statements);
     for (int i = 0; i < times; i++) {
       List<Integer> vil = new ArrayList<>();
-      for (Variable v : retval.getInputs(retval.size() - 1)) {
+      for (Variable v : retseq.getInputs(retseq.size() - 1)) {
         if (v.getType().equals(JavaTypes.INT_TYPE)) {
           int randint = Randomness.nextRandomInt(100);
-          retval =
-              retval.extend(
+          retseq =
+              retseq.extend(
                   TypedOperation.createPrimitiveInitialization(JavaTypes.INT_TYPE, randint));
-          vil.add(retval.size() - 1);
+          vil.add(retseq.size() - 1);
         } else {
           vil.add(v.getDeclIndex());
         }
       }
-      Sequence currentRetval = retval;
-      List<Variable> vl = CollectionsPlume.mapList(currentRetval::getVariable, vil);
-      retval = retval.extend(operation, vl);
+      Sequence currentRetseq = retseq;
+      List<Variable> vl = CollectionsPlume.mapList(currentRetseq::getVariable, vil);
+      retseq = retseq.extend(operation, vl);
     }
-    return retval;
+    return retseq;
   }
 
   // If debugging is enabled,
@@ -598,11 +601,11 @@ public class ForwardGenerator extends AbstractGenerator {
       msg.add(code);
       if (sequenceIndex != -1) {
         msg.add("stored code corresponding to found sequence:");
-        msg.add(this.allsequencesAsCode.get(sequenceIndex));
+        msg.add(this.allsequencesAsList.get(sequenceIndex).toString());
       }
       if (codeIndex != -1) {
         msg.add("stored sequence corresponding to found code:");
-        msg.add(this.allsequencesAsCode.get(sequenceIndex).toString());
+        msg.add(this.allsequencesAsCode.get(codeIndex));
       }
       throw new IllegalStateException(msg.toString());
     }
@@ -950,8 +953,9 @@ public class ForwardGenerator extends AbstractGenerator {
                 "subsumed_sequences: " + subsumed_sequences.size(),
                 "num_failed_output_test: " + num_failed_output_test),
             String.join(
-                "sideEffectFreeMethods:" + sideEffectFreeMethods.size(),
-                "runtimePrimitivesSeen:" + runtimePrimitivesSeen.size()))
+                ", ",
+                "sideEffectFreeMethods: " + sideEffectFreeMethods.size(),
+                "runtimePrimitivesSeen: " + runtimePrimitivesSeen.size()))
         + ")";
   }
 }
