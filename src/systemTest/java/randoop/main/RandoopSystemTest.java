@@ -327,7 +327,7 @@ public class RandoopSystemTest {
                 + " java7.util7.Comparator) exclude",
             "java7.util7.Collections.max(java7.util7.Collection) ignore",
             "java7.util7.Collections.max(java7.util7.Collection, java7.util7.Comparator) ignore",
-            "java7.util7.Collections.min(java7.util7.Collection) exclude",
+            "java7.util7.Collections.min(java7.util7.Collection) ignore",
             "java7.util7.Collections.min(java7.util7.Collection, java7.util7.Comparator) ignore",
             "java7.util7.Collections.newSetFromMap(java7.util7.Map) exclude",
             "java7.util7.Collections.rotate2(java7.util7.List, int) exclude",
