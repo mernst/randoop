@@ -201,7 +201,7 @@ public class RandoopSystemTest {
             options,
             "java7.util7.Collections.addAll(java7.util7.Collection, java.lang.Object[]) ignore17",
             "java7.util7.Collections.asLifoQueue(java7.util7.Deque) exclude",
-            "java7.util7.Collections.binarySearch(java7.util7.List, java.lang.Object) exclude",
+            "java7.util7.Collections.binarySearch(java7.util7.List, java.lang.Object) ignore",
             "java7.util7.Collections.binarySearch(java7.util7.List, java.lang.Object,"
                 + " java7.util7.Comparator) exclude",
             "java7.util7.Collections.checkedCollection(java7.util7.Collection, java.lang.Class)"
@@ -215,8 +215,7 @@ public class RandoopSystemTest {
                 + " exclude",
             "java7.util7.Collections.eq(java.lang.Object, java.lang.Object) ignore",
             "java7.util7.Collections.get(java7.util7.ListIterator, int) exclude",
-            "java7.util7.Collections.indexedBinarySearch(java7.util7.List, java.lang.Object)"
-                + " exclude",
+            "java7.util7.Collections.indexedBinarySearch(java7.util7.List, java.lang.Object) ignore",
             "java7.util7.Collections.indexedBinarySearch(java7.util7.List, java.lang.Object,"
                 + " java7.util7.Comparator) exclude",
             "java7.util7.Collections.iteratorBinarySearch(java7.util7.List, java.lang.Object)"
@@ -326,10 +325,10 @@ public class RandoopSystemTest {
                 + " exclude",
             "java7.util7.Collections.iteratorBinarySearch(java7.util7.List, java.lang.Object,"
                 + " java7.util7.Comparator) exclude",
-            "java7.util7.Collections.max(java7.util7.Collection) exclude",
-            "java7.util7.Collections.max(java7.util7.Collection, java7.util7.Comparator) exclude",
+            "java7.util7.Collections.max(java7.util7.Collection) ignore",
+            "java7.util7.Collections.max(java7.util7.Collection, java7.util7.Comparator) ignore",
             "java7.util7.Collections.min(java7.util7.Collection) exclude",
-            "java7.util7.Collections.min(java7.util7.Collection, java7.util7.Comparator) exclude",
+            "java7.util7.Collections.min(java7.util7.Collection, java7.util7.Comparator) ignore",
             "java7.util7.Collections.newSetFromMap(java7.util7.Map) exclude",
             "java7.util7.Collections.rotate2(java7.util7.List, int) exclude",
             "java7.util7.Collections.shuffle(java7.util7.List) ignore",
@@ -430,6 +429,7 @@ public class RandoopSystemTest {
             "java7.util7.ArrayList.set(int, java.lang.Object) ignore",
             "java7.util7.Arrays.sort(java.lang.Object[], java7.util7.Comparator) ignore",
             "java7.util7.ArrayList.writeObject(java.io.ObjectOutputStream) exclude",
+            "java7.util7.Arrays.binarySearch(byte[], int, int, byte) ignore",
             "java7.util7.Arrays.binarySearch(char[], int, int, char) ignore",
             "java7.util7.Arrays.binarySearch(int[], int, int, int) ignore",
             "java7.util7.Arrays.binarySearch(java.lang.Object[], int, int, java.lang.Object)"
@@ -533,6 +533,7 @@ public class RandoopSystemTest {
             "java7.util7.Collections.synchronizedMap(java7.util7.Map) ignore",
             "java7.util7.Collections.unmodifiableCollection(java7.util7.Collection) ignore",
             "java7.util7.Collections.unmodifiableMap(java7.util7.Map) exclude",
+            "java7.util7.Collections.unmodifiableSet(java7.util7.Set) ignore",
             "java7.util7.Collections.unmodifiableSortedMap(java7.util7.SortedMap) ignore",
             "java7.util7.Collections.unmodifiableSortedSet(java7.util7.SortedSet) ignore",
             "java7.util7.Collections.zeroLengthArray(java.lang.Class) exclude",
@@ -540,15 +541,24 @@ public class RandoopSystemTest {
             "java7.util7.Hashtable.readObject(java.io.ObjectInputStream) exclude",
             "java7.util7.Hashtable.reconstitutionPut(java7.util7.Hashtable.Entry[],"
                 + " java.lang.Object, java.lang.Object) exclude",
+            "java7.util7.Hashtable.rehash() ignore",
             "java7.util7.Hashtable.writeObject(java.io.ObjectOutputStream) exclude",
             "java7.util7.LinkedHashMap.newValueIterator() ignore",
+            "java7.util7.LinkedList.add(int, java.lang.Object) ignore",
+            "java7.util7.LinkedList.addAll(int, java7.util7.Collection) ignore",
+            "java7.util7.LinkedList.addAll(java7.util7.Collection) ignore",
+            "java7.util7.LinkedList.element() ignore",
             "java7.util7.LinkedList.get(int) ignore17",
-            "java7.util7.LinkedList.linkBefore(java.lang.Object, java7.util7.LinkedList.Node)"
-                + " ignore",
+            "java7.util7.LinkedList.linkBefore(java.lang.Object, java7.util7.LinkedList.Node) ignore",
             "java7.util7.LinkedList.pop() ignore",
             "java7.util7.LinkedList.readObject(java.io.ObjectInputStream) exclude",
+            "java7.util7.LinkedList.remove() ignore",
+            "java7.util7.LinkedList.remove(int) ignore",
             "java7.util7.LinkedList.set(int, java.lang.Object) ignore",
+            "java7.util7.LinkedList.unlink(java7.util7.LinkedList.Node) ignore",
+            "java7.util7.LinkedList.unlinkLast(java7.util7.LinkedList.Node) ignore",
             "java7.util7.LinkedList.writeObject(java.io.ObjectOutputStream) exclude",
+            "java7.util7.Observable.addObserver(java7.util7.Observer) ignore",
             "java7.util7.Observable.clearChanged() exclude",
             "java7.util7.Observable.setChanged() exclude",
             "java7.util7.Stack.peek() ignore",
@@ -964,8 +974,9 @@ public class RandoopSystemTest {
     CoverageChecker coverageChecker =
         new CoverageChecker(
             options,
-            // Randoop does not test hashCode(), because it may be nondeterministic
-            "misc.MyCmeList.hashCode() ignore");
+            // Randoop doesn't test hashCode(); it may be nondeterministic
+            "misc.MyCmeList.hashCode() ignore",
+            "misc.MyCmeList.subList(int, int) ignore");
 
     generateAndTest(
         testEnvironment, options, expectedRegressionTests, expectedErrorTests, coverageChecker);
