@@ -33,6 +33,7 @@ public class CheckpointingMultimap<K, V> implements SetMultimap<K, V> {
     REMOVE
   }
 
+  /** The operations that have been performed on the multimap so far. */
   private final List<OpKeyVal> ops;
 
   /** The number of operations that have been performed on the multimap so far. */
