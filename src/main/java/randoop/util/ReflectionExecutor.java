@@ -89,7 +89,7 @@ public final class ReflectionExecutor {
         executeReflectionCodeThreaded(code);
       } catch (TimeoutExceededException e) {
         // Don't factor timeouts into the average execution times.  (Is that the right thing to do?)
-        return new ExceptionalExecution(e, call_timeout * 1000);
+        return new ExceptionalExecution(e, call_timeout * 1000L);
       }
     } else {
       executeReflectionCodeUnThreaded(code);
@@ -123,7 +123,7 @@ public final class ReflectionExecutor {
    * @param code the {@link ReflectionCode} to be executed
    * @throws TimeoutExceededException if execution times out
    */
-  @SuppressWarnings({"deprecation", "DeprecatedThreadMethods"})
+  @SuppressWarnings({"deprecation", "removal", "DeprecatedThreadMethods"})
   private static void executeReflectionCodeThreaded(ReflectionCode code)
       throws TimeoutExceededException {
 

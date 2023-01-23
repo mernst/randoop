@@ -206,7 +206,7 @@ public class OperationModel {
     return createModel(
         accessibility,
         reflectionPredicate,
-        new ArrayList<Pattern>(),
+        new ArrayList<Pattern>(0),
         classnames,
         coveredClassnames,
         errorHandler,
@@ -331,7 +331,7 @@ public class OperationModel {
         throw new RandoopUsageError(message, e);
       }
     }
-    return new MultiMap<>();
+    return new MultiMap<>(0);
   }
 
   /**
@@ -651,7 +651,7 @@ public class OperationModel {
       @ClassGetName String classname, ClassNameErrorHandler errorHandler) {
     try {
       return TypeNames.getTypeForName(classname);
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       errorHandler.handle(classname, e);
     } catch (Throwable e) {
       if (e.getCause() != null) {

@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.checkerframework.checker.mustcall.qual.Owning;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signature.qual.BinaryName;
 import org.checkerframework.checker.signature.qual.ClassGetName;
@@ -145,7 +146,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
   //  depending on user requests.
   /**
    * A regex that indicates methods that should not be called directly in generated tests. This does
-   * not prevent indirect calls to such methods from other, allowed methods.
+   * not prevent indirect calls to such methods from other, allowed methods; to prevent them, see
+   * the <a href="https://randoop.github.io/randoop/manual/index.html#replacecall">{@code
+   * replacecall} agent</a>.
    *
    * <p>Randoop will not directly call a method whose <a
    * href="https://randoop.github.io/randoop/manual/#fully-qualified-signature">fully-qualified
@@ -155,7 +158,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
    * <p>If the regular expression contains anchors "{@code ^}" or "{@code $}", they refer to the
    * beginning and the end of the signature string.
    *
-   * <p>Methods replaced by the {@code replacecall} agent are also automatically omitted.
+   * <p>Methods replaced by the <a
+   * href="https://randoop.github.io/randoop/manual/index.html#replacecall">{@code replacecall}
+   * agent</a> are also automatically omitted.
    */
   @Option("Do not call methods that match regular expression <string>")
   public static List<Pattern> omit_methods = new ArrayList<>();
@@ -756,7 +761,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="http://junit.sourceforge.net/javadoc/org/junit/Before.html">{@code @Before}</a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/Before.html">{@code @Before}</a>-annotated
    * method of each generated test class. Code is uninterpreted, and, so, is not run during
    * generation. Intended for use when run-time behavior of classes under test requires setup
    * behavior that is not needed for execution by reflection. (The annotation {@code @Before} is
@@ -767,7 +772,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="http://junit.sourceforge.net/javadoc/org/junit/After.html">{@code @After} </a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/After.html">{@code @After} </a>-annotated
    * method of each generated test class. Intended for use when run-time behavior of classes under
    * test requires tear-down behavior that is not needed for execution by reflection. Code is
    * uninterpreted, and, so, is not run during generation. (The annotation {@code @After} is JUnit
@@ -778,7 +783,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="http://junit.sourceforge.net/javadoc/org/junit/BeforeClass.html">{@code @BeforeClass}</a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/BeforeClass.html">{@code @BeforeClass}</a>-annotated
    * method of each generated test class. Intended for use when run-time behavior of classes under
    * test requires setup behavior that is not needed for execution by reflection. Code is
    * uninterpreted, and, so, is not run during generation. (The annotation {@code @BeforeClass} is
@@ -789,7 +794,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="http://junit.sourceforge.net/javadoc/org/junit/AfterClass.html">{@code @AfterClass}</a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/AfterClass.html">{@code @AfterClass}</a>-annotated
    * method of each generated test class. Intended for use when run-time behavior of classes under
    * test requires tear-down behavior that is not needed for execution by reflection. Code is
    * uninterpreted, and, so, is not run during generation. (The annotation {@code @AfterClass} is
@@ -888,7 +893,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
    * logs slows down Randoop.
    */
   @Option("<filename> Log lots of information to this file")
-  public static FileWriterWithName log = null;
+  public static @Owning FileWriterWithName log = null;
 
   /**
    * A file to which to log selections; helps find sources of non-determinism. If not specified, no
@@ -1069,9 +1074,8 @@ public abstract class GenInputsAbstract extends CommandHandler {
    */
   public static Set<@ClassGetName String> getClassnamesFromJarFile(
       Path jarFile, AccessibilityPredicate accessibility) {
-    try {
+    try (ZipInputStream zip = new ZipInputStream(new FileInputStream(jarFile.toString()))) {
       Set<@ClassGetName String> classNames = new TreeSet<>();
-      ZipInputStream zip = new ZipInputStream(new FileInputStream(jarFile.toString()));
       for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
         if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
           // This ZipEntry represents a class. Now, what class does it represent?
@@ -1086,7 +1090,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
           Class<?> c;
           try {
             c = Class.forName(className);
-          } catch (ClassNotFoundException e) {
+          } catch (ClassNotFoundException e) { // NoClassDefFoundError is caught below
             throw new RandoopUsageError(
                 String.format(
                     "%s was read from %s but was not found on classpath."
@@ -1189,9 +1193,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
     // This directory contains the .class files.
     File packageDirectory = directory.toPath().resolve(packageNameAsFile).toFile();
     if (packageDirectory.exists() && packageDirectory.isDirectory()) {
-      List<@ClassGetName String> classnames = new ArrayList<>();
-      for (File file :
-          packageDirectory.listFiles(f -> f.isFile() && f.getName().endsWith(".class"))) {
+      File[] files = packageDirectory.listFiles(f -> f.isFile() && f.getName().endsWith(".class"));
+      List<@ClassGetName String> classnames = new ArrayList<>(files.length);
+      for (File file : files) {
 
         String relativePath = directory.toPath().relativize(file.toPath()).toString();
         String classname = Signatures.classfilenameToBinaryName(relativePath);
@@ -1200,7 +1204,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
           if (accessibility.isAccessible(classFromPackage)) {
             classnames.add(classname);
           }
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
           throw new RandoopClassNameError(
               classname,
               String.format(
@@ -1209,7 +1213,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
       }
       return classnames;
     }
-    return new ArrayList<>();
+    return new ArrayList<>(0);
   }
 
   /**
@@ -1246,7 +1250,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
     } catch (IOException e) {
       throw new RandoopUsageError(
           String.format("Cannot read .jar file: %s", jarFile.getAbsolutePath()));
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       throw new RandoopClassNameError(
           classname, String.format("Cannot load class found in %s", jarFile.getAbsolutePath()));
     }

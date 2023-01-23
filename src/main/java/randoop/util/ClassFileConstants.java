@@ -137,11 +137,10 @@ public class ClassFileConstants {
    */
   public static ConstantSet getConstants(String classname, ConstantSet result) {
 
+    String classfileBase = classname.replace('.', '/');
     ClassParser cp;
     JavaClass jc;
-    try {
-      String classfileBase = classname.replace('.', '/');
-      InputStream is = ClassPath.SYSTEM_CLASS_PATH.getInputStream(classfileBase, ".class");
+    try (InputStream is = ClassPath.SYSTEM_CLASS_PATH.getInputStream(classfileBase, ".class")) {
       cp = new ClassParser(is, classname);
       jc = cp.parse();
     } catch (java.io.IOException e) {
@@ -628,7 +627,7 @@ public class ClassFileConstants {
       Class<?> clazz;
       try {
         clazz = TypeNames.getTypeForName(cs.classname);
-      } catch (ClassNotFoundException e) {
+      } catch (ClassNotFoundException | NoClassDefFoundError e) {
         throw new Error("Class " + cs.classname + " not found on the classpath.");
       }
       for (Integer x : cs.ints) {

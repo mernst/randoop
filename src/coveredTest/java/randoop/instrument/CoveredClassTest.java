@@ -17,6 +17,7 @@ import org.checkerframework.checker.signature.qual.ClassGetName;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.plumelib.util.CollectionsPlume;
 import randoop.generation.ComponentManager;
 import randoop.generation.ForwardGenerator;
 import randoop.generation.RandoopListenerManager;
@@ -103,7 +104,7 @@ public class CoveredClassTest {
     Class<?> ac;
     try {
       ac = TypeNames.getTypeForName("instrument.testcase.A");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -111,7 +112,7 @@ public class CoveredClassTest {
     Class<?> cc;
     try {
       cc = TypeNames.getTypeForName("instrument.testcase.C");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -144,7 +145,7 @@ public class CoveredClassTest {
     Class<?> ac;
     try {
       ac = TypeNames.getTypeForName("instrument.testcase.A");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -152,7 +153,7 @@ public class CoveredClassTest {
     Class<?> cc;
     try {
       cc = TypeNames.getTypeForName("instrument.testcase.C");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -184,7 +185,7 @@ public class CoveredClassTest {
     Class<?> ac;
     try {
       ac = TypeNames.getTypeForName("instrument.testcase.A");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -192,7 +193,7 @@ public class CoveredClassTest {
     Class<?> cc;
     try {
       cc = TypeNames.getTypeForName("instrument.testcase.C");
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
       fail("cannot find class: " + e);
       throw new Error("dead code");
     }
@@ -235,9 +236,13 @@ public class CoveredClassTest {
     assertNotNull(operationModel);
 
     List<TypedOperation> model = operationModel.getOperations();
-    Set<Sequence> components = new LinkedHashSet<>();
-    components.addAll(SeedSequences.defaultSeeds());
-    components.addAll(operationModel.getAnnotatedTestValues());
+    Set<Sequence> defaultSeeds = SeedSequences.defaultSeeds();
+    Set<Sequence> annotatedTestValues = operationModel.getAnnotatedTestValues();
+    Set<Sequence> components =
+        new LinkedHashSet<>(
+            CollectionsPlume.mapCapacity(defaultSeeds.size() + annotatedTestValues.size()));
+    components.addAll(defaultSeeds);
+    components.addAll(annotatedTestValues);
 
     ComponentManager componentMgr = new ComponentManager(components);
     operationModel.addClassLiterals(
@@ -272,7 +277,7 @@ public class CoveredClassTest {
     }
 
     Sequence newObj = new Sequence().extend(objectConstructor);
-    Set<Sequence> excludeSet = new LinkedHashSet<>();
+    Set<Sequence> excludeSet = new LinkedHashSet<>(CollectionsPlume.mapCapacity(1));
     excludeSet.add(newObj);
 
     Predicate<ExecutableSequence> isOutputTest =
