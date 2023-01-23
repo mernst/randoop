@@ -18,7 +18,9 @@ import randoop.main.RandoopBug;
  */
 public abstract class AbstractNormalExecution extends ExecutionOutcome {
 
-  /** @param executionTime the execution time, in nanoseconds */
+  /**
+   * @param executionTime the execution time, in nanoseconds
+   */
   public AbstractNormalExecution(long executionTime) {
     super(executionTime);
   }

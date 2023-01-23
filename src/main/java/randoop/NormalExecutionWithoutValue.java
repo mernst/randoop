@@ -8,7 +8,9 @@ import randoop.main.RandoopBug;
  */
 public class NormalExecutionWithoutValue extends AbstractNormalExecution {
 
-  /** @param executionTime the execution time, in nanoseconds */
+  /**
+   * @param executionTime the execution time, in nanoseconds
+   */
   public NormalExecutionWithoutValue(long executionTime) {
     super(executionTime);
   }
