@@ -43,7 +43,7 @@ class ClassLiteralExtractor extends DefaultClassVisitor {
             new Sequence()
                 .extend(
                     TypedOperation.createNonreceiverInitialization(term),
-                    new ArrayList<Variable>());
+                    new ArrayList<Variable>(0));
         literalMap.put(constantType, seq);
       }
     }

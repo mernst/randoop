@@ -15,6 +15,7 @@ import org.plumelib.util.StringsPlume;
 import randoop.Globals;
 import randoop.main.GenInputsAbstract;
 import randoop.main.RandoopBug;
+import randoop.operation.MethodCall;
 import randoop.operation.OperationParseException;
 import randoop.operation.OperationParser;
 import randoop.operation.TypedOperation;
@@ -56,7 +57,7 @@ public final class Sequence {
 
   /** Create a new, empty sequence. */
   public Sequence() {
-    this(new SimpleArrayList<Statement>(), 0, 0);
+    this(new SimpleArrayList<Statement>(0), 0, 0);
   }
 
   /**
@@ -98,7 +99,8 @@ public final class Sequence {
    */
   public static Sequence zero(Type c) {
     return new Sequence()
-        .extend(TypedOperation.createNullOrZeroInitializationForType(c), new ArrayList<Variable>());
+        .extend(
+            TypedOperation.createNullOrZeroInitializationForType(c), new ArrayList<Variable>(0));
   }
 
   /**
@@ -201,7 +203,7 @@ public final class Sequence {
    * @return the concatenation of the sequences in the list
    */
   public static Sequence concatenate(List<Sequence> sequences) {
-    List<SimpleList<Statement>> statements1 = new ArrayList<>();
+    List<SimpleList<Statement>> statements1 = new ArrayList<>(sequences.size());
     int newHashCode = 0;
     int newNetSize = 0;
     for (Sequence c : sequences) {
@@ -230,6 +232,22 @@ public final class Sequence {
   @Pure
   public final int size() {
     return statements.size();
+  }
+
+  /**
+   * The number of method calls in this sequence.
+   *
+   * @return the number of method calls in this sequence
+   */
+  public final int numMethodCalls() {
+    int result = 0;
+    for (int i = 0; i < statements.size(); i++) {
+      Statement statement = statements.get(i);
+      if (statement.getOperation().getOperation() instanceof MethodCall) {
+        result++;
+      }
+    }
+    return result;
   }
 
   /**
@@ -413,7 +431,7 @@ public final class Sequence {
    */
   private static int computeHashcode(SimpleList<Statement> statements) {
     int hashCode = 0;
-    for (int i = 0; i < statements.size(); i++) {
+    for (int i = 0; i < statements.size(); i++) { // SimpleList has no iterator
       Statement s = statements.get(i);
       hashCode += s.hashCode();
     }
@@ -429,7 +447,7 @@ public final class Sequence {
    */
   private static int computeNetSize(SimpleList<Statement> statements) {
     int netSize = 0;
-    for (int i = 0; i < statements.size(); i++) {
+    for (int i = 0; i < statements.size(); i++) { // SimpleList has no iterator
       if (!statements.get(i).isNonreceivingInitialization()) {
         netSize++;
       }
@@ -462,13 +480,13 @@ public final class Sequence {
                 + lastStatement.toString());
       }
 
-      List<Variable> v = this.getInputs(lastStatementIndex);
-      if (v.size() != lastStatement.getInputTypes().size()) {
+      List<Variable> vars = this.getInputs(lastStatementIndex);
+      if (vars.size() != lastStatement.getInputTypes().size()) {
         throw new RuntimeException();
       }
 
-      for (int i = 0; i < v.size(); i++) {
-        Variable actualArgument = v.get(i);
+      for (int i = 0; i < vars.size(); i++) {
+        Variable actualArgument = vars.get(i);
         assert lastStatement.getInputTypes().get(i).isAssignableFrom(actualArgument.getType());
         this.lastStatementTypes.add(actualArgument.getType());
         this.lastStatementVariables.add(actualArgument);
@@ -487,7 +505,7 @@ public final class Sequence {
       throw new RuntimeException("statements == null");
     }
 
-    for (int si = 0; si < this.statements.size(); si++) {
+    for (int si = 0; si < this.statements.size(); si++) { // SimpleList has no iterator
 
       Statement statementWithInputs = this.statements.get(si);
 
@@ -719,7 +737,7 @@ public final class Sequence {
       throw new IllegalArgumentException("type cannot be null.");
     }
     List<Integer> possibleIndices = new ArrayList<>();
-    for (int i = 0; i < size(); i++) {
+    for (int i = 0; i < size(); i++) { // SimpleList has no iterator
       Statement s = statements.get(i);
       if (isActive(i)) {
         Type outputType = s.getOutputType();
@@ -920,7 +938,7 @@ public final class Sequence {
    */
   public static Sequence parse(List<String> statements) throws SequenceParseException {
 
-    Map<String, Integer> valueMap = new LinkedHashMap<>();
+    Map<String, Integer> valueMap = new LinkedHashMap<>(statements.size());
     Sequence sequence = new Sequence();
     int statementCount = 0;
     try {
@@ -1000,7 +1018,7 @@ public final class Sequence {
           throw new SequenceParseException(msg, statements, statementCount);
         }
 
-        List<Variable> inputs = new ArrayList<>();
+        List<Variable> inputs = new ArrayList<>(inVars.length);
         for (String inVar : inVars) {
           Integer index = valueMap.get(inVar);
           if (index == null) {
@@ -1087,7 +1105,7 @@ public final class Sequence {
    * @return true if any statement has operation with matching declaring class, false otherwise
    */
   public boolean hasUseOfMatchingClass(Pattern classNames) {
-    for (int i = 0; i < statements.size(); i++) {
+    for (int i = 0; i < statements.size(); i++) { // SimpleList has no iterator
       Type declaringType = statements.get(i).getDeclaringClass();
       if (declaringType != null && classNames.matcher(declaringType.getBinaryName()).matches()) {
         return true;

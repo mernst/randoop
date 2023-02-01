@@ -415,15 +415,13 @@ public class TestClassificationTest {
     }
     final List<TypedOperation> model = operationModel.getOperations();
 
-    RandoopListenerManager listenerMgr = new RandoopListenerManager();
     ForwardGenerator gen =
         new ForwardGenerator(
             model,
             new LinkedHashSet<TypedOperation>(),
             new GenInputsAbstract.Limits(),
             componentMgr,
-            null,
-            listenerMgr,
+            /*stopper=*/ null,
             operationModel.getClassTypes());
     Predicate<ExecutableSequence> isOutputTest = new AlwaysTrue<>();
     gen.setTestPredicate(isOutputTest);

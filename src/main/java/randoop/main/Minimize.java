@@ -52,7 +52,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -459,7 +458,7 @@ public class Minimize extends CommandHandler {
     List<Statement> statements = body.getStatements();
 
     // Map from primitive variable name to the variable's value extracted
-    // from a passing assertion.
+    // from a passing assertion.  Modified by the call to storeValueFromAssertion().
     Map<String, String> primitiveValues = new HashMap<>();
 
     // Find all the names of the primitive and wrapped types.
@@ -638,7 +637,7 @@ public class Minimize extends CommandHandler {
    */
   private static List<Statement> getStatementReplacements(
       Statement currStmt, Map<String, String> primitiveValues) {
-    List<Statement> replacements = new ArrayList<>();
+    List<Statement> replacements = new ArrayList<>(4);
 
     // Null represents removal of the statement.
     replacements.add(null);
@@ -679,7 +678,7 @@ public class Minimize extends CommandHandler {
    *     expression
    */
   private static List<Statement> rhsAssignZeroValue(VariableDeclarationExpr vdExpr) {
-    List<Statement> resultList = new ArrayList<>();
+    List<Statement> resultList = new ArrayList<>(3);
 
     if (vdExpr.getVariables().size() != 1) {
       // Number of variables declared in this expression is not 1.
@@ -1472,11 +1471,13 @@ public class Minimize extends CommandHandler {
     if (parent == null) {
       return;
     }
-    List<Node> everything = new LinkedList<>(parent.getChildNodes());
+    List<Node> everything = new ArrayList<>(parent.getChildNodes());
     sortByBeginPosition(everything);
     int positionOfTheChild = -1;
     for (int i = 0; i < everything.size(); i++) {
-      if (everything.get(i) == node) positionOfTheChild = i;
+      if (everything.get(i) == node) {
+        positionOfTheChild = i;
+      }
     }
     if (positionOfTheChild == -1) {
       throw new AssertionError("I am not a child of my parent.");

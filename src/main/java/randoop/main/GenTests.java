@@ -53,7 +53,6 @@ import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.ForwardGenerator;
 import randoop.generation.RandoopGenerationError;
-import randoop.generation.RandoopListenerManager;
 import randoop.generation.SeedSequences;
 import randoop.generation.TestUtils;
 import randoop.instrument.CoveredClassVisitor;
@@ -149,7 +148,7 @@ public class GenTests extends GenInputsAbstract {
   private BlockStmt beforeEachFixtureBody;
 
   static {
-    notes = new ArrayList<>();
+    notes = new ArrayList<>(4);
     notes.add("See the Randoop manual for guidance.  Here are a few tips.");
     notes.add(
         "Randoop executes the code under test, with no mechanisms to protect your system from harm"
@@ -301,9 +300,10 @@ public class GenTests extends GenInputsAbstract {
      */
     if (GenInputsAbstract.use_jdk_specifications) {
       if (GenInputsAbstract.specifications == null) {
-        GenInputsAbstract.specifications = new ArrayList<>();
+        GenInputsAbstract.specifications = new ArrayList<>(getJDKSpecificationFiles());
+      } else {
+        GenInputsAbstract.specifications.addAll(getJDKSpecificationFiles());
       }
-      GenInputsAbstract.specifications.addAll(getJDKSpecificationFiles());
     }
     OperationModel operationModel = null;
     try (SpecificationCollection operationSpecifications =
@@ -394,15 +394,17 @@ public class GenTests extends GenInputsAbstract {
      *   <li>Add any values for TestValue annotated static fields in operationModel
      * </ul>
      */
-    Set<Sequence> components = new LinkedHashSet<>();
-    components.addAll(SeedSequences.defaultSeeds());
-    components.addAll(operationModel.getAnnotatedTestValues());
+    Set<Sequence> defaultSeeds = SeedSequences.defaultSeeds();
+    Set<Sequence> annotatedTestValues = operationModel.getAnnotatedTestValues();
+    Set<Sequence> components =
+        new LinkedHashSet<>(
+            CollectionsPlume.mapCapacity(defaultSeeds.size() + annotatedTestValues.size()));
+    components.addAll(defaultSeeds);
+    components.addAll(annotatedTestValues);
 
     ComponentManager componentMgr = new ComponentManager(components);
     operationModel.addClassLiterals(
         componentMgr, GenInputsAbstract.literals_file, GenInputsAbstract.literals_level);
-
-    RandoopListenerManager listenerMgr = new RandoopListenerManager();
 
     SetMultimap<Type, TypedClassOperation> sideEffectFreeMethodsByType =
         readSideEffectFreeMethods();
@@ -421,7 +423,7 @@ public class GenTests extends GenInputsAbstract {
             sideEffectFreeMethods,
             new GenInputsAbstract.Limits(),
             componentMgr,
-            listenerMgr,
+            /*stopper=*/ null,
             classesUnderTest);
 
     // log setup.
@@ -459,7 +461,7 @@ public class GenTests extends GenInputsAbstract {
     }
 
     Sequence newObj = new Sequence().extend(objectConstructor);
-    Set<Sequence> excludeSet = new LinkedHashSet<>();
+    Set<Sequence> excludeSet = new LinkedHashSet<>(CollectionsPlume.mapCapacity(1));
     excludeSet.add(newObj);
 
     // Define test predicate to decide which test sequences will be output.
@@ -799,7 +801,7 @@ public class GenTests extends GenInputsAbstract {
     HashSet<TypedClassOperation> ops = new HashSet<>();
 
     SimpleList<Statement> statements = es.sequence.statements;
-    for (int i = 0; i < statements.size(); i++) {
+    for (int i = 0; i < statements.size(); i++) { // SimpleList has no iterator
       TypedOperation to = statements.get(i).getOperation();
       if (to.isMethodCall()) {
         ops.add((TypedClassOperation) to);
@@ -1114,8 +1116,10 @@ public class GenTests extends GenInputsAbstract {
         }
         // Once flaky sequence found, collect the operations executed
         if (flakySequenceFound) {
-          for (int i = 0; i < sequence.statements.size(); i++) {
-            Operation operation = sequence.statements.get(i).getOperation();
+          SimpleList<Statement> seqStatements = sequence.statements;
+          int seqSize = seqStatements.size();
+          for (int i = 0; i < seqSize; i++) { // SimpleList has no iterator
+            Operation operation = seqStatements.get(i).getOperation();
             if (!operation.isNonreceivingValue()) {
               executedOperationTrace.add(operation.toString());
             }

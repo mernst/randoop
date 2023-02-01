@@ -207,7 +207,7 @@ public class OperationModel {
     return createModel(
         accessibility,
         reflectionPredicate,
-        new ArrayList<Pattern>(),
+        new ArrayList<Pattern>(0),
         classnames,
         coveredClassnames,
         errorHandler,

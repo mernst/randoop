@@ -97,7 +97,7 @@ public class LiteralFileReader {
             for (int i = 3; i < lines.size(); i++) {
               try {
                 TypedOperation operation = NonreceiverTerm.parse(lines.get(i));
-                map.put(classType, new Sequence().extend(operation, new ArrayList<Variable>()));
+                map.put(classType, new Sequence().extend(operation, new ArrayList<Variable>(0)));
               } catch (OperationParseException e) {
                 throwRecordSyntaxError(e);
               }

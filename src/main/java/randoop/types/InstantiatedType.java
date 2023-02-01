@@ -76,7 +76,7 @@ public class InstantiatedType extends ParameterizedType {
    * Constructs a capture conversion for this type. If this type has wildcard type arguments, then
    * introduces {@link CaptureTypeVariable} for each wildcard as described in the JLS, section
    * 5.1.10, <a
-   * href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-5.html#jls-5.1.10">Capture
+   * href="https://docs.oracle.com/javase/specs/jls/se17/html/jls-5.html#jls-5.1.10">Capture
    * Conversion</a>.
    *
    * <p>Based on algorithm in Mads Torgerson <i>et al.</i> "<a
@@ -95,7 +95,7 @@ public class InstantiatedType extends ParameterizedType {
       return this;
     }
 
-    List<ReferenceType> convertedTypeList = new ArrayList<>();
+    List<ReferenceType> convertedTypeList = new ArrayList<>(argumentList.size());
     for (TypeArgument argument : argumentList) {
       if (argument.isWildcard()) {
         WildcardArgument convertedArgument = ((WildcardArgument) argument).applyCaptureConversion();
@@ -227,8 +227,9 @@ public class InstantiatedType extends ParameterizedType {
    *     instantiated type
    */
   public Substitution getTypeSubstitution() {
-    List<ReferenceType> arguments = new ArrayList<>();
-    for (TypeArgument arg : this.getTypeArguments()) {
+    List<TypeArgument> typeArgs = this.getTypeArguments();
+    List<ReferenceType> arguments = new ArrayList<>(typeArgs.size());
+    for (TypeArgument arg : typeArgs) {
       if (!arg.isWildcard()) {
         arguments.add(((ReferenceArgument) arg).getReferenceType());
       }

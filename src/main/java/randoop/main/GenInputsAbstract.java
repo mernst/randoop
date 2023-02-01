@@ -704,11 +704,14 @@ public abstract class GenInputsAbstract extends CommandHandler {
   @Option("Reuse values with the given frequency")
   public static double alias_ratio = 0;
 
+  /** How to select inputs: the random choice strategy. */
   public enum InputSelectionMode {
+    /** Favor sequences with lower number of method calls and cumulative execution time. */
+    ORIENTEERING,
     /** Favor shorter sequences. This makes Randoop produce smaller JUnit tests. */
     SMALL_TESTS,
     /** Select sequences uniformly at random. */
-    UNIFORM
+    UNIFORM,
   }
 
   /**
@@ -761,7 +764,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="https://junit.sourceforge.net/javadoc/org/junit/Before.html">{@code @Before}</a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/Before.html">{@code @Before}</a>-annotated
    * method of each generated test class. Code is uninterpreted, and, so, is not run during
    * generation. Intended for use when run-time behavior of classes under test requires setup
    * behavior that is not needed for execution by reflection. (The annotation {@code @Before} is
@@ -772,7 +775,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="https://junit.sourceforge.net/javadoc/org/junit/After.html">{@code @After} </a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/After.html">{@code @After} </a>-annotated
    * method of each generated test class. Intended for use when run-time behavior of classes under
    * test requires tear-down behavior that is not needed for execution by reflection. Code is
    * uninterpreted, and, so, is not run during generation. (The annotation {@code @After} is JUnit
@@ -783,7 +786,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="https://junit.sourceforge.net/javadoc/org/junit/BeforeClass.html">{@code @BeforeClass}</a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/BeforeClass.html">{@code @BeforeClass}</a>-annotated
    * method of each generated test class. Intended for use when run-time behavior of classes under
    * test requires setup behavior that is not needed for execution by reflection. Code is
    * uninterpreted, and, so, is not run during generation. (The annotation {@code @BeforeClass} is
@@ -794,7 +797,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   /**
    * Name of file containing code text to be added to the <a
-   * href="https://junit.sourceforge.net/javadoc/org/junit/AfterClass.html">{@code @AfterClass}</a>-annotated
+   * href="https://junit.org/junit4/javadoc/4.12/org/junit/AfterClass.html">{@code @AfterClass}</a>-annotated
    * method of each generated test class. Intended for use when run-time behavior of classes under
    * test requires tear-down behavior that is not needed for execution by reflection. Code is
    * uninterpreted, and, so, is not run during generation. (The annotation {@code @AfterClass} is
@@ -975,6 +978,11 @@ public abstract class GenInputsAbstract extends CommandHandler {
         throw new RandoopUsageError(
             "Invalid parameter combination: --deterministic with --progressintervalmillis");
       }
+    }
+
+    if (deterministic && GenInputsAbstract.input_selection == InputSelectionMode.ORIENTEERING) {
+      throw new RandoopUsageError(
+          "Invalid parameter combination: --deterministic with --input-selection==orienteering");
     }
 
     if (deterministic
@@ -1193,9 +1201,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
     // This directory contains the .class files.
     File packageDirectory = directory.toPath().resolve(packageNameAsFile).toFile();
     if (packageDirectory.exists() && packageDirectory.isDirectory()) {
-      List<@ClassGetName String> classnames = new ArrayList<>();
-      for (File file :
-          packageDirectory.listFiles(f -> f.isFile() && f.getName().endsWith(".class"))) {
+      File[] files = packageDirectory.listFiles(f -> f.isFile() && f.getName().endsWith(".class"));
+      List<@ClassGetName String> classnames = new ArrayList<>(files.length);
+      for (File file : files) {
 
         String relativePath = directory.toPath().relativize(file.toPath()).toString();
         String classname = Signatures.classfilenameToBinaryName(relativePath);
@@ -1213,7 +1221,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
       }
       return classnames;
     }
-    return new ArrayList<>();
+    return new ArrayList<>(0);
   }
 
   /**
