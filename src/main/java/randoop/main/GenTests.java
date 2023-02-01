@@ -51,7 +51,6 @@ import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.ForwardGenerator;
 import randoop.generation.RandoopGenerationError;
-import randoop.generation.RandoopListenerManager;
 import randoop.generation.SeedSequences;
 import randoop.generation.TestUtils;
 import randoop.instrument.CoveredClassVisitor;
@@ -406,8 +405,6 @@ public class GenTests extends GenInputsAbstract {
     operationModel.addClassLiterals(
         componentMgr, GenInputsAbstract.literals_file, GenInputsAbstract.literals_level);
 
-    RandoopListenerManager listenerMgr = new RandoopListenerManager();
-
     MultiMap<Type, TypedClassOperation> sideEffectFreeMethodsByType = readSideEffectFreeMethods();
 
     Set<TypedOperation> sideEffectFreeMethods = new LinkedHashSet<>();
@@ -424,7 +421,7 @@ public class GenTests extends GenInputsAbstract {
             sideEffectFreeMethods,
             new GenInputsAbstract.Limits(),
             componentMgr,
-            listenerMgr,
+            /*stopper=*/ null,
             classesUnderTest);
 
     // log setup.
@@ -805,7 +802,7 @@ public class GenTests extends GenInputsAbstract {
     HashSet<TypedClassOperation> ops = new HashSet<>();
 
     SimpleList<Statement> statements = es.sequence.statements;
-    for (int i = 0; i < statements.size(); i++) {
+    for (int i = 0; i < statements.size(); i++) { // SimpleList has no iterator
       TypedOperation to = statements.get(i).getOperation();
       if (to.isMethodCall()) {
         ops.add((TypedClassOperation) to);
@@ -1120,8 +1117,10 @@ public class GenTests extends GenInputsAbstract {
         }
         // Once flaky sequence found, collect the operations executed
         if (flakySequenceFound) {
-          for (int i = 0; i < sequence.statements.size(); i++) {
-            Operation operation = sequence.statements.get(i).getOperation();
+          SimpleList<Statement> seqStatements = sequence.statements;
+          int seqSize = seqStatements.size();
+          for (int i = 0; i < seqSize; i++) { // SimpleList has no iterator
+            Operation operation = seqStatements.get(i).getOperation();
             if (!operation.isNonreceivingValue()) {
               executedOperationTrace.add(operation.toString());
             }

@@ -95,7 +95,6 @@ public class ForwardGenerator extends AbstractGenerator {
    * @param sideEffectFreeMethods side-effect-free methods
    * @param limits limits for generation, after which the generator will stop
    * @param componentManager stores previously-generated sequences
-   * @param listenerManager manages notifications for listeners
    * @param classesUnderTest set of classes under test
    */
   public ForwardGenerator(
@@ -103,7 +102,6 @@ public class ForwardGenerator extends AbstractGenerator {
       Set<TypedOperation> sideEffectFreeMethods,
       GenInputsAbstract.Limits limits,
       ComponentManager componentManager,
-      RandoopListenerManager listenerManager,
       Set<ClassOrInterfaceType> classesUnderTest) {
     this(
         operations,
@@ -111,20 +109,18 @@ public class ForwardGenerator extends AbstractGenerator {
         limits,
         componentManager,
         /*stopper=*/ null,
-        listenerManager,
         classesUnderTest);
   }
 
   /**
    * Create a forward generator.
    *
-   * @param operations list of operations under test
+   * @param operations list of methods under test
    * @param sideEffectFreeMethods side-effect-free methods
    * @param limits limits for generation, after which the generator will stop
-   * @param componentManager stores previously-generated sequences
-   * @param stopper optional, additional stopping criterion for the generator. Can be null.
-   * @param listenerManager manages notifications for listeners
-   * @param classesUnderTest set of classes under test
+   * @param componentManager container for sequences that are used to generate new sequences
+   * @param stopper determines when the test generation process should conclude. Can be null.
+   * @param classesUnderTest the classes that are under test
    */
   public ForwardGenerator(
       List<TypedOperation> operations,
@@ -132,9 +128,8 @@ public class ForwardGenerator extends AbstractGenerator {
       GenInputsAbstract.Limits limits,
       ComponentManager componentManager,
       IStopper stopper,
-      RandoopListenerManager listenerManager,
       Set<ClassOrInterfaceType> classesUnderTest) {
-    super(operations, limits, componentManager, stopper, listenerManager);
+    super(operations, limits, componentManager, stopper);
 
     this.sideEffectFreeMethods = sideEffectFreeMethods;
     this.instantiator = componentManager.getTypeInstantiator();
@@ -153,6 +148,10 @@ public class ForwardGenerator extends AbstractGenerator {
     }
 
     switch (GenInputsAbstract.input_selection) {
+      case ORIENTEERING:
+        inputSequenceSelector =
+            new OrienteeringSelection(componentManager.getAllGeneratedSequences());
+        break;
       case SMALL_TESTS:
         inputSequenceSelector = new SmallTestsSequenceSelection();
         break;
@@ -160,7 +159,7 @@ public class ForwardGenerator extends AbstractGenerator {
         inputSequenceSelector = new UniformRandomSequenceSelection();
         break;
       default:
-        throw new Error("Unhandled input_selection: " + GenInputsAbstract.input_selection);
+        throw new Error("Unhandled --input-selection: " + GenInputsAbstract.input_selection);
     }
   }
 
@@ -239,6 +238,8 @@ public class ForwardGenerator extends AbstractGenerator {
     eSeq.execute(executionVisitor, checkGenerator);
 
     startTime = System.nanoTime(); // reset start time.
+
+    inputSequenceSelector.createdExecutableSequence(eSeq);
 
     determineActiveIndices(eSeq);
 
@@ -916,7 +917,7 @@ public class ForwardGenerator extends AbstractGenerator {
     // Try every element of the list, in order.
     int numCandidates = candidates.size();
     List<VarAndSeq> validResults = new ArrayList<>(numCandidates);
-    for (int i = 0; i < numCandidates; i++) {
+    for (int i = 0; i < numCandidates; i++) { // SimpleList has no iterator
       Sequence s = candidates.get(i);
       Variable randomVariable = s.randomVariableForTypeLastStatement(inputType, isReceiver);
       validResults.add(new VarAndSeq(randomVariable, s));
