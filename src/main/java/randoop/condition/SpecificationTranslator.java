@@ -1,5 +1,6 @@
 package randoop.condition;
 
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -108,7 +109,18 @@ public class SpecificationTranslator {
     List<String> parameterNames = new ArrayList<>();
 
     // Get expression method parameter declaration strings.
-    if (executable instanceof Method) { // TODO: inner class constructors have a receiver
+    // The first `if` works around the fact that in JDK 8 (but not 11+) getAnnotatedReceiverType()
+    // returns non-null even for a constructor with no receiver.
+    AnnotatedType receiverAType = executable.getAnnotatedReceiverType();
+    if (receiverAType != null) {
+      Class<?> receiverType = (Class<?>) receiverAType.getType();
+      Class<?> declaringClass = executable.getDeclaringClass();
+      // // TODO: Why does this happen?
+      // if (receiverType != declaringClass) {
+      //   receiverAType = null;
+      // }
+    }
+    if (receiverAType != null && !receiverAType.getType().toString().equals("void")) {
       parameterNames.add(identifiers.getReceiverName());
     }
     parameterNames.addAll(identifiers.getParameterNames());
