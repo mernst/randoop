@@ -409,8 +409,11 @@ public class RandoopSystemTest {
     options.setErrorBasename("JDK_Tests_error");
 
     options.setOption("generated_limit", "6000");
-    options.setOption("null-ratio", "0.1");
-    options.setOption("alias-ratio", "0.2");
+    // Using these values instead slightly reduced coverage:
+    // options.setOption("null-ratio", "0.1");
+    // options.setOption("alias-ratio", "0.2");
+    options.setOption("null-ratio", "0.3");
+    options.setOption("alias-ratio", "0.3");
     options.setOption("input-selection", "small-tests");
     options.setFlag("clear=2000");
     options.addClassList("resources/systemTest/jdk_classlist.txt");
@@ -814,7 +817,7 @@ public class RandoopSystemTest {
     CoverageChecker coverageChecker =
         new CoverageChecker(
             options,
-            26,
+            25, // 26 for most JDKs, 25 for JDK 17
             "collectiongen.AnInputClass.hashCode() ignore",
             "collectiongen.Day.$values() ignore17+",
             "collectiongen.Day.valueOf(java.lang.String) exclude",
