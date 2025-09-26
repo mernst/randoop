@@ -58,7 +58,7 @@ class CoverageChecker {
       version = version.substring(2, 3);
     } else {
       // Since Java 9, from a version string like "11.0.1", extract "11".
-      int i = version.indexOf(".");
+      int i = version.indexOf('.');
       if (i < 0) {
         // Some Linux dockerfiles return only the major version number for
         // the system property "java.version"; i.e., no ".<minor version>".
@@ -68,7 +68,7 @@ class CoverageChecker {
       }
     }
     // Handle version strings like "18-ea".
-    int i = version.indexOf("-");
+    int i = version.indexOf('-');
     if (i > 0) {
       version = version.substring(0, i);
     }
@@ -126,6 +126,32 @@ class CoverageChecker {
   }
 
   /**
+   * Create a coverage checker using the classnames from the option set, and the method exclusions
+   * in the given file
+   *
+   * @param options the test generation options
+   * @param methodSpecsFile which methods should be covered; see {@link #methods}
+   */
+  static CoverageChecker fromFile(RandoopOptions options, String methodSpecsFile) {
+    // Load from classpath: src/systemTest/resources/test-methodspecs/<file>
+    CoverageChecker result = new CoverageChecker(options.getClassnames());
+    String resource = "test-methodspecs/" + methodSpecsFile;
+    Class<?> thisClass = MethodHandles.lookup().lookupClass();
+    List<String> methodSpecs;
+    try (InputStream in = thisClass.getClassLoader().getResourceAsStream(resource)) {
+      if (in == null) {
+        throw new Error("Resource not found on classpath: " + resource);
+      }
+      methodSpecs =
+          new BufferedReader(new InputStreamReader(in, UTF_8)).lines().collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new Error("Problem reading resource " + resource, e);
+    }
+    result.methods(methodSpecs.toArray(new String[0]));
+    return result;
+  }
+
+  /**
    * Create a coverage checker using the classnames from the option set, and the given method
    * exclusions.
    *
@@ -157,7 +183,7 @@ class CoverageChecker {
   }
 
   /** Matches digits at the end of a string. */
-  private Pattern TRAILING_NUMBER_PATTERN = Pattern.compile("^(.*?)([0-9]+)$");
+  private static final Pattern TRAILING_NUMBER_PATTERN = Pattern.compile("^(.*?)([0-9]+)$");
 
   /**
    * Add method names to be excluded, ignored, or included (included has no effect).
@@ -197,7 +223,7 @@ class CoverageChecker {
       if (s.isEmpty()) {
         continue;
       }
-      int spacepos = s.lastIndexOf(" ");
+      int spacepos = s.lastIndexOf(' ');
       if (spacepos == -1) {
         throw new Error(
             "Bad method spec, lacks action at end "
@@ -365,7 +391,7 @@ class CoverageChecker {
    * inner class methods, and hashCode().
    */
   private static final Pattern IGNORE_PATTERN =
-      Pattern.compile("\\$jacocoInit|access\\$\\d{3}+|(\\.hashCode\\(\\)$)");
+      Pattern.compile("\\$jacocoInit|access\\$\\d+|(\\.hashCode\\(\\)$)");
 
   /**
    * Returns true if the given method name should be ignored during the coverage check.
