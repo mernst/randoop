@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -66,7 +67,7 @@ public class SequenceCollection {
   private final Set<Type> sutParameterOnlyTypes = new HashSet<>();
 
   /** Checks the representation invariant. */
-  private void checkRep() {
+  private void checkRep(@UnknownInitialization(SequenceCollection.class) SequenceCollection this) {
     if (!GenInputsAbstract.debug_checks) {
       return;
     }
@@ -98,7 +99,7 @@ public class SequenceCollection {
 
   /** Create a new, empty collection. */
   public SequenceCollection() {
-    this(new ArrayList<Sequence>(0));
+    this(new ArrayList<>(0));
   }
 
   /**
@@ -220,7 +221,7 @@ public class SequenceCollection {
   }
 
   /**
-   * Add the entry (type, sequence) to {@link #sequenceMap}.
+   * Add the entry (type, sequence) to {@link #sequenceMap}, if it is not already present.
    *
    * @param sequence the sequence
    * @param type the {@link Type}

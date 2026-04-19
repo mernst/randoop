@@ -371,6 +371,34 @@ public class RandoopSystemTest {
     generateAndTest(testEnvironment, options, 14, expectedRegressionTests, expectedErrorTests);
   }
 
+  @Test
+  public void runLiteralTfIdfTest() {
+    SystemTestEnvironment testEnvironment =
+        systemTestEnvironmentManager.createTestEnvironment("literal-tfidf-test"); // temp directory
+    RandoopOptions options = createRandoopOptions(testEnvironment);
+    options.setPackageName(null);
+    options.setRegressionBasename("LiteralTfIdfTest");
+    options.setErrorBasename("ConstantTfIdfErr");
+
+    options.setOption("attempted_limit", "1000");
+    options.setOption("generated_limit", "100");
+    options.addTestClass("literaltfidf.hospital.Doctor");
+    options.addTestClass("literaltfidf.hospital.Patient");
+    options.addTestClass("literaltfidf.hospital.AgeConstants");
+    options.addTestClass("literaltfidf.pharmacy.MedicationConstants");
+    options.addTestClass("literaltfidf.pharmacy.Pharmacist");
+    options.addTestClass("literaltfidf.pharmacy.Prescription");
+
+    options.setOption("literals-level", "ALL");
+    options.setOption("literal-tfidf", "true");
+    options.setOption("literal-tfidf-probability", "1");
+
+    ExpectedTests expectedRegressionTests = ExpectedTests.SOME;
+    ExpectedTests expectedErrorTests = ExpectedTests.NONE;
+    generateAndTest(
+        testEnvironment, options, /*TODO*/ 0, expectedRegressionTests, expectedErrorTests);
+  }
+
   /**
    * Test formerly known as randoop-long-string. Previously performed a diff on generated test and
    * goal file.
@@ -451,7 +479,7 @@ public class RandoopSystemTest {
     List<String> outputLines = randoopRunStatus.processStatus.outputLines;
     // outputLines is a java.util.Arrays$ArrayList (not a java.util.ArrayList) and an iterator over
     // it does not support remove().
-    List<String> outputLinesFiltered = new ArrayList<String>(outputLines.size());
+    List<String> outputLinesFiltered = new ArrayList<>(outputLines.size());
     for (String line : outputLines) {
       if (!isIllegalReflectiveAccessWarning(line)) {
         outputLinesFiltered.add(line);
@@ -1301,7 +1329,8 @@ public class RandoopSystemTest {
             "java7.util7.ArrayList.addAll(int, java7.util7.Collection) ignore",
             "java7.util7.ArrayList.addAll(java7.util7.Collection) ignore",
             "java7.util7.ArrayList.elementData(int) ignore",
-            "java7.util7.ArrayList.fastRemove(int) exclude",
+            "java7.util7.ArrayList.fastRemove(int) exclude17",
+            "java7.util7.ArrayList.get(int) exclude17+",
             "java7.util7.ArrayList.hugeCapacity(int) exclude",
             "java7.util7.ArrayList.readObject(java.io.ObjectInputStream) exclude",
             "java7.util7.ArrayList.removeRange(int, int) exclude",

@@ -487,4 +487,12 @@ workflows:
       - systemTest-jdk21
       - nonSystemTest-jdk25
       - systemTest-jdk25
+      - nonSystemTest-jdk26:
+          requires:
+            - misc
+            - nonSystemTest-jdk25
+      - systemTest-jdk26:
+          requires:
+            - misc
+            - systemTest-jdk25
       - misc
