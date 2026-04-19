@@ -101,8 +101,7 @@ public final class Sequence {
    */
   public static Sequence zero(Type c) {
     return new Sequence()
-        .extend(
-            TypedOperation.createNullOrZeroInitializationForType(c), new ArrayList<Variable>(0));
+        .extend(TypedOperation.createNullOrZeroInitializationForType(c), new ArrayList<>(0));
   }
 
   /**
@@ -300,6 +299,15 @@ public final class Sequence {
    */
   List<Type> getTypesForLastStatement() {
     return this.lastStatementTypes;
+  }
+
+  /**
+   * The last statement in the sequence.
+   *
+   * @return the last statement of this sequence
+   */
+  public Statement getLastStatement() {
+    return getStatement(this.statements.size() - 1);
   }
 
   /**

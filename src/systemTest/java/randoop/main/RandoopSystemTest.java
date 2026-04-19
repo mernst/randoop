@@ -371,6 +371,34 @@ public class RandoopSystemTest {
     generateAndTest(testEnvironment, options, 14, expectedRegressionTests, expectedErrorTests);
   }
 
+  @Test
+  public void runLiteralTfIdfTest() {
+    SystemTestEnvironment testEnvironment =
+        systemTestEnvironmentManager.createTestEnvironment("literal-tfidf-test"); // temp directory
+    RandoopOptions options = createRandoopOptions(testEnvironment);
+    options.setPackageName(null);
+    options.setRegressionBasename("LiteralTfIdfTest");
+    options.setErrorBasename("ConstantTfIdfErr");
+
+    options.setOption("attempted_limit", "1000");
+    options.setOption("generated_limit", "100");
+    options.addTestClass("literaltfidf.hospital.Doctor");
+    options.addTestClass("literaltfidf.hospital.Patient");
+    options.addTestClass("literaltfidf.hospital.AgeConstants");
+    options.addTestClass("literaltfidf.pharmacy.MedicationConstants");
+    options.addTestClass("literaltfidf.pharmacy.Pharmacist");
+    options.addTestClass("literaltfidf.pharmacy.Prescription");
+
+    options.setOption("literals-level", "ALL");
+    options.setOption("literal-tfidf", "true");
+    options.setOption("literal-tfidf-probability", "1");
+
+    ExpectedTests expectedRegressionTests = ExpectedTests.SOME;
+    ExpectedTests expectedErrorTests = ExpectedTests.NONE;
+    generateAndTest(
+        testEnvironment, options, /*TODO*/ 0, expectedRegressionTests, expectedErrorTests);
+  }
+
   /**
    * Test formerly known as randoop-long-string. Previously performed a diff on generated test and
    * goal file.
@@ -451,7 +479,7 @@ public class RandoopSystemTest {
     List<String> outputLines = randoopRunStatus.processStatus.outputLines;
     // outputLines is a java.util.Arrays$ArrayList (not a java.util.ArrayList) and an iterator over
     // it does not support remove().
-    List<String> outputLinesFiltered = new ArrayList<String>(outputLines.size());
+    List<String> outputLinesFiltered = new ArrayList<>(outputLines.size());
     for (String line : outputLines) {
       if (!isIllegalReflectiveAccessWarning(line)) {
         outputLinesFiltered.add(line);
@@ -754,12 +782,11 @@ public class RandoopSystemTest {
 
     CoverageChecker coverageChecker =
         new CoverageChecker(
-            options,
-            5,
-            "flaky.FlakyClass.flakyDefaultHashCode() ignore",
-            "flaky.FlakyClass.getThree() include",
-            "flaky.FlakyClass.getTwo() include",
-            "flaky.FlakyClass.multiply(int, int) include"
+            options, 5, "flaky.FlakyClass.flakyDefaultHashCode() ignore"
+            // "include" is the default.
+            // "flaky.FlakyClass.getThree() include",
+            // "flaky.FlakyClass.getTwo() include",
+            // "flaky.FlakyClass.multiply(int, int) include"
             // end of list (line break to permit easier sorting)
             );
 
@@ -789,12 +816,11 @@ public class RandoopSystemTest {
 
     CoverageChecker coverageChecker =
         new CoverageChecker(
-            options,
-            4,
-            "flaky.FlakyClass.flakyDefaultHashCode() ignore",
-            "flaky.FlakyClass.getThree() include",
-            "flaky.FlakyClass.getTwo() include",
-            "flaky.FlakyClass.multiply(int, int) include"
+            options, 4, "flaky.FlakyClass.flakyDefaultHashCode() ignore"
+            // "include" is the default.
+            // "flaky.FlakyClass.getThree() include",
+            // "flaky.FlakyClass.getTwo() include",
+            // "flaky.FlakyClass.multiply(int, int) include"
             // end of list (line break to permit easier sorting)
             );
 
@@ -1310,7 +1336,6 @@ public class RandoopSystemTest {
             "java7.util7.ArrayList.removeRange(int, int) exclude",
             "java7.util7.ArrayList.subList(int, int) exclude11",
             "java7.util7.ArrayList.subList(int, int) exclude8",
-            "java7.util7.ArrayList.subList(int, int) include17+",
             "java7.util7.ArrayList.writeObject(java.io.ObjectOutputStream) exclude"
             // end of list (line break to permit easier sorting)
             );
@@ -1330,7 +1355,9 @@ public class RandoopSystemTest {
     options.setOption("grt_fuzzing_stddev", "10000");
     CoverageChecker coverageChecker =
         new CoverageChecker(
-            options, 3, "collections.SeedIntegerCollection.handleSeedNotFound() include");
+            options, 3
+            // , "collections.SeedIntegerCollection.handleSeedNotFound() include"
+            );
     generateAndTest(
         testEnvironment, options, ExpectedTests.SOME, ExpectedTests.NONE, coverageChecker);
   }
@@ -1353,8 +1380,9 @@ public class RandoopSystemTest {
         new CoverageChecker(
             options,
             12,
-            "misc.elephantbrain.ElephantBrainTest.testA() include",
-            "misc.elephantbrain.ElephantBrainTest.testB() include",
+            // "include" is the default.
+            // "misc.elephantbrain.ElephantBrainTest.testA() include",
+            // "misc.elephantbrain.ElephantBrainTest.testB() include",
             "misc.elephantbrain.ElephantBrainTest.testP() exclude",
             "misc.elephantbrain.GrandParent.toString() ignore");
     generateAndTest(
@@ -1406,7 +1434,8 @@ public class RandoopSystemTest {
             options,
             1,
             // Include only the one impure method
-            "misc.impurity.PureAndImpure.doImpure(int) include",
+            // "include" is the default.
+            // "misc.impurity.PureAndImpure.doImpure(int) include",
             // Ignore every other method in PureAndImpure
             "misc.impurity.PureAndImpure.getConstant0() ignore",
             "misc.impurity.PureAndImpure.getConstant1() ignore",
@@ -1422,6 +1451,20 @@ public class RandoopSystemTest {
 
     generateAndTest(
         testEnvironment, options, ExpectedTests.SOME, ExpectedTests.NONE, coverageChecker);
+  }
+
+  // Test randoop.generation.DemandDrivenInputCreator
+  @Test
+  public void runDemandDrivenTest() {
+    SystemTestEnvironment testEnvironment =
+        systemTestEnvironmentManager.createTestEnvironment("demand-driven-test");
+    RandoopOptions options = createRandoopOptions(testEnvironment);
+    options.addTestClass("randoop.test.A");
+    options.setOption("call_non_sut_methods", "true");
+    options.setOption("output_limit", "100");
+    options.setOption("generated_limit", "200");
+
+    generateAndTest(testEnvironment, options, 3, ExpectedTests.SOME, ExpectedTests.NONE);
   }
 
   /* ------------------------------ utility methods ---------------------------------- */

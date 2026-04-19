@@ -28,6 +28,8 @@ import org.plumelib.options.Unpublicized;
 import org.plumelib.reflection.ReflectionPlume;
 import org.plumelib.reflection.Signatures;
 import org.plumelib.util.EntryReader;
+import org.plumelib.util.EntryReader.CommentFormat;
+import org.plumelib.util.EntryReader.EntryFormat;
 import org.plumelib.util.FileWriterWithName;
 import randoop.Globals;
 import randoop.reflection.AccessibilityPredicate;
@@ -656,6 +658,27 @@ public abstract class GenInputsAbstract extends CommandHandler {
     ALL
   }
 
+  /** If true, use Literal-TF-IDF for selecting constants as procedure inputs. */
+  @Option("Whether to use Literal-TF-IDF for selecting constants as procedure inputs")
+  public static boolean literal_tfidf = false;
+
+  /**
+   * The probability of using a constant value as an input to a method under test. This option is
+   * only used when {@code --literal-tfidf} is set to true.
+   */
+  @Option("The probability to use Literal-TF-IDF")
+  public static double literal_tfidf_probability = 0.01;
+
+  /**
+   * If true, include literals from superclasses when computing literal statistics for TF-IDF. When
+   * true, a class's literal statistics will include literals from all of its superclasses. This
+   * option only applies when {@code --literal-tfidf} is set to true and {@code --literals-level} is
+   * set to CLASS.
+   */
+  @Option(
+      "Whether to include literals from superclasses when computing literal statistics for TF-IDF")
+  public static boolean include_superclass_literals = false;
+
   /**
    * Randoop generates new tests by choosing from a set of methods under test. This controls how the
    * next method is chosen, from among all methods under test.
@@ -711,6 +734,30 @@ public abstract class GenInputsAbstract extends CommandHandler {
    */
   @Option("Maximum length of Strings in generated tests")
   public static int string_maxlen = 1000;
+
+  // This enables Randoop's "demand-driven" strategy.
+  /**
+   * Constructs missing method inputs on demand.
+   *
+   * <p>Normally, Randoop selects method inputs from values already present in the sequence
+   * collection. Thus, Randoop cannot test a method until the required input types have themselves
+   * been generated. If no method in the software under test (SUT) returns the required type, then
+   * Randoop can never generate or select objects of that type. With this option enabled, Randoop
+   * attempts to generate instances of types it cannot construct normally.
+   *
+   * <p>Enabling this option may violate the guarantee that Randoop's tests only use classes that
+   * the user specified. Any violation of this guarantee will be reported as part of the console
+   * output.
+   */
+  @Option("Call non-SUT methods if needed to create method inputs for SUT methods")
+  public static boolean call_non_sut_methods = false;
+
+  /**
+   * Log information about the classes used and the uninstantiable types encountered when creating
+   * values by calling non-SUT methods.
+   */
+  @Option("Log information about demand-driven input creation")
+  public static @MonotonicNonNull FileWriterWithName call_non_sut_methods_log = null;
 
   /**
    * The "GRT Impurity" technique from the GRT paper modifies the inputs of methods used in tests.
@@ -958,6 +1005,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
    * A file to which to log lots of information. If not specified, no logging is done. Enabling the
    * logs slows down Randoop.
    */
+  @SuppressWarnings("PMD.ModifierOrder") // `@Owning` isn't a type annotation, but should be.
   @Option("<filename> Log lots of information to this file")
   public static @Owning @MonotonicNonNull FileWriterWithName log = null;
 
@@ -1027,7 +1075,34 @@ public abstract class GenInputsAbstract extends CommandHandler {
     if (!literals_file.isEmpty() && literals_level == ClassLiteralsMode.NONE) {
       throw new RandoopUsageError(
           "Invalid parameter combination:"
-              + " specified a class literal file and --use-class-literals=NONE");
+              + " specified a class literal file and --literals-level=NONE");
+    }
+
+    if (literal_tfidf && literals_level == ClassLiteralsMode.NONE) {
+      throw new RandoopUsageError(
+          "Invalid parameter combination:"
+              + " specified --literal-tfidf and --literals-level=NONE");
+    }
+
+    if (include_superclass_literals && !literal_tfidf) {
+      throw new RandoopUsageError(
+          "Invalid parameter combination:"
+              + " --include-superclass-literals requires --literal-tfidf to be enabled");
+    }
+
+    if (include_superclass_literals && literals_level != ClassLiteralsMode.CLASS) {
+      throw new RandoopUsageError(
+          "Invalid parameter combination:"
+              + " --include-superclass-literals only works with --literals-level=CLASS");
+    }
+
+    // Allow edge probabilities 0 and 1 for determinism and consistency with
+    // Randomness.weightedCoinFlip(), which accepts values in [0, 1].
+    if (literal_tfidf_probability < 0 || literal_tfidf_probability > 1) {
+      throw new RandoopUsageError(
+          "Probability --literal-tfidf-probability="
+              + literal_tfidf_probability
+              + " must be in [0, 1]");
     }
 
     if (deterministic && ReflectionExecutor.usethreads) {
@@ -1422,7 +1497,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
       @Regex(1) String includeRegex) {
     Set<String> elementSet = new LinkedHashSet<>();
     if (listFile != null) {
-      try (EntryReader er = new EntryReader(listFile, false, commentRegex, includeRegex)) {
+      try (EntryReader er =
+          new EntryReader(
+              listFile, EntryFormat.DEFAULT, new CommentFormat(commentRegex), includeRegex)) {
         for (String line : er) {
           String trimmed = line.trim();
           if (!trimmed.isEmpty()) {

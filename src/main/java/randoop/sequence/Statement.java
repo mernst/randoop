@@ -2,6 +2,7 @@ package randoop.sequence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import randoop.ExecutionOutcome;
 import randoop.Globals;
@@ -48,7 +49,7 @@ public final class Statement {
    * @param operation the operation for action of this statement
    */
   public Statement(TypedOperation operation) {
-    this(operation, new ArrayList<RelativeNegativeIndex>(0));
+    this(operation, new ArrayList<>(0));
   }
 
   /**
@@ -81,7 +82,7 @@ public final class Statement {
 
   @Override
   public int hashCode() {
-    return java.util.Objects.hash(operation, inputs);
+    return Objects.hash(operation, inputs);
   }
 
   public Type getOutputType() {
