@@ -50,6 +50,9 @@ public abstract class AccessibilityPredicate {
   /** AnyAccessibilityPredicate is a {@link AccessibilityPredicate} that always returns true. */
   private static final class AnyAccessibilityPredicate extends AccessibilityPredicate {
 
+    /** Creates a new AnyAccessibilityPredicate. */
+    public AnyAccessibilityPredicate() {}
+
     /**
      * {@inheritDoc}
      *
@@ -92,6 +95,9 @@ public abstract class AccessibilityPredicate {
    */
   private static final class PublicAccessibilityPredicate extends AccessibilityPredicate {
 
+    /** Creates a new PublicAccessibilityPredicate. */
+    public PublicAccessibilityPredicate() {}
+
     /**
      * {@inheritDoc}
      *
@@ -99,7 +105,8 @@ public abstract class AccessibilityPredicate {
      */
     @Override
     public boolean isAccessible(Class<?> c) {
-      return (c.getDeclaringClass() == null || isAccessible(c.getDeclaringClass()))
+      Class<?> declaringClass = c.getDeclaringClass();
+      return (declaringClass == null || isAccessible(declaringClass))
           && isAccessible(c.getModifiers() & Modifier.classModifiers());
     }
 
@@ -123,8 +130,11 @@ public abstract class AccessibilityPredicate {
       return isAccessible(f.getModifiers() & Modifier.fieldModifiers());
     }
 
-    /*
+    /**
      * Returns true if the provided modifiers indicate public bit is set.
+     *
+     * @param mods Java modifier bits
+     * @return true if the public bit is set
      */
     private boolean isAccessible(int mods) {
       return Modifier.isPublic(mods);
@@ -228,6 +238,9 @@ public abstract class AccessibilityPredicate {
    */
   private static final class NotPrivateAccessibilityPredicate extends AccessibilityPredicate {
 
+    /** Creates a new NotPrivateAccessibilityPredicate. */
+    public NotPrivateAccessibilityPredicate() {}
+
     /**
      * {@inheritDoc}
      *
@@ -235,7 +248,8 @@ public abstract class AccessibilityPredicate {
      */
     @Override
     public boolean isAccessible(Class<?> c) {
-      return (c.getDeclaringClass() == null || isAccessible(c.getDeclaringClass()))
+      Class<?> declaringClass = c.getDeclaringClass();
+      return (declaringClass == null || isAccessible(declaringClass))
           && isAccessible(c.getModifiers() & Modifier.classModifiers());
     }
 

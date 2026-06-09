@@ -24,12 +24,18 @@ public final class Main {
     handlers.add(new Minimize());
   }
 
-  /** Do not instantiate. */
+  /** Creates a new Main. */
   private Main() {
-    throw new Error("Do not instantiate");
+    // Nothing to do.
   }
 
-  // The main method simply calls nonStaticMain.
+  /**
+   * The entry point.
+   *
+   * <p>This method simply calls {@link #nonStaticMain}.
+   *
+   * @param args the command-line arguments
+   */
   public static void main(String[] args) {
 
     Main main = new Main();
