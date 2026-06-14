@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.FilesPlume;
+import randoop.main.RandoopBug;
 
 /**
  * Reads a list of records from a text file, where a record is partially specified by the client of
@@ -99,7 +100,7 @@ public class RecordListReader {
     String line = nextNWCLine(reader);
     while (line != null && !line.equals(endMarker)) {
       if (line.length() == 0 || line.charAt(0) == '#') {
-        continue;
+        throw new RandoopBug("Empty or comment line encountered: " + line);
       }
       ret.add(line);
       line = nextNWCLine(reader);
