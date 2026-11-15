@@ -20,6 +20,7 @@ public class ExcludeTestPredicate implements Predicate<ExecutableSequence> {
     this.excludeSet = excludeSet;
   }
 
+  @SuppressWarnings("PMD.UnitTestShouldUseTestAnnotation") // Predicate.test(), not a unit test
   @Override
   public boolean test(ExecutableSequence eseq) {
     return !excludeSet.contains(eseq.sequence);

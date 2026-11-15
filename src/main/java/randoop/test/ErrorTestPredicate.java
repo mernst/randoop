@@ -9,6 +9,7 @@ public class ErrorTestPredicate implements Predicate<ExecutableSequence> {
   /** Creates an ErrorTestPredicate. */
   public ErrorTestPredicate() {}
 
+  @SuppressWarnings("PMD.UnitTestShouldUseTestAnnotation") // Predicate.test(), not a unit test
   @Override
   public boolean test(ExecutableSequence eseq) {
     return eseq.hasFailure();

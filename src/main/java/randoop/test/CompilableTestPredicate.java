@@ -83,6 +83,7 @@ import randoop.util.Log;
    *
    * @return true if the sequence can be compiled, false otherwise
    */
+  @SuppressWarnings("PMD.UnitTestShouldUseTestAnnotation") // Predicate.test(), not a unit test
   @Override
   public boolean test(ExecutableSequence eseq) {
     String testClassName = classNameGenerator.next();

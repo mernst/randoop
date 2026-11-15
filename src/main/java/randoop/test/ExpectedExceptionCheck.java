@@ -99,6 +99,7 @@ public class ExpectedExceptionCheck extends ExceptionCheck {
       return null;
     }
     String normalized = Normalizer.normalize(str, Normalizer.Form.NFD);
+    @SuppressWarnings("PMD.VariableCanBeInlined")
     String ascii = normalized.replaceAll("[^ -~]", "?");
     return ascii;
   }
@@ -115,7 +116,7 @@ public class ExpectedExceptionCheck extends ExceptionCheck {
       String message = "Expected anonymous exception, got \" + e.getClass().getCanonicalName()";
       String assertion = "org.junit.Assert.fail(\"" + message + ")";
       b.append("  if (! ").append(condition).append(") {").append(Globals.lineSep);
-      b.append("    ").append(assertion).append(";").append(Globals.lineSep);
+      b.append("    ").append(assertion).append(';').append(Globals.lineSep);
       b.append("  }").append(Globals.lineSep);
     }
   }

@@ -232,8 +232,7 @@ import randoop.util.Log;
    */
   private static Class<?> loadClassFile(File directory, @BinaryName String className) {
     try (URLClassLoader cl = new URLClassLoader(new URL[] {directory.toURI().toURL()})) {
-      Class<?> cls = cl.loadClass(className);
-      return cls;
+      return cl.loadClass(className);
     } catch (ClassNotFoundException | NoClassDefFoundError | IOException e) {
       throw new RandoopBug(e);
     }
@@ -246,7 +245,8 @@ import randoop.util.Log;
    * @param classname the name of the class, without the package
    * @return the fully-qualified class name constructed from the arguments
    */
-  /*package*/ @BinaryName String fullyQualifiedName(
+  /*package*/
+  @BinaryName String fullyQualifiedName(
       @DotSeparatedIdentifiers String packageName, @Identifier String classname) {
     @SuppressWarnings("signature:assignment") // string concatenation
     @BinaryName String result = (packageName == null ? "" : (packageName + ".")) + classname;

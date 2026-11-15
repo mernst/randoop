@@ -236,6 +236,7 @@ public class OperationSpecification {
   @Override
   public String toString() {
     // Use a temporary variable to avoid interleaved output, when callees produce output.
+    @SuppressWarnings("PMD.VariableCanBeInlined")
     String result =
         "{ \"operation\": "
             + this.operation.toString()

@@ -613,8 +613,7 @@ public class FailingAssertionCommentWriter implements CodeWriter {
    */
   private Path createWorkingDirectory(String classname, int pass) {
     try {
-      Path workingDirectory = Files.createTempDirectory("check" + classname + pass);
-      return workingDirectory;
+      return Files.createTempDirectory("check" + classname + pass);
     } catch (IOException e) {
       // not RandoopBug
       System.err.printf(

@@ -31,6 +31,7 @@ public class IncludeTestPredicate implements Predicate<ExecutableSequence> {
    * @return true if the sequence uses a member of a class that matches the regular expression,
    *     false otherwise
    */
+  @SuppressWarnings("PMD.UnitTestShouldUseTestAnnotation") // Predicate.test(), not a unit test
   @Override
   public boolean test(ExecutableSequence eseq) {
     return eseq.sequence.hasUseOfMatchingClass(testClasses);

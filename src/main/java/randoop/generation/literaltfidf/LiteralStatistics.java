@@ -87,6 +87,7 @@ public class LiteralStatistics {
     Type outputType = seq.getLastVariable().getType();
     Map<Sequence, LiteralUses> typeMap =
         literalUsesByType.computeIfAbsent(outputType, __ -> new LinkedHashMap<>());
+    @SuppressWarnings("PMD.VariableCanBeInlined")
     LiteralUses currentUses = typeMap.computeIfAbsent(seq, __ -> new LiteralUses());
     return currentUses;
   }

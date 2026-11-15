@@ -20,6 +20,7 @@ public class RegressionTestPredicate implements Predicate<ExecutableSequence> {
    *
    * @return true if has no failures and does not involve a timeout exception, false otherwise
    */
+  @SuppressWarnings("PMD.UnitTestShouldUseTestAnnotation") // Predicate.test(), not a unit test
   @Override
   public boolean test(ExecutableSequence eseq) {
     if (eseq.hasInvalidBehavior() || eseq.hasFailure()) {

@@ -156,6 +156,7 @@ public final class SpecificationTranslator {
     Class<?> returnType =
         (!postState ? null : (isMethod ? ((Method) executable).getReturnType() : declaringClass));
     String packageName = renamedPackage(declaringClass.getPackage());
+    @SuppressWarnings("PMD.VariableCanBeInlined")
     RawSignature result = getRawSignature(packageName, receiverAType, parameterTypes, returnType);
     return result;
   }

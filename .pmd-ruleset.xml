@@ -31,9 +31,12 @@
     <!-- 2. Code Style: Enforces specific coding styles and conventions -->
     <rule ref="category/java/codestyle.xml">
       <exclude name="ConfusingTernary"/> <!-- Prevents most logical and clear ordering. -->
+      <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+      <exclude name="FieldNamingConventions"/>
       <exclude name="LocalVariableCouldBeFinal"/> <!-- too much clutter -->
       <exclude name="LongVariable"/>
       <exclude name="MethodArgumentCouldBeFinal"/>
+      <exclude name="MethodNamingConventions"/>
       <exclude name="OnlyOneReturn"/>
       <exclude name="ShortClassName"/>
       <exclude name="ShortMethodName"/> <!-- Forbids "of", and does not support a whitelist. -->
@@ -46,16 +49,6 @@
     <rule ref="category/java/codestyle.xml/EmptyControlStatement">
         <properties>
             <property name="allowCommentedBlocks" value="true" />
-        </properties>
-    </rule>
-    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
-        <properties>
-            <property name="methodPattern" value="[a-z][a-zA-Z0-9]*" />
-            <property name="staticPattern" value="[a-z][a-zA-Z0-9]*" />
-            <property name="nativePattern" value="[a-z][a-zA-Z0-9]*" />
-            <property name="junit3TestPattern" value="test[A-Z0-9][a-zA-Z0-9]*" />
-            <property name="junit4TestPattern" value="(test_|[a-z])[a-zA-Z0-9]*" />
-            <property name="junitJupiterTestPattern" value="(test_|[a-z])[a-zA-Z0-9]*" />
         </properties>
     </rule>
     <rule ref="category/java/codestyle.xml/TypeParameterNamingConventions">
