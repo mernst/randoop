@@ -339,7 +339,7 @@ public class OperationExtractor extends DefaultClassVisitor {
    * @return an extractor that has visited {@code classType}
    * @throws RandoopSpecificationError if an expression in a specification does not compile
    */
-  static OperationExtractor extract(
+  /*package*/ static OperationExtractor extract(
       ReflectionManager mgr,
       ClassOrInterfaceType classType,
       ReflectionPredicate reflectionPredicate,

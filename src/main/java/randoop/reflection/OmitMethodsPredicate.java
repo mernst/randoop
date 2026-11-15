@@ -214,7 +214,7 @@ public class OmitMethodsPredicate {
    * @return true if a call to the operation, on a receiver of class {@code receiverClass}, might
    *     dispatch to an omitted method that overrides the operation's method
    */
-  boolean isOverriddenByOmittedMethod(
+  /*package*/ boolean isOverriddenByOmittedMethod(
       TypedClassOperation operation, @Nullable Class<?> receiverClass) {
     if (overriddenMethods.isEmpty()) {
       return false;

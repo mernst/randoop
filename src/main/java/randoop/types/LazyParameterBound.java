@@ -24,7 +24,7 @@ class LazyParameterBound extends ParameterBound {
    *
    * @param boundType the reflection type for this bound
    */
-  LazyParameterBound(java.lang.reflect.Type boundType) {
+  /*package*/ LazyParameterBound(java.lang.reflect.Type boundType) {
     super();
     this.boundType = boundType;
   }
@@ -117,7 +117,7 @@ class LazyParameterBound extends ParameterBound {
    * @return a reference bound equivalent to this bound, or null if this bound contains a kind of
    *     type that {@link #substitute(Substitution)} does not handle
    */
-  @Nullable ReferenceBound toReferenceBound() {
+  /*package*/ @Nullable ReferenceBound toReferenceBound() {
     List<TypeVariable> parameters = getTypeParameters();
     // Map each type variable to itself, so that substitute() converts this bound without changing
     // the type that it represents.
@@ -373,6 +373,7 @@ class LazyParameterBound extends ParameterBound {
     return b.isUpperBound(argType, substitution);
   }
 
+  /*package*/
   @Override
   boolean isUpperBound(ParameterBound bound, Substitution substitution) {
     throw new LazyBoundException();
@@ -386,7 +387,7 @@ class LazyParameterBound extends ParameterBound {
   }
 
   /** There was an attempt to perform an operation, such as a subtype test, on a lazy bound. */
-  static class LazyBoundException extends RuntimeException {
+  /*package*/ static class LazyBoundException extends RuntimeException {
     /** Creates a new LazyBoundException. */
     public LazyBoundException() {
       super();

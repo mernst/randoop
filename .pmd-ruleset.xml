@@ -99,6 +99,7 @@
       <exclude name="DoNotTerminateVM"/> <!-- specific to J2EE -->
       <exclude name="NullAssignment"/>
       <exclude name="ReturnEmptyCollectionRatherThanNull"/>
+      <exclude name="TestClassWithoutTestCases"/>
 
       <!-- Good rules, but a heavy lift to apply. Do so later. -->
       <exclude name="AvoidCatchingGenericException"/>
@@ -118,6 +119,7 @@
 
     <!-- 6. Multithreading: Flags issues when dealing with multiple threads of execution -->
     <rule ref="category/java/multithreading.xml">
+      <exclude name="AvoidSynchronizedStatement"/> <!-- concerns virtual threads, which Randoop does not use -->
       <exclude name="DoNotUseThreads"/> <!-- limited applicability -->
       <exclude name="UseConcurrentHashMap"/> <!-- limited applicability -->
     </rule>
@@ -125,6 +127,7 @@
     <!-- 7. Performance: Flags suboptimal code that can affect execution efficiency -->
     <rule ref="category/java/performance.xml">
       <exclude name="ConsecutiveAppendsShouldReuse"/>
+      <exclude name="ConsecutiveLiteralAppends"/>
       <exclude name="RedundantFieldInitializer"/> <!-- explicit initializer is clearer -->
       <exclude name="AvoidInstantiatingObjectsInLoops"/> <!-- maybe reinstate later -->
     </rule>

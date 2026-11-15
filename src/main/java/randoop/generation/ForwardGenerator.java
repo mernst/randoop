@@ -97,7 +97,7 @@ public class ForwardGenerator extends AbstractGenerator {
    *
    * <p>Each value in the collection is a primitive wrapper or a String.
    */
-  private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
+  private final Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
   /**
    * Create a forward generator.
@@ -936,7 +936,8 @@ public class ForwardGenerator extends AbstractGenerator {
    * @param isReceiver true if the value will be used as a receiver
    * @return a random variable of the given type, chosen from the candidates
    */
-  VarAndSeq randomVariable(SIList<Sequence> candidates, Type inputType, boolean isReceiver) {
+  /*package*/ VarAndSeq randomVariable(
+      SIList<Sequence> candidates, Type inputType, boolean isReceiver) {
     // Log.logPrintf("entering randomVariable(%s)%n", inputType);
     for (int i = 0; i < 10; i++) { // can return null.  Try several times to get a non-null value.
 

@@ -108,7 +108,7 @@ public abstract class AbstractGenerator {
   public ComponentManager componentManager;
 
   /** Customizable stopping criterion in addition to time and sequence limits. */
-  private @Nullable IStopper stopper;
+  private final @Nullable IStopper stopper;
 
   /**
    * Displays progress messages, and exits Randoop if the generator stops taking steps. Its mode is
@@ -437,7 +437,7 @@ public abstract class AbstractGenerator {
    *
    * @param s the current sequence
    */
-  void setCurrentSequence(Sequence s) {
+  /*package*/ void setCurrentSequence(Sequence s) {
     currSeq = s;
   }
 

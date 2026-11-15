@@ -14,7 +14,7 @@ public abstract class ReferenceBound extends ParameterBound {
    *
    * @param boundType the {@link ReferenceType} of this bound
    */
-  ReferenceBound(ReferenceType boundType) {
+  /*package*/ ReferenceBound(ReferenceType boundType) {
     super();
     this.boundType = boundType;
   }
@@ -29,7 +29,7 @@ public abstract class ReferenceBound extends ParameterBound {
    * @param boundType a reference type
    * @return a bound whose type is {@code boundType}
    */
-  static ReferenceBound forTypeLazyIfGeneric(ReferenceType boundType) {
+  /*package*/ static ReferenceBound forTypeLazyIfGeneric(ReferenceType boundType) {
     if (boundType.isGeneric()) {
       return new LazyReferenceBound(boundType);
     }
@@ -80,6 +80,7 @@ public abstract class ReferenceBound extends ParameterBound {
   @Override
   public abstract ReferenceBound substitute(Substitution substitution);
 
+  /*package*/
   @Override
   public boolean hasCaptureVariable() {
     return boundType.hasCaptureVariable();
@@ -108,6 +109,7 @@ public abstract class ReferenceBound extends ParameterBound {
    * a subtype of each member. Returns false if {@code bound} is a {@link LazyParameterBound} that
    * contains a kind of type that it cannot convert to a {@link ReferenceBound}.
    */
+  /*package*/
   @Override
   boolean isLowerBound(ParameterBound bound, Substitution substitution) {
     if (bound instanceof IntersectionTypeBound) {
@@ -130,6 +132,7 @@ public abstract class ReferenceBound extends ParameterBound {
    * {@code bound} is a {@link LazyParameterBound} that contains a kind of type that it cannot
    * convert to a {@link ReferenceBound}.
    */
+  /*package*/
   @Override
   boolean isUpperBound(ParameterBound bound, Substitution substitution) {
     if (bound instanceof IntersectionTypeBound) {

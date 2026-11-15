@@ -764,7 +764,7 @@ public class TypeInstantiator {
      *     is instantiated
      * @param maxChecks the maximum number of partial substitutions that the search checks
      */
-    BoundsSearch(
+    /*package*/ BoundsSearch(
         Map<TypeVariable, List<ReferenceType>> candidatesByVariable,
         List<List<TypeVariable>> checkAfter,
         int maxChecks) {
@@ -782,7 +782,7 @@ public class TypeInstantiator {
      * @param substitution a substitution that instantiates the parameters before {@code index}
      * @return an extending substitution that satisfies the bounds, or null if none was found
      */
-    @Nullable Substitution search(int index, Substitution substitution) {
+    /*package*/ @Nullable Substitution search(int index, Substitution substitution) {
       if (index == parameters.size()) {
         return substitution;
       }
