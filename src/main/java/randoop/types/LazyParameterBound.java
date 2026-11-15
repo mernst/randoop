@@ -117,7 +117,7 @@ class LazyParameterBound extends ParameterBound {
    * @return a reference bound equivalent to this bound, or null if this bound contains a kind of
    *     type that {@link #substitute(Substitution)} does not handle
    */
-  @Nullable ReferenceBound toReferenceBound() {
+  /*package*/ @Nullable ReferenceBound toReferenceBound() {
     List<TypeVariable> parameters = getTypeParameters();
     // Map each type variable to itself, so that substitute() converts this bound without changing
     // the type that it represents.

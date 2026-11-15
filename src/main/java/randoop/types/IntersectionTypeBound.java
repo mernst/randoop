@@ -45,7 +45,7 @@ class IntersectionTypeBound extends ParameterBound {
    *
    * @return the member bounds of this intersection bound
    */
-  List<ParameterBound> getBounds() {
+  /*package*/ List<ParameterBound> getBounds() {
     return boundList;
   }
 

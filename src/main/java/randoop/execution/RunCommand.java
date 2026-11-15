@@ -109,7 +109,7 @@ public final class RunCommand {
    * @param command a command and its arguments
    * @return the command and its arguments, each quoted for a Unix shell if necessary
    */
-  static String toShellCommand(List<String> command) {
+  /*package*/ static String toShellCommand(List<String> command) {
     return command.stream().map(RunCommand::shellQuote).collect(Collectors.joining(" "));
   }
 
@@ -119,7 +119,7 @@ public final class RunCommand {
    * @param word a word
    * @return the word, quoted for a Unix shell if necessary
    */
-  static String shellQuote(String word) {
+  /*package*/ static String shellQuote(String word) {
     if (SHELL_LITERAL.matcher(word).matches()) {
       return word;
     }
