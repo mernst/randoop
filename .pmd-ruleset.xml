@@ -15,6 +15,7 @@
       <exclude name="LiteralsFirstInComparisons"/> <!-- worse readability to guard against null -->
       <exclude name="RelianceOnDefaultCharset"/> <!-- Since Java 18, the default is UTF-8 -->
       <exclude name="UnitTestContainsTooManyAsserts"/>
+      <exclude name="UnnecessaryWarningSuppression"/> <!-- false positives for suppressions on local variables -->
       <exclude name="UseVarargs"/> <!-- rarely desirable -->
 
       <!-- Good rules, but a heavy lift to apply. Do so later. -->
