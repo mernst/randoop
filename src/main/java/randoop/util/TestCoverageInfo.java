@@ -152,6 +152,7 @@ public class TestCoverageInfo {
    * @param clazz the class whose coverage information to obtain
    * @return the test coverage information for the class
    */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
   private static TestCoverageInfo getCoverageInfoObject(Class<?> clazz) {
     try {
       Field f = clazz.getDeclaredField("randoopCoverageInfo");

@@ -46,6 +46,7 @@ public final class MethodCall extends CallableOperation {
    *
    * @param method the method to be called
    */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
   public MethodCall(Method method) {
     super();
     if (method == null) {
@@ -227,7 +228,7 @@ public final class MethodCall extends CallableOperation {
     sb.append(method.getName());
     sb.append("(");
     Class<?>[] params = method.getParameterTypes();
-    TypeArguments.getTypeArgumentString(sb, params);
+    TypeArguments.appendTypeArgumentString(sb, params);
     sb.append(')');
     return sb.toString();
   }

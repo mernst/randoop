@@ -7,6 +7,9 @@
 
     <!-- 1. Best Practices: Enforces generally accepted best practices -->
     <rule ref="category/java/bestpractices.xml">
+      <exclude name="AvoidReassigningCatchVariables"/>
+      <exclude name="AvoidReassigningLoopVariables"/>
+      <exclude name="AvoidReassigningParameters"/>
       <exclude name="ExhaustiveSwitchHasDefault"/> <!-- A default is protection against future changes to the enum. -->
       <exclude name="ForLoopVariableCount"/>
       <exclude name="LiteralsFirstInComparisons"/> <!-- worse readability to guard against null -->
@@ -37,6 +40,7 @@
       <exclude name="ShortVariable"/>
       <exclude name="TooManyStaticImports"/>
       <exclude name="UnnecessaryCast"/> <!-- Buggy: should not report if the cast has a type qualifier. -->
+      <exclude name="UnnecessaryModifier"/>
       <exclude name="UselessParentheses"/> <!-- Redundant parens can emphasize subexpressions in string concatenation. -->
     </rule>
     <rule ref="category/java/codestyle.xml/EmptyControlStatement">

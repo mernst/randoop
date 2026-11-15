@@ -64,6 +64,7 @@ public class TestValueExtractor extends DefaultClassVisitor {
    * @param f the field
    * @return the value(s) in the field
    */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
   private List<Object> getValue(Field f) {
 
     List<Object> valueList;

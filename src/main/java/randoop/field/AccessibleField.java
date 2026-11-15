@@ -37,6 +37,7 @@ public class AccessibleField {
    * @param field the field
    * @param declaringType the type for the declaring class of this field
    */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration") // it's the purpose of this method
   public AccessibleField(Field field, ClassOrInterfaceType declaringType) {
     this.field = field;
     this.field.setAccessible(true);

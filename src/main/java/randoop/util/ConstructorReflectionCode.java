@@ -25,7 +25,8 @@ public final class ConstructorReflectionCode extends ReflectionCode {
    */
   @SuppressWarnings({
     "deprecation", // AccessibleObject.isAccessible() has no replacement in Java 8.
-    "PMD.ArrayIsStoredDirectly"
+    "PMD.ArrayIsStoredDirectly",
+    "PMD.AvoidAccessibilityAlteration",
   })
   public ConstructorReflectionCode(Constructor<?> constructor, Object[] inputs) {
     super();

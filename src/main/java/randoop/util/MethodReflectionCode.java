@@ -28,7 +28,8 @@ public final class MethodReflectionCode extends ReflectionCode {
    */
   @SuppressWarnings({
     "deprecation", // AccessibleObject.isAccessible() has no replacement in Java 8.
-    "PMD.ArrayIsStoredDirectly"
+    "PMD.ArrayIsStoredDirectly",
+    "PMD.AvoidAccessibilityAlteration",
   })
   public MethodReflectionCode(Method method, Object receiver, Object[] inputs) {
     super();

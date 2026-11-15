@@ -35,6 +35,7 @@ public class StaticCache {
   }
 
   /** Saves the state for the class in this object. Only saves non-final static fields. */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
   public void saveState() {
     for (Field field : declaringClass.getDeclaredFields()) {
       field.setAccessible(true);

@@ -11,7 +11,6 @@ import randoop.Globals;
 import randoop.main.GenInputsAbstract;
 
 /** Provides the environment for running JUnit tests. */
-@SuppressWarnings("PMD.TestClassWithoutTestCases")
 public class TestEnvironment {
 
   /** The process timeout in milliseconds. Defaults to 20 minutes. */

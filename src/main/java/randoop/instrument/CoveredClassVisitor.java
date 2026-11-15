@@ -44,6 +44,7 @@ public class CoveredClassVisitor implements ExecutionVisitor {
    * @param c the class for which method is to be called
    * @return true if the instrumentation method is true, false otherwise
    */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
   private boolean checkAndReset(Class<?> c) {
     try {
       Method m = c.getMethod("randoop_checkAndReset");

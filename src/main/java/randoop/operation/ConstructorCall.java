@@ -35,6 +35,7 @@ public final class ConstructorCall extends CallableOperation {
    *
    * @param constructor reflective object for a constructor
    */
+  @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
   public ConstructorCall(Constructor<?> constructor) {
     super();
     if (constructor == null) {
@@ -195,7 +196,7 @@ public final class ConstructorCall extends CallableOperation {
     sb.append("<init>");
     sb.append("(");
     Class<?>[] params = constructor.getParameterTypes();
-    TypeArguments.getTypeArgumentString(sb, params);
+    TypeArguments.appendTypeArgumentString(sb, params);
     sb.append(')');
     return sb.toString();
   }
